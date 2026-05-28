@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d87981", "border": "#3a7bd5", "highlight": {"background": "#d87981", "border": "#1a1a1a"}, "hover": {"background": "#d87981", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: 2021\u5e74\uff0c\u6c88\u4f2f\u6d0b\u4e0e\n\u53cb\u4eba\u5171\u540c\u521b\u7acb\u201c\u9ed1\u718a\u5b66\u9662\u201d\uff0c\u79f0\n\u5176\u4e3a\u6c11\u95f4\u201c\u5168\u6c11\u9632\u536b\u7ec4\u7ec7\u201d\uff0c\u76ee\n\u6807\u662f\u8ba9\u53f0\u6e7e\u5e73\u6c11\u5177\u5907\u6c11\u9632\u57fa\u672c\u77e5\n\u8bc6\u4e0e\u6280\u80fd\u3002\n\u25b2 0.58 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.094 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.097 + 0.30\u00d7\u7a00\u7f3a\u6027 0.275\n\u7efc\u5408\u5206: 0.584 (#4)"}, {"color": {"background": "#d76f75", "border": "#e07b20", "highlight": {"background": "#d76f75", "border": "#1a1a1a"}, "hover": {"background": "#d76f75", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u7f8e\u56fd\u5728\u53f0\u534f\u4f1a\uff08AIT\n\uff09\u5bf9\u53f0\u6e7e\u6c11\u95f4\u7ec4\u7ec7\u201c\u9ed1\u718a\u5b66\u9662\u201d\n\u7684\u8425\u961f\u53d1\u5c55\u72b6\u51b5\u8fdb\u884c\u4e86\u8003\u5bdf\u6216\u76d1\n\u63a7\u3002\n\u25b2 0.64 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#5)\n\u8bed\u4e49\u5206: 0.535 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.566 + 0.30\u00d7\u7a00\u7f3a\u6027 0.042\n\u7efc\u5408\u5206: 0.637 (#3)"}, {"color": {"background": "#d75f64", "border": "#e07b20", "highlight": {"background": "#d75f64", "border": "#1a1a1a"}, "hover": {"background": "#d75f64", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u7f8e\u56fd\u5728\u53f0\u534f\u4f1a\uff08AIT\n\uff09\u5411\u201c\u9ed1\u718a\u5b66\u9662\u201d\u63d0\u4f9b\u4e86\u4e00\u7b14\u7ecf\n\u8d39\uff0c\u4ee5\u8d44\u52a9\u5176\u201c\u57fa\u7840\u8425\u201d\u7684\u7eed\u529e\n\uff0c\u8fd9\u6784\u6210\u4e86\u4e00\u4e2a\u6d89\u53ca\u5916\u90e8\u52bf\u529b\u4e0e\n\u53f0\u6e7e\u5730\u533a\u5185\u90e8\u7ec4\u7ec7\u4e4b\u95f4\u8d44\u91d1\u5f80\u6765\n\u7684\u653f\u6cbb\u519b\u4e8b\u535a\u5f08\u4e8b\u4ef6\u3002\n\u25b2 0.72 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.359 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.398 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.716 (#2)"}, {"color": {"background": "#d87b82", "border": "#3a7bd5", "highlight": {"background": "#d87b82", "border": "#1a1a1a"}, "hover": {"background": "#d87b82", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u7531\u4e8e\u201c\u9ed1\u718a\u5b66\u9662\u201d\u672a\u6ce8\n\u518c\u4e3a\u516c\u53f8\uff0cAIT\u65e0\u6cd5\u76f4\u63a5\u8d44\u52a9\n\uff0c\u56e0\u6b64\u901a\u8fc7\u5411\u6c88\u4f2f\u6d0b\u4e2a\u4eba\u8d26\u6237\u6c47\n\u6b3e\u7684\u65b9\u5f0f\u95f4\u63a5\u8d44\u52a9\u4e86\u201c\u9ed1\u718a\u5b66\u9662\n\u201d\u3002\n\u25b2 0.58 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.704 (#8)\n\u8bed\u4e49\u5206: 0.450 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.392 + 0.30\u00d7\u7a00\u7f3a\u6027 0.663\n\u7efc\u5408\u5206: 0.577 (#5)"}, {"color": {"background": "#d88d97", "border": "#3a7bd5", "highlight": {"background": "#d88d97", "border": "#1a1a1a"}, "hover": {"background": "#d88d97", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u53f0\u6e7e\u653f\u6cbb\u4eba\u7269\u6c88\u4f2f\u6d0b\u5728\n2022\u5e74\u7684\u52df\u6b3e\u4f1a\u8bae\u4e2d\u53d1\u8868\u6311\n\u8845\u6027\u8a00\u8bba\uff0c\u58f0\u79f0\u201c\u4e2d\u56fd\uff08\u5927\u9646\uff09\n\u7684\u98de\u5f39\u6253\u8fc7\u6765\uff0c\u5bf9\u6211\u4eec\u6709\u5f88\u5927\u7684\n\u5e2e\u52a9\u201d\u3002\u8fd9\u4e00\u8a00\u8bba\u6697\u793a\u5927\u9646\u7684\u519b\n\u4e8b\u6253\u51fb\u53ef\u80fd\u5bf9\u53f0\u6e7e\u6c11\u4f17\u6216\u653f\u6cbb\u751f\n\u6001\u4ea7\u751f\u67d0\u79cd\u6240\u8c13\u7684\u201c\u5e2e\u52a9\u201d\uff0c\u5c5e\n\u4e8e\u653f\u6cbb\u519b\u4e8b\u535a\u5f08\u4e2d\u7684\u8ba4\u77e5\u6218\u6216\u6311\n\u8845\u8868\u6001\u3002\n\u25b2 0.48 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#5)\n\u8bed\u4e49\u5206: 0.225 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.122 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.483 (#7)"}, {"color": {"background": "#d89ca6", "border": "#3a7bd5", "highlight": {"background": "#d89ca6", "border": "#1a1a1a"}, "hover": {"background": "#d89ca6", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u201c\u9ed1\u718a\u5b66\u9662\u201d\u66fe\u83b7\u5f97\u53f0\n\u6e7e\u5f53\u5c40\u5916\u4e8b\u90e8\u95e8100\u4e07\u5143\u65b0\u53f0\n\u5e01\u8865\u52a9\u3002\n\u25b2 0.41 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#9)\n\u8bed\u4e49\u5206: 0.412 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.408 + 0.30\u00d7\u7a00\u7f3a\u6027 0.296\n\u7efc\u5408\u5206: 0.409 (#10)"}, {"color": {"background": "#d9acb8", "border": "#3a7bd5", "highlight": {"background": "#d9acb8", "border": "#1a1a1a"}, "hover": {"background": "#d9acb8", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u6c88\u4f2f\u6d0b\u51ed\u501f\u201c\u9ed1\u718a\u5b66\u9662\n\u201d\u83b7\u5f97\u6c11\u8fdb\u515a\u9752\u7750\uff0c\u5728\u8521\u82f1\u6587\u65f6\n\u671f\u66fe\u4efb\u201c\u515a\u4ea7\u4f1a\u201d\u59d4\u5458\uff0c\u8d56\u6e05\u5fb7\n\u5219\u5c06\u4ed6\u5217\u4e3a\u4e0d\u5206\u533a\u6c11\u4ee3\u3002\n\u25b2 0.33 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#9)\n\u8bed\u4e49\u5206: 0.250 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.261 + 0.30\u00d7\u7a00\u7f3a\u6027 0.202\n\u7efc\u5408\u5206: 0.328 (#11)"}, {"color": {"background": "#d88a92", "border": "#3a7bd5", "highlight": {"background": "#d88a92", "border": "#1a1a1a"}, "hover": {"background": "#d88a92", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u7f8e\u56fd\u56fd\u9645\u5f00\u53d1\u7f72\u5411\u6c88\u4f2f\n\u6d0b\u521b\u7acb\u7684\u201c\u53f0\u6e7e\u6c11\u4e3b\u5b9e\u9a8c\u5ba4\u201d\u63d0\n\u4f9b\u4e86\u8fc7\u53bb5\u5e74\u5185\u7ea6134\u4e0796\n00\u7f8e\u5143\u7684\u8d44\u91d1\u8d5e\u52a9\uff0c\u8fd9\u88ab\u8bc6\u522b\n\u4e3a\u652f\u6301\u53f0\u6e7e\u201c\u53f0\u72ec\u201d\u7ec4\u7ec7\u7684\u653f\u6cbb\n\u535a\u5f08\u4e8b\u4ef6\u3002\n\u25b2 0.50 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#5)\n\u8bed\u4e49\u5206: 0.264 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.282 + 0.30\u00d7\u7a00\u7f3a\u6027 0.157\n\u7efc\u5408\u5206: 0.502 (#6)"}, {"color": {"background": "#d899a4", "border": "#3a7bd5", "highlight": {"background": "#d899a4", "border": "#1a1a1a"}, "hover": {"background": "#d899a4", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u6c88\u4f2f\u6d0b\u4efb\u526f\u7406\u4e8b\u957f\u7684\u201c\n\u53f0\u6e7e\u4eba\u6743\u4fc3\u8fdb\u4f1a\u201d\u62ff\u523044\u4e07\u7f8e\n\u5143\uff0c\u4ed6\u4efb\u7406\u4e8b\u7684\u201c\u73af\u5883\u6cd5\u5f8b\u4eba\u534f\n\u4f1a\u201d\u62ff\u52305\u4e07\u7f8e\u5143\u3002\n\u25b2 0.42 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#9)\n\u8bed\u4e49\u5206: 0.438 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.455 + 0.30\u00d7\u7a00\u7f3a\u6027 0.144\n\u7efc\u5408\u5206: 0.422 (#9)"}, {"color": {"background": "#d9bcc9", "border": "#3a7bd5", "highlight": {"background": "#d9bcc9", "border": "#1a1a1a"}, "hover": {"background": "#d9bcc9", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u6c88\u4f2f\u6d0b\u8fa9\u79f0\uff0c\u5f55\u97f3\u6240\n\u6307\u201c\u5e2e\u52a9\u5f88\u5927\u201d\u662f\u6307\u5bf9\u53f0\u6e7e\u6c11\u4f17\n\u5e2e\u52a9\u5f88\u5927\uff0c\u8ba9\u53f0\u6e7e\u6c11\u4f17\u8ba4\u77e5\u5230\u6c11\n\u9632\u7684\u91cd\u8981\uff0c\u56e0\u800c\u6ce8\u610f\u5230\u9ed1\u718a\u3002\n\u25b2 0.25 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#9)\n\u8bed\u4e49\u5206: 0.090 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.102 + 0.30\u00d7\u7a00\u7f3a\u6027 0.214\n\u7efc\u5408\u5206: 0.249 (#12)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u65b0\u515a\u7c4d\u53f0\u5317\u5e02\u8bae\u5458\u4faf\n\u6c49\u5ef7\u6307\u63a7\u6c88\u4f2f\u6d0b\u6536\u53d7\u7f8e\u63f4\u5e76\u53d1\u8d77\n\u7ec4\u7ec7\u7b49\u884c\u4e3a\u6d89\u5acc\u8fdd\u53cd\u53f0\u6e7e\u5730\u533a\u201c\n\u5b89\u5168\u6cd5\u201d\uff0c\u5e76\u547c\u5401\u76f8\u5173\u5355\u4f4d\u5bf9\u6b64\n\u5c55\u5f00\u8c03\u67e5\u3002\n\u25b2 1.03 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.058 (#3)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.220\n\u7efc\u5408\u5206: 1.029 (#1)"}, {"color": {"background": "#d8939d", "border": "#3a7bd5", "highlight": {"background": "#d8939d", "border": "#1a1a1a"}, "hover": {"background": "#d8939d", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: \u7f8e\u56fd\u5728\u53f0\u534f\u4f1a\uff08AI\nT\uff09\u53d1\u8a00\u4eba\u8bc1\u5b9e\uff0c\u8be5\u673a\u6784\u66fe\u5411\u53f0\n\u6e7e\u7684\u201c\u9ed1\u718a\u5b66\u9662\u201d\u63d0\u4f9b\u91d1\u94b1\u8d44\u52a9\n\uff0c\u5176\u4e3b\u8981\u76ee\u7684\u662f\u7528\u4e8e\u5f00\u5c55\u4fc3\u8fdb\u7f8e\n\u53f0\u5408\u4f5c\u7684\u6d3b\u52a8\u3002\n\u25b2 0.45 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.907 (#4)\n\u8bed\u4e49\u5206: 0.000 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.303\n\u7efc\u5408\u5206: 0.453 (#8)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u521b\u7acb\u9ed1\u718a\u5b66\u9662\u4f7f\u5176\u83b7\u5f97\u6c11\u8fdb\u515a\u9752\u7750", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c1", "title": "AIT\u8003\u5bdf\u540e\u51b3\u5b9a\u63d0\u4f9b\u7ecf\u8d39\u8d44\u52a9", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c2", "title": "\u6536\u53d7AIT\u7ecf\u8d39\u88ab\u6307\u63a7\u8fdd\u53cd\u5b89\u5168\u6cd5", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E5", "id": "c3", "title": "\u6c88\u4f2f\u6d0b\u4e3a\u5176\u6311\u8845\u6027\u8a00\u8bba\u8fdb\u884c\u8fa9\u89e3", "to": "E10", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.706\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t1", "title": "\u4faf\u6c49\u5ef7\u7684\u6307\u63a7\u4e3b\u8981\u9488\u5bf9\u6536\u53d7\u7f8e\u63f4\uff0c\u4e0eE5\u8a00\u8bba\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb\u3002", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.730\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E6 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t3", "title": "E4\u662fE3\u7684\u5177\u4f53\u64cd\u4f5c\u65b9\u5f0f\uff0c\u65e0\u4fc3\u53d1", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t4", "title": "E1\u662f\u80cc\u666f\uff0cE2\u662fAIT\u7684\u72ec\u7acb\u8003\u5bdf\u884c\u4e3a\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb\u3002", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t5", "title": "E8\u4e0eE9\u662f\u5e76\u5217\u7684\u8d44\u91d1\u6765\u6e90\u63cf\u8ff0\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t6", "title": "\u4faf\u6c49\u5ef7\u7684\u6307\u63a7\u4e0eAIT\u53d1\u8a00\u4eba\u7684\u8bc1\u5b9e\u662f\u72ec\u7acb\u4e8b\u4ef6\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t7", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E8 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E8", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "2021年，沈伯洋与友人共同创立“黑熊学院”，称其为民间“全民防卫组织”，目标是让台湾平民具备民防基本知识与技能。"}, {"id": "E2", "text": "美国在台协会（AIT）对台湾民间组织“黑熊学院”的营队发展状况进行了考察或监控。"}, {"id": "E3", "text": "美国在台协会（AIT）向“黑熊学院”提供了一笔经费，以资助其“基础营”的续办，这构成了一个涉及外部势力与台湾地区内部组织之间资金往来的政治军事博弈事件。"}, {"id": "E4", "text": "由于“黑熊学院”未注册为公司，AIT无法直接资助，因此通过向沈伯洋个人账户汇款的方式间接资助了“黑熊学院”。"}, {"id": "E5", "text": "台湾政治人物沈伯洋在2022年的募款会议中发表挑衅性言论，声称“中国（大陆）的飞弹打过来，对我们有很大的帮助”。这一言论暗示大陆的军事打击可能对台湾民众或政治生态产生某种所谓的“帮助”，属于政治军事博弈中的认知战或挑衅表态。"}, {"id": "E6", "text": "“黑熊学院”曾获得台湾当局外事部门100万元新台币补助。"}, {"id": "E7", "text": "沈伯洋凭借“黑熊学院”获得民进党青睐，在蔡英文时期曾任“党产会”委员，赖清德则将他列为不分区民代。"}, {"id": "E8", "text": "美国国际开发署向沈伯洋创立的“台湾民主实验室”提供了过去5年内约134万9600美元的资金赞助，这被识别为支持台湾“台独”组织的政治博弈事件。"}, {"id": "E9", "text": "沈伯洋任副理事长的“台湾人权促进会”拿到44万美元，他任理事的“环境法律人协会”拿到5万美元。"}, {"id": "E10", "text": "沈伯洋辩称，录音所指“帮助很大”是指对台湾民众帮助很大，让台湾民众认知到民防的重要，因而注意到黑熊。"}, {"id": "E11", "text": "新党籍台北市议员侯汉廷指控沈伯洋收受美援并发起组织等行为涉嫌违反台湾地区“安全法”，并呼吁相关单位对此展开调查。"}, {"id": "E12", "text": "美国在台协会（AIT）发言人证实，该机构曾向台湾的“黑熊学院”提供金钱资助，其主要目的是用于开展促进美台合作的活动。"}];var _pyCausal=[{"from": "E1", "to": "E7", "reason": "创立黑熊学院使其获得民进党青睐"}, {"from": "E2", "to": "E3", "reason": "AIT考察后决定提供经费资助"}, {"from": "E3", "to": "E11", "reason": "收受AIT经费被指控违反安全法"}, {"from": "E5", "to": "E10", "reason": "沈伯洋为其挑衅性言论进行辩解"}];var _pyTemporal=[{"from": "E4", "to": "E12", "reason": "语义嵌入相似度 0.706，按事件编号 E4 在 E12 之前，补一条仅表达时序的边。"}, {"from": "E5", "to": "E11", "reason": "侯汉廷的指控主要针对收受美援，与E5言论无直接促发关系。"}, {"from": "E6", "to": "E12", "reason": "语义嵌入相似度 0.730，按事件编号 E6 在 E12 之前，补一条仅表达时序的边。"}, {"from": "E3", "to": "E4", "reason": "E4是E3的具体操作方式，无促发"}, {"from": "E1", "to": "E2", "reason": "E1是背景，E2是AIT的独立考察行为，无直接促发关系。"}, {"from": "E8", "to": "E9", "reason": "E8与E9是并列的资金来源描述，无直接促发关系。"}, {"from": "E11", "to": "E12", "reason": "侯汉廷的指控与AIT发言人的证实是独立事件，无直接促发关系。"}, {"from": "E1", "to": "E8", "reason": "子图桥接：E1 → E8 为跨连通分量最小跨度对，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.093965, "semantic_rank": 10, "semantic_rich": 0.096811, "semantic_rare": 0.275196, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5838030904960633, "combined_rank": 4}, "E10": {"topo": 0.4069747030735016, "topo_rank": 9, "semantic": 0.090039, "semantic_rank": 11, "semantic_rich": 0.101774, "semantic_rare": 0.213736, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.24850685153675078, "combined_rank": 12}, "E11": {"topo": 1.057883858680725, "topo_rank": 3, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.219761, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.0289419293403625, "combined_rank": 1}, "E12": {"topo": 0.9066564440727234, "topo_rank": 4, "semantic": 0.0, "semantic_rank": 12, "semantic_rich": 0.0, "semantic_rare": 0.302787, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4533282220363617, "combined_rank": 8}, "E2": {"topo": 0.7403079271316528, "topo_rank": 5, "semantic": 0.534641, "semantic_rank": 2, "semantic_rich": 0.56575, "semantic_rare": 0.042146, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6374744635658265, "combined_rank": 3}, "E3": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.359206, "semantic_rank": 6, "semantic_rich": 0.398473, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.7164235904960632, "combined_rank": 2}, "E4": {"topo": 0.7043842077255249, "topo_rank": 8, "semantic": 0.449572, "semantic_rank": 3, "semantic_rich": 0.392439, "semantic_rare": 0.662621, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5769781038627625, "combined_rank": 5}, "E5": {"topo": 0.7403079271316528, "topo_rank": 5, "semantic": 0.225112, "semantic_rank": 9, "semantic_rich": 0.122126, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4827099635658264, "combined_rank": 7}, "E6": {"topo": 0.4069747030735016, "topo_rank": 9, "semantic": 0.411702, "semantic_rank": 5, "semantic_rich": 0.40773, "semantic_rare": 0.296212, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4093383515367508, "combined_rank": 10}, "E7": {"topo": 0.4069747030735016, "topo_rank": 9, "semantic": 0.249933, "semantic_rank": 8, "semantic_rich": 0.261478, "semantic_rare": 0.201785, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3284538515367508, "combined_rank": 11}, "E8": {"topo": 0.7403079271316528, "topo_rank": 5, "semantic": 0.264484, "semantic_rank": 7, "semantic_rich": 0.282321, "semantic_rare": 0.156838, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5023959635658264, "combined_rank": 6}, "E9": {"topo": 0.4069747030735016, "topo_rank": 9, "semantic": 0.437633, "semantic_rank": 4, "semantic_rich": 0.455262, "semantic_rare": 0.143906, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.42230385153675076, "combined_rank": 9}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">NM040 台湾民防组织重建——公民自发黑熊学院（2022-2025）</div><div>因果边：<b>4</b> 条&emsp;时序边：<b>8</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.20 / T- 0.22</div><div>C+ 0.34 / C- 0.23</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="新党籍台北市议员侯汉廷指控沈伯洋收受美援并发起组织等行为涉嫌违反台湾地区“安全法”，并呼吁相关单位对此展开调查。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">新党籍台北市议员侯汉廷指控沈伯洋…</td><td style="padding:4px 6px;text-align:center;">1.058 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.22</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.029 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="美国在台协会（AIT）向“黑熊学院”提供了一笔经费，以资助其“基础营”的续办，这构成了一个涉及外部势力与台湾地区内部组织之间资金往来的政治军事博弈事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国在台协会（AIT）向“黑熊学…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.359 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.40 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.716 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="美国在台协会（AIT）对台湾民间组织“黑熊学院”的营队发展状况进行了考察或监控。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国在台协会（AIT）对台湾民间…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.535 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.57 / 稀 0.04</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.637 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="2021年，沈伯洋与友人共同创立“黑熊学院”，称其为民间“全民防卫组织”，目标是让台湾平民具备民防基本知识与技能。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2021年，沈伯洋与友人共同创立…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.094 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.10 / 稀 0.28</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.584 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="由于“黑熊学院”未注册为公司，AIT无法直接资助，因此通过向沈伯洋个人账户汇款的方式间接资助了“黑熊学院”。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">由于“黑熊学院”未注册为公司，A…</td><td style="padding:4px 6px;text-align:center;">0.704 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.450 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.39 / 稀 0.66</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.577 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="美国国际开发署向沈伯洋创立的“台湾民主实验室”提供了过去5年内约134万9600美元的资金赞助，这被识别为支持台湾“台独”组织的政治博弈事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国国际开发署向沈伯洋创立的“台…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.264 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.28 / 稀 0.16</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.502 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="台湾政治人物沈伯洋在2022年的募款会议中发表挑衅性言论，声称“中国（大陆）的飞弹打过来，对我们有很大的帮助”。这一言论暗示大陆的军事打击可能对台湾民众或政治生态产生某种所谓的“帮助”，属于政治军事博弈中的认知战或挑衅表态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾政治人物沈伯洋在2022年的…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.225 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.12 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.483 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="美国在台协会（AIT）发言人证实，该机构曾向台湾的“黑熊学院”提供金钱资助，其主要目的是用于开展促进美台合作的活动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国在台协会（AIT）发言人证实…</td><td style="padding:4px 6px;text-align:center;">0.907 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.30</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.453 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="沈伯洋任副理事长的“台湾人权促进会”拿到44万美元，他任理事的“环境法律人协会”拿到5万美元。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">沈伯洋任副理事长的“台湾人权促进…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.438 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.46 / 稀 0.14</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.422 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="“黑熊学院”曾获得台湾当局外事部门100万元新台币补助。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">“黑熊学院”曾获得台湾当局外事部…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.412 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.41 / 稀 0.30</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.409 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="沈伯洋凭借“黑熊学院”获得民进党青睐，在蔡英文时期曾任“党产会”委员，赖清德则将他列为不分区民代。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">沈伯洋凭借“黑熊学院”获得民进党…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.250 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.26 / 稀 0.20</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.328 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="沈伯洋辩称，录音所指“帮助很大”是指对台湾民众帮助很大，让台湾民众认知到民防的重要，因而注意到黑熊。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">沈伯洋辩称，录音所指“帮助很大”…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.090 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.10 / 稀 0.21</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.249 <span style="color:#888;font-size:10px">(#12)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

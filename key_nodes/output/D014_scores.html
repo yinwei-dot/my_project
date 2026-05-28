@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#dadbeb", "border": "#3a7bd5", "highlight": {"background": "#dadbeb", "border": "#1a1a1a"}, "hover": {"background": "#dadbeb", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: 2022\u5e74\uff0c\u5317\u7ea6\u5b9e\u65bd\n\u4e86\u5176\u5386\u53f2\u4e0a\u7684\u7b2c\u516d\u8f6e\u4e1c\u6269\uff0c\u6b63\u5f0f\n\u5438\u7eb3\u82ac\u5170\u548c\u745e\u5178\u6210\u4e3a\u8be5\u519b\u4e8b\u8054\u76df\n\u7684\u6210\u5458\u56fd\uff0c\u8fd9\u662f\u4e00\u6b21\u91cd\u8981\u7684\u653f\u6cbb\n\u519b\u4e8b\u6269\u5f20\u884c\u52a8\u3002\n\u25b2 0.09 (#13)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#11)\n\u8bed\u4e49\u5206: 0.000 (#13)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.431\n\u7efc\u5408\u5206: 0.092 (#13)"}, {"color": {"background": "#d8838b", "border": "#3a7bd5", "highlight": {"background": "#d8838b", "border": "#1a1a1a"}, "hover": {"background": "#d8838b", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u4e2d\u56fd\u5916\u4ea4\u90e8\u9488\u5bf9\u5317\u7ea6\u6218\n\u7565\u6587\u4ef6\u4e2d\u7684\u6d89\u534e\u5185\u5bb9\u8fdb\u884c\u9a73\u65a5\uff0c\n\u6307\u51fa\u5176\u5145\u6ee1\u51b7\u6218\u601d\u7ef4\uff0c\u5e76\u660e\u786e\u8868\n\u793a\u53cd\u5bf9\u5317\u7ea6\u4ecb\u5165\u4e9a\u592a\u5730\u533a\u4e8b\u52a1\u3002\n\u25b2 0.54 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.296 (#7)\n\u8bed\u4e49\u5206: 0.776 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.753 + 0.30\u00d7\u7a00\u7f3a\u6027 0.369\n\u7efc\u5408\u5206: 0.536 (#7)"}, {"color": {"background": "#d8777e", "border": "#3a7bd5", "highlight": {"background": "#d8777e", "border": "#1a1a1a"}, "hover": {"background": "#d8777e", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u4fc4\u7f57\u65af\u5916\u4ea4\u90e8\u9488\u5bf9\u5317\u7ea6\n\u6218\u7565\u6587\u4ef6\u53ca\u4e1c\u6269\u653f\u7b56\u53d1\u8868\u5b98\u65b9\u8c34\n\u8d23\uff0c\u6307\u51fa\u8be5\u6587\u4ef6\u7834\u574f\u4e86\u6b27\u6d32\u5b89\u5168\n\u67b6\u6784\uff0c\u5e76\u5b9a\u6027\u5317\u7ea6\u4e1c\u6269\u662f\u5a01\u80c1\u7684\n\u6e90\u5934\u3002\n\u25b2 0.60 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#3)\n\u8bed\u4e49\u5206: 0.787 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.754 + 0.30\u00d7\u7a00\u7f3a\u6027 0.458\n\u7efc\u5408\u5206: 0.597 (#4)"}, {"color": {"background": "#d88189", "border": "#3a7bd5", "highlight": {"background": "#d88189", "border": "#1a1a1a"}, "hover": {"background": "#d88189", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: 2022\u5e746\u670829\u65e5\n\uff0c\u6b63\u5728\u897f\u73ed\u7259\u9996\u90fd\u9a6c\u5fb7\u91cc\u4e3e\u884c\u5cf0\n\u4f1a\u7684\u5317\u5927\u897f\u6d0b\u516c\u7ea6\u7ec4\u7ec7\uff08\u5317\u7ea6\uff09\n\u6210\u5458\u56fd\u9996\u8111\u4eec\u901a\u8fc7\u4e86\u8be5\u7ec4\u7ec7\u7684\u6700\n\u65b0\u6218\u7565\u6587\u4ef6\u3002\n\u25b2 0.55 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.017 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.012 + 0.30\u00d7\u7a00\u7f3a\u6027 0.467\n\u7efc\u5408\u5206: 0.545 (#6)"}, {"color": {"background": "#d9b7c3", "border": "#3a7bd5", "highlight": {"background": "#d9b7c3", "border": "#1a1a1a"}, "hover": {"background": "#d9b7c3", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u5317\u7ea6\u901a\u8fc7\u5176\u6218\u7565\u6587\u4ef6\uff0c\n\u5c06\u4fc4\u7f57\u65af\u5b9a\u6027\u4e3a\u0027\u6700\u91cd\u8981\u548c\u76f4\u63a5\n\u7684\u5a01\u80c1\u0027\uff0c\u8fd9\u662f\u4e00\u9879\u660e\u786e\u7684\u653f\u6cbb\n\u8868\u6001\u3002\n\u25b2 0.28 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#11)\n\u8bed\u4e49\u5206: 0.368 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.383 + 0.30\u00d7\u7a00\u7f3a\u6027 0.155\n\u7efc\u5408\u5206: 0.276 (#12)"}, {"color": {"background": "#d87f88", "border": "#3a7bd5", "highlight": {"background": "#d87f88", "border": "#1a1a1a"}, "hover": {"background": "#d87f88", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u5317\u7ea6\u901a\u8fc7\u5176\u6218\u7565\u6587\u4ef6\uff0c\n\u9996\u6b21\u5c06\u4e2d\u56fd\u5b9a\u6027\u4e3a\u0027\u6311\u6218\u5317\u7ea6\u7684\n\u5b89\u5168\u3001\u5229\u76ca\u548c\u4ef7\u503c\u89c2\u0027\u5e76\u5bf9\u0027\u6b27\n\u6d32-\u5927\u897f\u6d0b\u6784\u6210\u7cfb\u7edf\u6027\u6311\u6218\u0027\uff0c\n\u8fd9\u662f\u4e00\u9879\u65b0\u7684\u653f\u6cbb\u8868\u6001\u3002\n\u25b2 0.55 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.296 (#7)\n\u8bed\u4e49\u5206: 0.811 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.823 + 0.30\u00d7\u7a00\u7f3a\u6027 0.015\n\u7efc\u5408\u5206: 0.553 (#5)"}, {"color": {"background": "#d7565b", "border": "#c0910a", "highlight": {"background": "#d7565b", "border": "#1a1a1a"}, "hover": {"background": "#d7565b", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u5317\u7ea6\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u5bf9\u4e2d\n\u56fd\u8fdb\u884c\u7cfb\u7edf\u6027\u8d1f\u9762\u5b9a\u6027\u548c\u6307\u63a7\uff0c\n\u6307\u8d23\u4e2d\u56fd\u4f7f\u7528\u6076\u610f\u7f51\u7edc\u884c\u52a8\u3001\u5bf9\n\u6297\u6027\u8a00\u8bba\u548c\u865a\u5047\u4fe1\u606f\u635f\u5bb3\u8054\u76df\u5b89\n\u5168\uff0c\u5229\u7528\u653f\u6cbb\u3001\u7ecf\u6d4e\u548c\u519b\u4e8b\u624b\u6bb5\n\u5168\u7403\u6295\u5c04\u529b\u91cf\uff0c\u5bfb\u6c42\u63a7\u5236\u5173\u952e\u6280\n\u672f\u548c\u5de5\u4e1a\u90e8\u95e8\u3001\u57fa\u7840\u8bbe\u65bd\u53ca\u4f9b\u5e94\n\u94fe\uff0c\u5229\u7528\u7ecf\u6d4e\u5f71\u54cd\u529b\u5efa\u7acb\u6218\u7565\u4f9d\n\u8d56\u4ee5\u589e\u5f3a\u81ea\u8eab\u5f71\u54cd\u529b\uff0c\u5e76\u5bf9\u672c\u56fd\n\u6218\u7565\u3001\u610f\u56fe\u548c\u519b\u4e8b\u5efa\u8bbe\u4fdd\u6301\u4e0d\u900f\n\u660e\u3002\n\u25b2 0.76 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.518 (#2)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.066\n\u7efc\u5408\u5206: 0.759 (#1)"}, {"color": {"background": "#d77279", "border": "#e07b20", "highlight": {"background": "#d77279", "border": "#1a1a1a"}, "hover": {"background": "#d77279", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u5317\u7ea6\u901a\u8fc7\u5176\u6218\u7565\u6587\u4ef6\uff0c\n\u5ba3\u79f0\u4e2d\u56fd\u6b63\u5728\u8fc5\u901f\u6269\u5927\u6838\u6b66\u5e93\u5e76\n\u53d1\u5c55\u65e5\u76ca\u590d\u6742\u7684\u8fd0\u8f7d\u7cfb\u7edf\uff0c\u540c\u65f6\n\u6c61\u8511\u4e2d\u56fd\u7f3a\u4e4f\u53c2\u4e0e\u519b\u5907\u63a7\u5236\u6216\u51cf\n\u5c11\u98ce\u9669\u7684\u8bda\u610f\uff0c\u8fd9\u662f\u5bf9\u4e2d\u56fd\u8fdb\u884c\n\u7684\u653f\u6cbb\u6c61\u8511\u548c\u8d1f\u9762\u5b9a\u6027\u3002\n\u25b2 0.62 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.402 (#4)\n\u8bed\u4e49\u5206: 0.836 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.825 + 0.30\u00d7\u7a00\u7f3a\u6027 0.233\n\u7efc\u5408\u5206: 0.619 (#3)"}, {"color": {"background": "#d77077", "border": "#e07b20", "highlight": {"background": "#d77077", "border": "#1a1a1a"}, "hover": {"background": "#d77077", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u5317\u7ea6\u901a\u8fc7\u4e00\u4efd\u6218\u7565\u6587\u4ef6\n\uff0c\u6307\u63a7\u4e2d\u56fd\u4f01\u56fe\u5728\u592a\u7a7a\u3001\u7f51\u7edc\u548c\n\u6d77\u6d0b\u9886\u57df\u98a0\u8986\u4ee5\u89c4\u5219\u4e3a\u57fa\u7840\u7684\u56fd\n\u9645\u79e9\u5e8f\uff0c\u4ee5\u6b64\u5bf9\u4e2d\u56fd\u7684\u6218\u7565\u610f\u56fe\n\u8fdb\u884c\u5b9a\u6027\u3002\n\u25b2 0.63 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.349 (#5)\n\u8bed\u4e49\u5206: 0.911 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.922 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.630 (#2)"}, {"color": {"background": "#d899a3", "border": "#3a7bd5", "highlight": {"background": "#d899a3", "border": "#1a1a1a"}, "hover": {"background": "#d899a3", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u5317\u7ea6\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u5bf9\n\u4e2d\u56fd\u4e0e\u4fc4\u7f57\u65af\u4e0d\u65ad\u6df1\u5316\u7684\u6218\u7565\u4f19\n\u4f34\u5173\u7cfb\u8fdb\u884c\u8d1f\u9762\u5b9a\u6027\u548c\u6307\u8d23\uff0c\u79f0\n\u5176\u4e0e\u5317\u7ea6\u7684\u4ef7\u503c\u89c2\u548c\u5229\u76ca\u80cc\u9053\u800c\n\u9a70\u3002\n\u25b2 0.42 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.338 (#6)\n\u8bed\u4e49\u5206: 0.510 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.524 + 0.30\u00d7\u7a00\u7f3a\u6027 0.111\n\u7efc\u5408\u5206: 0.424 (#9)"}, {"color": {"background": "#d9a0aa", "border": "#3a7bd5", "highlight": {"background": "#d9a0aa", "border": "#1a1a1a"}, "hover": {"background": "#d9a0aa", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u5317\u7ea6\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u5ba3\n\u79f0\u201c\u5370\u5ea6-\u592a\u5e73\u6d0b\u201d\u5730\u533a\u5bf9\u5176\u5177\n\u6709\u91cd\u8981\u6027\uff0c\u8fd9\u662f\u5bf9\u5370\u592a\u5730\u533a\u8fdb\u884c\n\u7684\u6218\u7565\u5b9a\u4f4d\u548c\u91cd\u8981\u6027\u5ba3\u793a\u3002\n\u25b2 0.39 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.296 (#7)\n\u8bed\u4e49\u5206: 0.486 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.493 + 0.30\u00d7\u7a00\u7f3a\u6027 0.190\n\u7efc\u5408\u5206: 0.391 (#10)"}, {"color": {"background": "#d8858d", "border": "#3a7bd5", "highlight": {"background": "#d8858d", "border": "#1a1a1a"}, "hover": {"background": "#d8858d", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: \u5317\u7ea6\u8ba1\u5212\u52a0\u5f3a\u540c\u5370\u592a\n\u5730\u533a\u65b0\u4f19\u4f34\u548c\u73b0\u6709\u4f19\u4f34\u7684\u5bf9\u8bdd\u4e0e\n\u5408\u4f5c\uff0c\u8fd9\u4f53\u73b0\u4e86\u5176\u65e8\u5728\u52a0\u5f3a\u4e0e\u8be5\n\u5730\u533a\u56fd\u5bb6\u7684\u5916\u4ea4\u4e92\u52a8\u4e0e\u5408\u4f5c\u3002\n\u25b2 0.53 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.296 (#7)\n\u8bed\u4e49\u5206: 0.757 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.693 + 0.30\u00d7\u7a00\u7f3a\u6027 0.757\n\u7efc\u5408\u5206: 0.527 (#8)"}, {"color": {"background": "#d9b2bf", "border": "#3a7bd5", "highlight": {"background": "#d9b2bf", "border": "#1a1a1a"}, "hover": {"background": "#d9b2bf", "border": "#1a1a1a"}}, "id": "E13", "label": "E13: 2022\u5e74\u5cf0\u4f1a\u9996\u6b21\n\u9080\u8bf7\u65e5\u672c\u3001\u97e9\u56fd\u3001\u6fb3\u5927\u5229\u4e9a\u548c\u65b0\n\u897f\u5170\u56db\u56fd\u53c2\u4e0e\u3002\n\u25b2 0.30 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#11)\n\u8bed\u4e49\u5206: 0.409 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.333 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.297 (#11)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u5317\u7ea6\u4e1c\u6269\u4fc3\u4f7f\u4fc4\u7f57\u65af\u8c34\u8d23\u5176\u7834\u574f\u5b89\u5168\u67b6\u6784", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c1", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4fc4\u7f57\u65af\u7684\u5a01\u80c1\u5b9a\u6027", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c2", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4e2d\u56fd\u7684\u9996\u6b21\u5b9a\u6027", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c3", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4e2d\u56fd\u7684\u7cfb\u7edf\u6027\u6307\u63a7", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c4", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4e2d\u56fd\u6838\u5a01\u80c1\u7684\u6c61\u8511", "to": "E8", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c5", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u6307\u63a7\u4e2d\u56fd\u98a0\u8986\u56fd\u9645\u79e9\u5e8f", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c6", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u6307\u8d23\u4e2d\u4fc4\u6218\u7565\u4f19\u4f34\u5173\u7cfb", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c7", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5ba3\u79f0\u5370\u592a\u5730\u533a\u91cd\u8981\u6027", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c8", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u540e\u8ba1\u5212\u52a0\u5f3a\u5370\u592a\u5bf9\u8bdd\u5408\u4f5c", "to": "E12", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c9", "title": "\u5cf0\u4f1a\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u540e\u9996\u6b21\u9080\u8bf7\u5370\u592a\u56db\u56fd\u53c2\u4e0e", "to": "E13", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.720\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.700\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.781\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E8 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.770\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E6 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.724\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t5", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.715\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t6", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.712\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E3 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t7", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.704\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E11 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "2022年，北约实施了其历史上的第六轮东扩，正式吸纳芬兰和瑞典成为该军事联盟的成员国，这是一次重要的政治军事扩张行动。"}, {"id": "E2", "text": "中国外交部针对北约战略文件中的涉华内容进行驳斥，指出其充满冷战思维，并明确表示反对北约介入亚太地区事务。"}, {"id": "E3", "text": "俄罗斯外交部针对北约战略文件及东扩政策发表官方谴责，指出该文件破坏了欧洲安全架构，并定性北约东扩是威胁的源头。"}, {"id": "E4", "text": "2022年6月29日，正在西班牙首都马德里举行峰会的北大西洋公约组织（北约）成员国首脑们通过了该组织的最新战略文件。"}, {"id": "E5", "text": "北约通过其战略文件，将俄罗斯定性为'最重要和直接的威胁'，这是一项明确的政治表态。"}, {"id": "E6", "text": "北约通过其战略文件，首次将中国定性为'挑战北约的安全、利益和价值观'并对'欧洲-大西洋构成系统性挑战'，这是一项新的政治表态。"}, {"id": "E7", "text": "北约通过战略文件对中国进行系统性负面定性和指控，指责中国使用恶意网络行动、对抗性言论和虚假信息损害联盟安全，利用政治、经济和军事手段全球投射力量，寻求控制关键技术和工业部门、基础设施及供应链，利用经济影响力建立战略依赖以增强自身影响力，并对本国战略、意图和军事建设保持不透明。"}, {"id": "E8", "text": "北约通过其战略文件，宣称中国正在迅速扩大核武库并发展日益复杂的运载系统，同时污蔑中国缺乏参与军备控制或减少风险的诚意，这是对中国进行的政治污蔑和负面定性。"}, {"id": "E9", "text": "北约通过一份战略文件，指控中国企图在太空、网络和海洋领域颠覆以规则为基础的国际秩序，以此对中国的战略意图进行定性。"}, {"id": "E10", "text": "北约通过战略文件对中国与俄罗斯不断深化的战略伙伴关系进行负面定性和指责，称其与北约的价值观和利益背道而驰。"}, {"id": "E11", "text": "北约通过战略文件宣称“印度-太平洋”地区对其具有重要性，这是对印太地区进行的战略定位和重要性宣示。"}, {"id": "E12", "text": "北约计划加强同印太地区新伙伴和现有伙伴的对话与合作，这体现了其旨在加强与该地区国家的外交互动与合作。"}, {"id": "E13", "text": "2022年峰会首次邀请日本、韩国、澳大利亚和新西兰四国参与。"}];var _pyCausal=[{"from": "E1", "to": "E3", "reason": "北约东扩促使俄罗斯谴责其破坏安全架构"}, {"from": "E4", "to": "E5", "reason": "战略文件通过直接包含对俄罗斯的威胁定性"}, {"from": "E4", "to": "E6", "reason": "战略文件通过直接包含对中国的首次定性"}, {"from": "E4", "to": "E7", "reason": "战略文件通过直接包含对中国的系统性指控"}, {"from": "E4", "to": "E8", "reason": "战略文件通过直接包含对中国核威胁的污蔑"}, {"from": "E4", "to": "E9", "reason": "战略文件通过直接指控中国颠覆国际秩序"}, {"from": "E4", "to": "E10", "reason": "战略文件通过直接指责中俄战略伙伴关系"}, {"from": "E4", "to": "E11", "reason": "战略文件通过直接宣称印太地区重要性"}, {"from": "E4", "to": "E12", "reason": "战略文件通过后计划加强印太对话合作"}, {"from": "E4", "to": "E13", "reason": "峰会通过战略文件后首次邀请印太四国参与"}];var _pyTemporal=[{"from": "E3", "to": "E10", "reason": "语义嵌入相似度 0.720，按事件编号 E3 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E7", "reason": "语义嵌入相似度 0.700，按事件编号 E2 在 E7 之前，补一条仅表达时序的边。"}, {"from": "E7", "to": "E8", "reason": "语义嵌入相似度 0.781，按事件编号 E7 在 E8 之前，补一条仅表达时序的边。"}, {"from": "E6", "to": "E7", "reason": "语义嵌入相似度 0.770，按事件编号 E6 在 E7 之前，补一条仅表达时序的边。"}, {"from": "E9", "to": "E10", "reason": "语义嵌入相似度 0.724，按事件编号 E9 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E8", "to": "E9", "reason": "语义嵌入相似度 0.715，按事件编号 E8 在 E9 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E3", "reason": "语义嵌入相似度 0.712，按事件编号 E2 在 E3 之前，补一条仅表达时序的边。"}, {"from": "E11", "to": "E12", "reason": "语义嵌入相似度 0.704，按事件编号 E11 在 E12 之前，补一条仅表达时序的边。"}];var _pyScores={"E1": {"topo": 0.18475258350372314, "topo_rank": 11, "semantic": 0.0, "semantic_rank": 13, "semantic_rich": 0.0, "semantic_rare": 0.430756, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.09237629175186157, "combined_rank": 13}, "E10": {"topo": 0.33764421939849854, "topo_rank": 6, "semantic": 0.51033, "semantic_rank": 8, "semantic_rich": 0.524449, "semantic_rare": 0.111483, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.42398710969924924, "combined_rank": 9}, "E11": {"topo": 0.29586368799209595, "topo_rank": 7, "semantic": 0.4859, "semantic_rank": 9, "semantic_rich": 0.49268, "semantic_rare": 0.189619, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.390881843996048, "combined_rank": 10}, "E12": {"topo": 0.29586368799209595, "topo_rank": 7, "semantic": 0.757255, "semantic_rank": 7, "semantic_rich": 0.693427, "semantic_rare": 0.756695, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.526559343996048, "combined_rank": 8}, "E13": {"topo": 0.18475258350372314, "topo_rank": 11, "semantic": 0.408714, "semantic_rank": 10, "semantic_rich": 0.332566, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2967332917518616, "combined_rank": 11}, "E2": {"topo": 0.29586368799209595, "topo_rank": 7, "semantic": 0.776011, "semantic_rank": 6, "semantic_rich": 0.752562, "semantic_rare": 0.368973, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.535937343996048, "combined_rank": 7}, "E3": {"topo": 0.40697476267814636, "topo_rank": 3, "semantic": 0.787022, "semantic_rank": 5, "semantic_rich": 0.753739, "semantic_rare": 0.457714, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5969983813390731, "combined_rank": 4}, "E4": {"topo": 1.0736414194107056, "topo_rank": 1, "semantic": 0.016702, "semantic_rank": 12, "semantic_rich": 0.012226, "semantic_rare": 0.466883, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5451717097053528, "combined_rank": 6}, "E5": {"topo": 0.18475258350372314, "topo_rank": 11, "semantic": 0.367562, "semantic_rank": 11, "semantic_rich": 0.382599, "semantic_rare": 0.154886, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.27615729175186154, "combined_rank": 12}, "E6": {"topo": 0.29586368799209595, "topo_rank": 7, "semantic": 0.810506, "semantic_rank": 4, "semantic_rich": 0.823265, "semantic_rare": 0.014848, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.553184843996048, "combined_rank": 5}, "E7": {"topo": 0.5180858969688416, "topo_rank": 2, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.066109, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.7590429484844208, "combined_rank": 1}, "E8": {"topo": 0.4018825888633728, "topo_rank": 4, "semantic": 0.835904, "semantic_rank": 3, "semantic_rich": 0.824536, "semantic_rare": 0.233178, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6188932944316864, "combined_rank": 3}, "E9": {"topo": 0.34876176714897156, "topo_rank": 5, "semantic": 0.911307, "semantic_rank": 2, "semantic_rich": 0.921744, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6300343835744857, "combined_rank": 2}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">D014 北约战略概念文件首次点名中国——台海涉及（2022.6）</div><div>因果边：<b>10</b> 条&emsp;时序边：<b>8</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.19 / T- 0.19</div><div>C+ 0.23 / C- 0.40</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="北约通过战略文件对中国进行系统性负面定性和指控，指责中国使用恶意网络行动、对抗性言论和虚假信息损害联盟安全，利用政治、经济和军事手段全球投射力量，寻求控制关键技术和工业部门、基础设施及供应链，利用经济影响力建立战略依赖以增强自身影响力，并对本国战略、意图和军事建设保持不透明。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约通过战略文件对中国进行系统性…</td><td style="padding:4px 6px;text-align:center;">0.518 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.07</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.759 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="北约通过一份战略文件，指控中国企图在太空、网络和海洋领域颠覆以规则为基础的国际秩序，以此对中国的战略意图进行定性。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约通过一份战略文件，指控中国企…</td><td style="padding:4px 6px;text-align:center;">0.349 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.911 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.92 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.630 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="北约通过其战略文件，宣称中国正在迅速扩大核武库并发展日益复杂的运载系统，同时污蔑中国缺乏参与军备控制或减少风险的诚意，这是对中国进行的政治污蔑和负面定性。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约通过其战略文件，宣称中国正在…</td><td style="padding:4px 6px;text-align:center;">0.402 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.836 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.82 / 稀 0.23</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.619 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="俄罗斯外交部针对北约战略文件及东扩政策发表官方谴责，指出该文件破坏了欧洲安全架构，并定性北约东扩是威胁的源头。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">俄罗斯外交部针对北约战略文件及东…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.787 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.75 / 稀 0.46</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.597 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="北约通过其战略文件，首次将中国定性为&#x27;挑战北约的安全、利益和价值观&#x27;并对&#x27;欧洲-大西洋构成系统性挑战&#x27;，这是一项新的政治表态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约通过其战略文件，首次将中国定…</td><td style="padding:4px 6px;text-align:center;">0.296 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.811 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.82 / 稀 0.01</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.553 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="2022年6月29日，正在西班牙首都马德里举行峰会的北大西洋公约组织（北约）成员国首脑们通过了该组织的最新战略文件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2022年6月29日，正在西班牙…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.017 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.01 / 稀 0.47</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.545 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="中国外交部针对北约战略文件中的涉华内容进行驳斥，指出其充满冷战思维，并明确表示反对北约介入亚太地区事务。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国外交部针对北约战略文件中的涉…</td><td style="padding:4px 6px;text-align:center;">0.296 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.776 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.75 / 稀 0.37</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.536 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="北约计划加强同印太地区新伙伴和现有伙伴的对话与合作，这体现了其旨在加强与该地区国家的外交互动与合作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约计划加强同印太地区新伙伴和现…</td><td style="padding:4px 6px;text-align:center;">0.296 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.757 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.69 / 稀 0.76</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.527 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="北约通过战略文件对中国与俄罗斯不断深化的战略伙伴关系进行负面定性和指责，称其与北约的价值观和利益背道而驰。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约通过战略文件对中国与俄罗斯不…</td><td style="padding:4px 6px;text-align:center;">0.338 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.510 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.52 / 稀 0.11</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.424 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="北约通过战略文件宣称“印度-太平洋”地区对其具有重要性，这是对印太地区进行的战略定位和重要性宣示。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约通过战略文件宣称“印度-太平…</td><td style="padding:4px 6px;text-align:center;">0.296 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.486 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.49 / 稀 0.19</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.391 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="2022年峰会首次邀请日本、韩国、澳大利亚和新西兰四国参与。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E13</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2022年峰会首次邀请日本、韩国…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.409 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.33 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.297 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="北约通过其战略文件，将俄罗斯定性为&#x27;最重要和直接的威胁&#x27;，这是一项明确的政治表态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">北约通过其战略文件，将俄罗斯定性…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.368 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.38 / 稀 0.15</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.276 <span style="color:#888;font-size:10px">(#12)</span></td></tr><tr title="2022年，北约实施了其历史上的第六轮东扩，正式吸纳芬兰和瑞典成为该军事联盟的成员国，这是一次重要的政治军事扩张行动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2022年，北约实施了其历史上的…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#13)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.43</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.092 <span style="color:#888;font-size:10px">(#13)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

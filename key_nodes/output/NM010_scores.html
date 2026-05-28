@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d88d96", "border": "#3a7bd5", "highlight": {"background": "#d88d96", "border": "#1a1a1a"}, "hover": {"background": "#d88d96", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u53f0\u9632\u52a1\u90e8\u95e8\u4e0e\u7f8e\u65b9\u5c31\u4e00\n\u9879\u519b\u552e\u5408\u7ea6\u5f00\u59cb\u8fdb\u884c\u521d\u6b65\u5546\u8bae\u3002\n\u25b2 0.49 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#5)\n\u8bed\u4e49\u5206: 0.397 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.408 + 0.30\u00d7\u7a00\u7f3a\u6027 0.477\n\u7efc\u5408\u5206: 0.485 (#6)"}, {"color": {"background": "#d77279", "border": "#3a7bd5", "highlight": {"background": "#d77279", "border": "#1a1a1a"}, "hover": {"background": "#d77279", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u53f0\u6e7e\u9632\u52a1\u90e8\u95e8\u4e0e\u7f8e\u56fd\u65b9\n\u9762\u7b7e\u7f72\u4e86\u4ef7\u503c\u7ea625.2\u4ebf\u5143\u65b0\n\u53f0\u5e01\u7684\u519b\u552e\u5408\u7ea6\uff0c\u5c5e\u4e8e\u9632\u52a1\u5408\u4f5c\n\u4e8b\u4ef6\u3002\n\u25b2 0.62 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.824 (#4)\n\u8bed\u4e49\u5206: 0.417 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.466 + 0.30\u00d7\u7a00\u7f3a\u6027 0.155\n\u7efc\u5408\u5206: 0.620 (#5)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u7f8e\u53f0\u53cc\u65b9\u6b63\u5f0f\u7b7e\u7f72\u4e86\u5173\n\u4e8e\u2018\u7231\u56fd\u8005\u20193\u578b\u53cd\u5bfc\u7cfb\u7edf\u7684\u519b\n\u552e\u5408\u7ea6\uff0c\u8fd9\u662f\u4e00\u9879\u653f\u6cbb\u519b\u4e8b\u884c\u52a8\n\u3002\n\u25b2 1.04 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.046\n\u7efc\u5408\u5206: 1.037 (#1)"}, {"color": {"background": "#d9b4c1", "border": "#3a7bd5", "highlight": {"background": "#d9b4c1", "border": "#1a1a1a"}, "hover": {"background": "#d9b4c1", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u57282025\u5e7410\u6708\uff0c\n\u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u8d56\u6e05\u5fb7\u63d0\u51fa\u0027\u53f0\n\u6e7e\u4e4b\u76fe\u0027\u6784\u60f3\uff0c\u8fd9\u662f\u4e00\u79cd\u519b\u4e8b\u9632\n\u5fa1\u6218\u7565\u7684\u653f\u6cbb\u8868\u6001\u3002\n\u25b2 0.29 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#5)\n\u8bed\u4e49\u5206: 0.000 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.090 + 0.30\u00d7\u7a00\u7f3a\u6027 0.192\n\u7efc\u5408\u5206: 0.287 (#9)"}, {"color": {"background": "#daccda", "border": "#3a7bd5", "highlight": {"background": "#daccda", "border": "#1a1a1a"}, "hover": {"background": "#daccda", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: 2025\u5e7411\u670830\n\u65e5\uff0c\u5c9b\u51852025\u5e74\u201c\u79cb\u6597\u201d\u5927\n\u6e38\u884c\u767b\u573a\uff0c\u4ee5\u201c\u53cd\u6218\u201d\u4e3a\u4e3b\u9898\uff0c\n\u6297\u8bae\u9ad8\u989d\u519b\u8d2d\u9884\u7b97\u3002\n\u25b2 0.17 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#9)\n\u8bed\u4e49\u5206: 0.012 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.168 (#11)"}, {"color": {"background": "#d76369", "border": "#e07b20", "highlight": {"background": "#d76369", "border": "#1a1a1a"}, "hover": {"background": "#d76369", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u53f0\u6e7e\u201c\u56fd\u9632\u90e8\u201d\u4e0e\u7f8e\u56fd\n\u5728\u53f0\u534f\u4f1a\uff08AIT\uff09\u5b89\u5168\u5408\u4f5c\u7ec4\n\u5171\u540c\u6574\u5408\u4e869\u5927\u9879\u519b\u8d2d\u8981\u4ef7\u4e66\uff0c\n\u51c6\u5907\u5bf9\u7f8e\u56fd\u63d0\u51fa\uff0c\u4ee5\u652f\u6301\u201c\u5f3a\u5316\n\u9632\u536b\u97e7\u6027\u53ca\u4e0d\u5bf9\u79f0\u6218\u529b\u7279\u522b\u9884\u7b97\n\u8349\u6848\u201d\u53ca2026\u5e74\u5ea6\u9632\u52a1\u9884\u7b97\n\u6848\uff0c\u8fd9\u662f\u4e00\u9879\u8ba1\u5212\u6027\u52a8\u4f5c\uff0c\u4e3b\u5b9e\n\u4f53\u4e3a\u53f0\u7f8e\u53cc\u65b9\uff0c\u5ba2\u4f53\u4e3a\u7f8e\u56fd\u3002\n\u25b2 0.69 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.314 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.384 + 0.30\u00d7\u7a00\u7f3a\u6027 0.074\n\u7efc\u5408\u5206: 0.694 (#2)"}, {"color": {"background": "#d7646a", "border": "#e07b20", "highlight": {"background": "#d7646a", "border": "#1a1a1a"}, "hover": {"background": "#d7646a", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u53f0\u6e7e\u7a7a\u519b\u8ba1\u5212\u5411\u7f8e\u56fd\u96f7\n\u795e\u516c\u53f8\u91c7\u8d2d\u7b2c\u56db\u5957\u3001\u4e09\u4e2a\u8fde\u7684\u201c\n\u7231\u56fd\u8005-3\u201d\u9632\u7a7a\u5bfc\u5f39\u7cfb\u7edf\u3002\n\u25b2 0.69 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.544 (#7)\n\u8bed\u4e49\u5206: 0.839 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.856 + 0.30\u00d7\u7a00\u7f3a\u6027 0.044\n\u7efc\u5408\u5206: 0.691 (#3)"}, {"color": {"background": "#d9a7b3", "border": "#3a7bd5", "highlight": {"background": "#d9a7b3", "border": "#1a1a1a"}, "hover": {"background": "#d9a7b3", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u53f0\u519b\u8ba1\u5212\u5c06\u5176\u73b0\u5f79\u7684\u4e5d\n\u4e2a\u201c\u7231\u56fd\u8005\u201d\u8fde\u5347\u7ea7\u81f3\u7f8e\u519b\u6307\u6325\n\u63a7\u5236\u6784\u578b\u3002\n\u25b2 0.35 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#9)\n\u8bed\u4e49\u5206: 0.381 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.427 + 0.30\u00d7\u7a00\u7f3a\u6027 0.208\n\u7efc\u5408\u5206: 0.352 (#8)"}, {"color": {"background": "#d76a70", "border": "#3a7bd5", "highlight": {"background": "#d76a70", "border": "#1a1a1a"}, "hover": {"background": "#d76a70", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u53f0\u6e7e\u5730\u533a\u9632\u52a1\u90e8\u95e8\u5411\u7acb\n\u6cd5\u673a\u6784\u5916\u4ea4\u53ca\u56fd\u9632\u59d4\u5458\u4f1a\u8fdb\u884c\u673a\n\u5bc6\u62a5\u544a\uff0c\u62ab\u9732\u519b\u8d2d\u7279\u522b\u9884\u7b97\u4e0a\u9650\n\u4e3a1.25\u4e07\u4ebf\u5143\u65b0\u53f0\u5e01\uff0c\u5e76\u8bf4\n\u660e\u519b\u8d2d\u9879\u76ee\u9664\u7f8e\u65b9\u5df2\u77e5\u4f1a\u7f8e\u56fd\u56fd\n\u4f1a\u76845\u9879\u519b\u552e\u6848\u5916\uff0c\u8fd8\u67094\u9879\u672a\n\u5ba3\u5e03\u3002\n\u25b2 0.66 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.249 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.312 + 0.30\u00d7\u7a00\u7f3a\u6027 0.188\n\u7efc\u5408\u5206: 0.661 (#4)"}, {"color": {"background": "#d9a0ab", "border": "#3a7bd5", "highlight": {"background": "#d9a0ab", "border": "#1a1a1a"}, "hover": {"background": "#d9a0ab", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u7f8e\u65b9\u5bf9\u53f0\u519b\u552e\u6848\u4e2d\uff0c\n\u9664\u5df2\u6b63\u5f0f\u77e5\u4f1a\u7f8e\u56fd\u56fd\u4f1a\u76845\u9879\u5916\n\uff0c\u8fd8\u67094\u9879\u672a\u5ba3\u5e03\uff0c\u5176\u4e2d2\u9879\u636e\n\u9884\u6599\u662f\u7231\u56fd\u8005\u98de\u5f39\u53ca\u56fd\u5bb6\u5148\u8fdb\u5730\n\u5bf9\u7a7a\u98de\u5f39\u7cfb\u7edf\uff08NASAMS\uff09\n\u3002\n\u25b2 0.39 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.497 (#8)\n\u8bed\u4e49\u5206: 0.284 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.367 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.390 (#7)"}, {"color": {"background": "#dacbd9", "border": "#3a7bd5", "highlight": {"background": "#dacbd9", "border": "#1a1a1a"}, "hover": {"background": "#dacbd9", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u53f0\u6e7e\u5730\u533a\u9632\u52a1\u90e8\u95e8\u8d1f\n\u8d23\u4eba\u987e\u7acb\u96c4\u8868\u793a\uff0c\u53f0\u7f8e\u4e4b\u95f4\u7684\u519b\n\u8d2d\u9879\u76ee\uff0c\u5728\u7f8e\u65b9\u77e5\u4f1a\u56fd\u4f1a\u4e4b\u524d\uff0c\n\u53f0\u65b9\u65e0\u6cd5\u5bf9\u5916\u516c\u5f00\u3002\n\u25b2 0.17 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.207 (#11)\n\u8bed\u4e49\u5206: 0.138 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.232 + 0.30\u00d7\u7a00\u7f3a\u6027 0.039\n\u7efc\u5408\u5206: 0.172 (#10)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u5546\u8bae\u662f\u7b7e\u7f72\u5408\u7ea6\u7684\u5fc5\u8981\u524d\u7f6e\u6b65\u9aa4", "to": "E2", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E1", "id": "c1", "title": "\u5546\u8bae\u662f\u7b7e\u7f72\u5408\u7ea6\u7684\u5fc5\u8981\u524d\u7f6e\u6b65\u9aa4", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c2", "title": "\u6784\u60f3\u63d0\u51fa\u540e\uff0c\u53f0\u7f8e\u636e\u6b64\u6574\u5408\u519b\u8d2d\u8981\u4ef7\u4e66", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c3", "title": "\u6574\u5408\u8981\u4ef7\u4e66\u5305\u542b\u91c7\u8d2d\u7231\u56fd\u8005-3\u7684\u8ba1\u5212", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c4", "title": "\u6574\u5408\u8981\u4ef7\u4e66\u5305\u542b\u5347\u7ea7\u7231\u56fd\u8005\u8fde\u7684\u8ba1\u5212", "to": "E8", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.736\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.718\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.702\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.711\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E6 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t4", "title": "\u62a5\u544a\u4e0e\u516c\u5f00\u9650\u5236\u662f\u7a0b\u5e8f\u63cf\u8ff0\uff0c\u65e0\u56e0\u679c", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t5", "title": "\u6e38\u884c\u662f\u6297\u8bae\u6784\u60f3\uff0c\u6784\u60f3\u672a\u76f4\u63a5\u4fc3\u53d1\u6e38\u884c", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t6", "title": "\u4e24\u8005\u4e3a\u5bf9\u540c\u4e00\u7b7e\u7f72\u4e8b\u4ef6\u7684\u4e0d\u540c\u8868\u8ff0\uff0c\u5c5e\u5e76\u5217\u63cf\u8ff0\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t7", "title": "E10\u662f\u5bf9E9\u62a5\u544a\u4e2d\u90e8\u5206\u5185\u5bb9\u7684\u540c\u4e49\u5c55\u5f00\uff0c\u5c5e\u8fde\u7eed\u63cf\u8ff0\u3002", "to": "E10", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "台防务部门与美方就一项军售合约开始进行初步商议。"}, {"id": "E2", "text": "台湾防务部门与美国方面签署了价值约25.2亿元新台币的军售合约，属于防务合作事件。"}, {"id": "E3", "text": "美台双方正式签署了关于‘爱国者’3型反导系统的军售合约，这是一项政治军事行动。"}, {"id": "E4", "text": "在2025年10月，台湾地区领导人赖清德提出'台湾之盾'构想，这是一种军事防御战略的政治表态。"}, {"id": "E5", "text": "2025年11月30日，岛内2025年“秋斗”大游行登场，以“反战”为主题，抗议高额军购预算。"}, {"id": "E6", "text": "台湾“国防部”与美国在台协会（AIT）安全合作组共同整合了9大项军购要价书，准备对美国提出，以支持“强化防卫韧性及不对称战力特别预算草案”及2026年度防务预算案，这是一项计划性动作，主实体为台美双方，客体为美国。"}, {"id": "E7", "text": "台湾空军计划向美国雷神公司采购第四套、三个连的“爱国者-3”防空导弹系统。"}, {"id": "E8", "text": "台军计划将其现役的九个“爱国者”连升级至美军指挥控制构型。"}, {"id": "E9", "text": "台湾地区防务部门向立法机构外交及国防委员会进行机密报告，披露军购特别预算上限为1.25万亿元新台币，并说明军购项目除美方已知会美国国会的5项军售案外，还有4项未宣布。"}, {"id": "E10", "text": "美方对台军售案中，除已正式知会美国国会的5项外，还有4项未宣布，其中2项据预料是爱国者飞弹及国家先进地对空飞弹系统（NASAMS）。"}, {"id": "E11", "text": "台湾地区防务部门负责人顾立雄表示，台美之间的军购项目，在美方知会国会之前，台方无法对外公开。"}];var _pyCausal=[{"from": "E1", "to": "E2", "reason": "商议是签署合约的必要前置步骤"}, {"from": "E1", "to": "E3", "reason": "商议是签署合约的必要前置步骤"}, {"from": "E4", "to": "E6", "reason": "构想提出后，台美据此整合军购要价书"}, {"from": "E6", "to": "E7", "reason": "整合要价书包含采购爱国者-3的计划"}, {"from": "E6", "to": "E8", "reason": "整合要价书包含升级爱国者连的计划"}];var _pyTemporal=[{"from": "E2", "to": "E9", "reason": "语义嵌入相似度 0.736，按事件编号 E2 在 E9 之前，补一条仅表达时序的边。"}, {"from": "E3", "to": "E10", "reason": "语义嵌入相似度 0.718，按事件编号 E3 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E3", "to": "E7", "reason": "语义嵌入相似度 0.702，按事件编号 E3 在 E7 之前，补一条仅表达时序的边。"}, {"from": "E6", "to": "E9", "reason": "语义嵌入相似度 0.711，按事件编号 E6 在 E9 之前，补一条仅表达时序的边。"}, {"from": "E9", "to": "E11", "reason": "报告与公开限制是程序描述，无因果"}, {"from": "E4", "to": "E5", "reason": "游行是抗议构想，构想未直接促发游行"}, {"from": "E2", "to": "E3", "reason": "两者为对同一签署事件的不同表述，属并列描述。"}, {"from": "E9", "to": "E10", "reason": "E10是对E9报告中部分内容的同义展开，属连续描述。"}];var _pyScores={"E1": {"topo": 0.5736413598060608, "topo_rank": 5, "semantic": 0.396842, "semantic_rank": 4, "semantic_rich": 0.408495, "semantic_rare": 0.477309, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.48524167990303035, "combined_rank": 6}, "E10": {"topo": 0.4968123137950897, "topo_rank": 8, "semantic": 0.283811, "semantic_rank": 7, "semantic_rich": 0.366693, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3903116568975449, "combined_rank": 7}, "E11": {"topo": 0.206813246011734, "topo_rank": 11, "semantic": 0.13774, "semantic_rank": 9, "semantic_rich": 0.231572, "semantic_rare": 0.038639, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.172276623005867, "combined_rank": 10}, "E2": {"topo": 0.823641300201416, "topo_rank": 4, "semantic": 0.416691, "semantic_rank": 3, "semantic_rich": 0.46606, "semantic_rare": 0.155195, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.620166150100708, "combined_rank": 5}, "E3": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.046487, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.036820650100708, "combined_rank": 1}, "E4": {"topo": 0.5736413598060608, "topo_rank": 5, "semantic": 0.0, "semantic_rank": 11, "semantic_rich": 0.089649, "semantic_rare": 0.192343, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2868206799030304, "combined_rank": 9}, "E5": {"topo": 0.32364141941070557, "topo_rank": 9, "semantic": 0.011519, "semantic_rank": 10, "semantic_rich": 0.0, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.16758020970535278, "combined_rank": 11}, "E6": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 0.31382, "semantic_rank": 6, "semantic_rich": 0.384375, "semantic_rare": 0.073504, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.693730650100708, "combined_rank": 2}, "E7": {"topo": 0.5441592335700989, "topo_rank": 7, "semantic": 0.838648, "semantic_rank": 2, "semantic_rich": 0.856302, "semantic_rare": 0.044243, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6914036167850495, "combined_rank": 3}, "E8": {"topo": 0.32364141941070557, "topo_rank": 9, "semantic": 0.380791, "semantic_rank": 5, "semantic_rich": 0.427495, "semantic_rare": 0.207989, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3522162097053528, "combined_rank": 8}, "E9": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 0.248731, "semantic_rank": 8, "semantic_rich": 0.312183, "semantic_rare": 0.187572, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.661186150100708, "combined_rank": 4}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">NM010 台湾爱国者防空系统升级与购买备弹（2022-2025）</div><div>因果边：<b>5</b> 条&emsp;时序边：<b>8</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.16 / T- 0.23</div><div>C+ 0.33 / C- 0.28</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="美台双方正式签署了关于‘爱国者’3型反导系统的军售合约，这是一项政治军事行动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美台双方正式签署了关于‘爱国者’…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.05</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.037 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="台湾“国防部”与美国在台协会（AIT）安全合作组共同整合了9大项军购要价书，准备对美国提出，以支持“强化防卫韧性及不对称战力特别预算草案”及2026年度防务预算案，这是一项计划性动作，主实体为台美双方，客体为美国。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾“国防部”与美国在台协会（A…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.314 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.38 / 稀 0.07</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.694 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="台湾空军计划向美国雷神公司采购第四套、三个连的“爱国者-3”防空导弹系统。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾空军计划向美国雷神公司采购第…</td><td style="padding:4px 6px;text-align:center;">0.544 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.839 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.86 / 稀 0.04</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.691 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="台湾地区防务部门向立法机构外交及国防委员会进行机密报告，披露军购特别预算上限为1.25万亿元新台币，并说明军购项目除美方已知会美国国会的5项军售案外，还有4项未宣布。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区防务部门向立法机构外交及…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.249 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.31 / 稀 0.19</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.661 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="台湾防务部门与美国方面签署了价值约25.2亿元新台币的军售合约，属于防务合作事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾防务部门与美国方面签署了价值…</td><td style="padding:4px 6px;text-align:center;">0.824 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.417 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.47 / 稀 0.16</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.620 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="台防务部门与美方就一项军售合约开始进行初步商议。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台防务部门与美方就一项军售合约开…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.397 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.41 / 稀 0.48</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.485 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="美方对台军售案中，除已正式知会美国国会的5项外，还有4项未宣布，其中2项据预料是爱国者飞弹及国家先进地对空飞弹系统（NASAMS）。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美方对台军售案中，除已正式知会美…</td><td style="padding:4px 6px;text-align:center;">0.497 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.284 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.37 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.390 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="台军计划将其现役的九个“爱国者”连升级至美军指挥控制构型。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台军计划将其现役的九个“爱国者”…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.381 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.43 / 稀 0.21</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.352 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="在2025年10月，台湾地区领导人赖清德提出&#x27;台湾之盾&#x27;构想，这是一种军事防御战略的政治表态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">在2025年10月，台湾地区领导…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.09 / 稀 0.19</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.287 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="台湾地区防务部门负责人顾立雄表示，台美之间的军购项目，在美方知会国会之前，台方无法对外公开。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区防务部门负责人顾立雄表示…</td><td style="padding:4px 6px;text-align:center;">0.207 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.138 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.23 / 稀 0.04</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.172 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="2025年11月30日，岛内2025年“秋斗”大游行登场，以“反战”为主题，抗议高额军购预算。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2025年11月30日，岛内20…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.012 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.168 <span style="color:#888;font-size:10px">(#11)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

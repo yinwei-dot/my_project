@@ -1,0 +1,747 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "E1", "label": "E1: 2013\u5e7411\u670823\n\u65e5\uff0c\u4e2d\u56fd\u653f\u5e9c\u5ba3\u5e03\u6309\u7167\u56fd\u9645\u901a\u884c\n\u505a\u6cd5\u5212\u8bbe\u4e1c\u6d77\u9632\u7a7a\u8bc6\u522b\u533a\uff0c\u8fd9\u662f\n\u4e00\u9879\u519b\u4e8b/\u884c\u653f\u884c\u52a8\uff0c\u5177\u6709\u5bf9\u5916\n\u535a\u5f08\u610f\u4e49\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E2", "label": "E2: \u7f8e\u56fd\u6d77\u519b\u5c06\u5176\u9996\u6279\u670d\u5f79\n\u7684P-8A\u53cd\u6f5c\u5de1\u903b\u673a\u90e8\u7f72\u5230\u4e86\n\u4f4d\u4e8e\u65e5\u672c\u7684\u5609\u624b\u7eb3\u7a7a\u519b\u57fa\u5730\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E3", "label": "E3: \u7f8e\u56fd\u6d77\u519bP-8A\u53cd\u6f5c\n\u5de1\u903b\u673a\u9891\u7e41\u8fdb\u5165\u4e2d\u56fd\u5212\u8bbe\u7684\u4e1c\u6d77\n\u9632\u7a7a\u8bc6\u522b\u533a\uff0c\u751a\u81f3\u8fdb\u5165\u4e2d\u56fd\u6cbf\u6d77\n\u7a7a\u57df\u8fdb\u884c\u4fa6\u5bdf\u6d3b\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E4", "label": "E4: \u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\u903b\n\u673a\u5728\u4e2d\u56fd\u6d77\u5357\u5c9b\u4ee5\u4e1c\u7ea6217\u5343\n\u7c73\u7a7a\u57df\u5b9e\u65bd\u4fa6\u5bdf\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E5", "label": "E5: \u4e2d\u56fd\u6d77\u519b\u822a\u7a7a\u5175\u51fa\u52a8\u4e00\n\u67b6\u6b7c-11BH\u578b\u6218\u673a\u5bf9\u7f8e\u519bP\n-8A\u53cd\u6f5c\u5de1\u903b\u673a\u8fdb\u884c\u4e86\u62e6\u622a\u548c\n\u9a71\u79bb\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E6", "label": "E6: \u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\u903b\n\u673a\u642d\u8f7dCNN\u8bb0\u8005\u8fdb\u5165\u4e2d\u56fd\u5357\u6d77\n\u7a7a\u57df\uff0c\u5e76\u62b5\u8fd1\u5357\u6c99\u6709\u5173\u5c9b\u7901\u6d77\u57df\n\u8fdb\u884c\u4fa6\u5bdf\u6d3b\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E7", "label": "E7: \u4e2d\u56fd\u5b88\u7901\u90e8\u961f\u5bf9\u62b5\u8fd1\u4fa6\n\u5bdf\u7684\u7f8e\u519bP-8A\u98de\u673a\u5b9e\u65bd\u4e86\u65e0\n\u7ebf\u7535\u558a\u8bdd\u8b66\u544a\uff0c\u5e76\u5c06\u5176\u9a71\u79bb\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E8", "label": "E8: 2016\u5e74\uff0c\u7f8e\u519b\u0027\u75af\n\u72c2\u72d0\u72f8\u0027VP-5\u4e2d\u961f\u5728\u5609\u624b\u7eb3\n\u7a7a\u519b\u57fa\u5730\u53d1\u5e03\u5ba3\u4f20\u7247\uff0c\u9ad8\u8c03\u5c55\u793a\n\u90e8\u7f72\u5230\u65e5\u672c\u7684P-8A\u53cd\u6f5c\u5de1\u903b\n\u673a\uff0c\u5e76\u79f0\u5176\u90e8\u7f72\u4e3a\u0027\u5386\u53f2\u6027\u65f6\u523b\n\u0027\uff0c\u6b64\u4e3e\u88ab\u89c6\u4e3a\u901a\u8fc7\u5ba3\u4f20\u7247\u5c55\u793a\n\u519b\u4e8b\u90e8\u7f72\u4ee5\u91ca\u653e\u653f\u6cbb\u519b\u4e8b\u4fe1\u53f7\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E9", "label": "E9: \u7f8e\u56fd\u6d77\u519bP-8A\u53cd\u6f5c\n\u5de1\u903b\u673a\u98de\u5f80\u5357\u6d77\u4e0a\u7a7a\uff0c\u98de\u8d8a\u4e86\u4e2d\n\u56fd\u5357\u6c99\u7fa4\u5c9b\u7684\u6e1a\u78a7\u7901\u3001\u8d64\u74dc\u7901\u3001\n\u6c38\u6691\u7901\u548c\u7f8e\u6d4e\u7901\u7b494\u4e2a\u5c9b\u7901\uff0c\u8fd9\n\u662f\u7f8e\u56fd\u6d77\u519b\u519b\u673a\u5728\u5357\u6d77\u4e89\u8bae\u6d77\u57df\n\u5b9e\u65bd\u7684\u62b5\u8fd1\u4fa6\u5bdf/\u98de\u8d8a\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E10", "label": "E10: 2018\u5e748\u670810\n\u65e5\uff0c\u89e3\u653e\u519b\u519b\u673a\u5728\u5357\u6c99\u7fa4\u5c9b\u7a7a\u57df\n\u5bf9\u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\u903b\u673a\u5b9e\u65bd\n\u4e866\u6b21\u4e25\u5389\u8b66\u544a\uff0c\u8981\u6c42\u5176\u7acb\u5373\u79bb\n\u5f00\uff0c\u8fd9\u662f\u4e00\u6b21\u5178\u578b\u7684\u8b66\u544a\u548c\u9a71\u79bb\n\u519b\u4e8b\u5e94\u5bf9\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E11", "label": "E11: 2019\u5e746\u670814\n\u65e5\uff0c\u4e00\u67b6\u7f16\u53f7\u4e3a\u201c169334\n\u201d\u7684\u7f8e\u56fd\u6d77\u519bP-8A\u53cd\u6f5c\u5de1\u903b\n\u673a\u4ece\u5609\u624b\u7eb3\u7a7a\u519b\u57fa\u5730\u8d77\u98de\uff0c\u8fdb\u5165\n\u4e2d\u56fd\u4e1c\u6d77\u9632\u7a7a\u8bc6\u522b\u533a\uff0c\u5e76\u8fdb\u884c\u4e86\n\u957f\u65f6\u95f4\u7684\u5de1\u903b\u4fa6\u5bdf\u6d3b\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E12", "label": "E12: \u7f8e\u56fd\u6d77\u519b\u4e00\u67b6\u4ece\u5609\u624b\n\u7eb3\u7a7a\u519b\u57fa\u5730\u8d77\u98de\u7684P-8A\u53cd\u6f5c\n\u5de1\u903b\u673a\uff0c\u5728\u5173\u5c9b\u4ee5\u897f\u7ea6620\u5343\n\u7c73\u7684\u516c\u6d77\u6d77\u57df\uff0c\u5bf9\u4e2d\u56fd\u6d77\u519b\u6b63\u5e38\n\u822a\u884c\u7684052\u578b\u9a71\u9010\u8230\u201c\u547c\u548c\u6d69\n\u7279\u201d\u8230\u5b9e\u65bd\u4e86\u62b5\u8fd1\u4fa6\u5bdf\u548c\u4f4e\u7a7a\u7ed5\n\u98de\u5e72\u6270\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E13", "label": "E13: \u9762\u5bf9\u7f8e\u519bP-8A\u7684\n\u62b5\u8fd1\u4fa6\u5bdf\u548c\u5e72\u6270\uff0c\u4e2d\u56fd\u6d77\u519b\u201c\u547c\n\u548c\u6d69\u7279\u201d\u8230\u5728\u8b66\u544a\u65e0\u6548\u540e\uff0c\u4f7f\u7528\n\u6fc0\u5149\u8bbe\u5907\u5bf9\u7f8e\u519b\u98de\u673a\u8fdb\u884c\u4e86\u53cd\u5236\n\u5e76\u6210\u529f\u5c06\u5176\u9a71\u79bb\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E14", "label": "E14: \u7f8e\u56fd\u56fd\u9632\u90e8\u901a\u8fc7\u516c\u5f00\n\u89c6\u9891\u62ab\u9732\u5e76\u5ba3\u4f20\u4e86\u7f8e\u519b\u4e00\u67b6P-\n8A\u53cd\u6f5c\u5de1\u903b\u673a\u5728\u5f53\u6708\u4e2d\u65ec\u98de\u8d8a\n\u5357\u6d77\u7684\u5168\u8fc7\u7a0b\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E15", "label": "E15: \u7f8e\u519b\u4e00\u67b6P-8A\u53cd\n\u6f5c\u5de1\u903b\u673a\u5728\u5357\u6d77\u5357\u6c99\u5c9b\u7901\u9644\u8fd1\u7a7a\n\u57df\u5b9e\u65bd\u4fa6\u5bdf\u98de\u884c\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E16", "label": "E16: \u4e2d\u65b9\u5bf9\u63a5\u8fd1\u5357\u6c99\u5c9b\u7901\n\u7a7a\u57df\u7684\u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\u903b\u673a\n\u8fdb\u884c\u4e86\u8b66\u544a\uff0c\u5e76\u8981\u6c42\u5176\u7acb\u5373\u8fdc\u79bb\n\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E17", "label": "E17: \u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\n\u903b\u673a\u5728\u4e1c\u6c99\u7fa4\u5c9b\u9644\u8fd1\u6d77\u57df\u5bf9\u4e2d\u56fd\n\u6d77\u519b\u6f5c\u8247\u5b9e\u65bd\u62b5\u8fd1\u4fa6\u5bdf\uff0c\u5e76\u6295\u653e\n\u58f0\u5450\u6d6e\u6807\u8fdb\u884c\u641c\u7d22\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E18", "label": "E18: \u89e3\u653e\u519b\u6d77\u7a7a\u519b\u4e00\u7ebf\u90e8\n\u961f\u5bf9\u7f8e\u519b\u4fa6\u5bdf\u884c\u52a8\u8fc5\u901f\u4f5c\u51fa\u519b\u4e8b\n\u53cd\u5e94\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E19", "label": "E19: \u4e2d\u7f8e\u53cc\u65b9\u519b\u673a\u5728\u76f8\u5173\n\u7a7a\u57df\u5c55\u5f00\u7535\u5b50\u5bf9\u6297/\u7535\u5b50\u6218\u4ea4\u950b\n\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E20", "label": "E20: \u7f8e\u519bP-8A\u5728\u4ea4\u950b\n\u540e\u81ea\u6bc1\u58f0\u5450\u6d6e\u6807\u5e76\u64a4\u79bb\u4e89\u8bae\u6d77\u57df\n\uff0c\u884c\u52a8\u7ec8\u6b62\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E21", "label": "E21: \u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\n\u903b\u673a\u5728\u516c\u6d77\u5bf9\u4e2d\u56fd\u6d77\u519b\u8fdb\u884c\u4f8b\u884c\n\u519b\u4e8b\u6f14\u7ec3\u7684\u8230\u8247\u7f16\u961f\u5b9e\u65bd\u4e86\u62b5\u8fd1\n\u7ed5\u98de\u4fa6\u5bdf\uff0c\u6700\u8fd1\u8ddd\u79bb\u4ec5400\u4f59\n\u7c73\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E22", "label": "E22: \u4e2d\u56fd\u6d77\u519b\u8230\u8247\u5728\u591a\u6b21\n\u8b66\u544a\u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\u903b\u673a\u65e0\n\u679c\u540e\uff0c\u91c7\u53d6\u4e86\u9a71\u79bb\u63aa\u65bd\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E23", "label": "E23: \u6fb3\u5927\u5229\u4e9a\u6d77\u519bP-8\nA\u53cd\u6f5c\u5de1\u903b\u673a\u5bf9\u4e2d\u56fd\u6d77\u519b052\nD\u578b\u5bfc\u5f39\u9a71\u9010\u8230\u5b9e\u65bd\u62b5\u8fd1\u7ed5\u98de\u5e72\n\u6270\uff0c\u6784\u6210\u6311\u8845\u884c\u4e3a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E24", "label": "E24: \u4e2d\u56fd\u6d77\u519b\u519b\u8230\u5bf9\u6fb3\u5927\n\u5229\u4e9a\u519b\u673a\u8fdb\u884c\u65e0\u7ebf\u7535\u558a\u8bdd\u8b66\u544a\uff0c\n\u4f5c\u4e3a\u521d\u6b65\u5e94\u5bf9\u63aa\u65bd\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E25", "label": "E25: \u4e2d\u56fd\u6d77\u519b\u519b\u8230\u4f7f\u7528\u6fc0\n\u5149\u8bbe\u5907\u5bf9\u6fb3\u5927\u5229\u4e9a\u519b\u673a\u8fdb\u884c\u9a71\u79bb\n\uff0c\u91c7\u53d6\u5f3a\u786c\u53cd\u5236\u52a8\u4f5c\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E26", "label": "E26: \u6fb3\u5927\u5229\u4e9a\u7687\u5bb6\u7a7a\u519b\u4e00\n\u67b6P-8A\u53cd\u6f5c\u5de1\u903b\u673a\u5728\u4e2d\u56fd\u6cbf\n\u6d77\u7a7a\u57df\u6267\u884c\u4fa6\u5bdf\u4efb\u52a1\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E27", "label": "E27: \u4e2d\u56fd\u7a7a\u519b\u51fa\u52a8\u6b7c-1\n6\u91cd\u578b\u6218\u6597\u673a\u5bf9\u6fb3\u519bP-8A\u4fa6\n\u5bdf\u673a\u5b9e\u65bd\u62e6\u622a\uff0c\u5e76\u5728\u5176\u524d\u65b9\u8fde\u7eed\n\u53d1\u5c04\u7ea2\u5916\u5e72\u6270\u5f39\u8fdb\u884c\u6218\u672f\u53cd\u5236\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E28", "label": "E28: \u6fb3\u5927\u5229\u4e9aP-8A\u4fa6\n\u5bdf\u673a\u5728\u906d\u9047\u62e6\u622a\u540e\u7ec8\u6b62\u4fa6\u5bdf\u6d3b\u52a8\n\uff0c\u8fd4\u56de\u5176\u9a7b\u5730\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E29", "label": "E29: \u7f8e\u56fd\u6d77\u519b\u4e00\u67b6P-8\nA\u53cd\u6f5c\u5de1\u903b\u673a\u4ece\u5609\u624b\u7eb3\u7a7a\u519b\u57fa\u5730\n\u8d77\u98de\uff0c\u8fdb\u5165\u4e2d\u56fd\u4e1c\u6d77\u7a7a\u57df\uff0c\u5e76\u5728\n\u957f\u6c5f\u51fa\u6d77\u53e3\u9644\u8fd1\u6267\u884c\u4fa6\u5bdf\u98de\u884c\u4efb\n\u52a1\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E30", "label": "E30: \u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\n\u903b\u673a\u7531\u5317\u5411\u5357\u98de\u8d8a\u53f0\u6e7e\u6d77\u5ce1\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E31", "label": "E31: \u89e3\u653e\u519b\u5bf9\u7f8e\u519bP-8\nA\u98de\u8d8a\u53f0\u6d77\u884c\u52a8\u91c7\u53d6\u4e86\u575a\u51b3\u53cd\u5236\n\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E32", "label": "E32: \u7f8e\u56fd\u6d77\u519bP-8A\u53cd\n\u6f5c\u5de1\u903b\u673a\u4ece\u9a7b\u65e5\u7f8e\u519b\u57fa\u5730\u8d77\u98de\uff0c\n\u7531\u5317\u5411\u5357\u8fdb\u5165\u4e2d\u56fd\u5357\u6d77\u7a7a\u57df\u6267\u884c\n\u4fa6\u5bdf\u4efb\u52a1\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E33", "label": "E33: \u4e2d\u56fd\u519b\u65b9\u5bf9\u98de\u81f3\u8ddd\u4e2d\n\u56fd\u897f\u6c99\u7fa4\u5c9b26\u6d77\u91cc\u6d77\u57df\u4e0a\u7a7a\u7684\n\u7f8e\u519bP-8A\u98de\u673a\u8fdb\u884c\u8bed\u97f3\u8b66\u544a\n\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E34", "label": "E34: \u4e2d\u56fd\u6b7c-11\u6218\u6597\u673a\n\u51fa\u73b0\u5728\u7f8e\u519bP-8A\u98de\u673a\u9644\u8fd1\uff0c\n\u5bf9\u5176\u8fdb\u884c\u4f34\u98de\u9a71\u79bb\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E35", "label": "E35: 2023\u5e744\u67089\u65e5\n\uff0c\u4e2d\u56fd\u4eba\u6c11\u89e3\u653e\u519b\u4e1c\u90e8\u6218\u533a\u5728\u53f0\n\u6d77\u5468\u8fb9\u7ec4\u7ec7\u5b9e\u65bd\u4e86\u4ee3\u53f7\u4e3a\u201c\u8054\u5408\n\u5229\u5251\u201d\u7684\u5927\u89c4\u6a21\u73af\u5c9b\u519b\u4e8b\u6f14\u4e60\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E36", "label": "E36: \u5728\u89e3\u653e\u519b\u73af\u5c9b\u519b\u6f14\u671f\n\u95f4\uff0c\u7f8e\u56fd\u6d77\u519b\u4e00\u67b6P-8A\u53cd\u6f5c\n\u5de1\u903b\u673a\u4ece\u5609\u624b\u7eb3\u7a7a\u519b\u57fa\u5730\u8d77\u98de\uff0c\n\u76f4\u63a5\u62b5\u8fd1\u53f0\u6e7e\u5c9b\u6052\u6625\u9644\u8fd1\u7a7a\u57df\uff0c\n\u5bf9\u6b63\u5728\u8fdb\u884c\u7684\u519b\u6f14\u5b9e\u65bd\u4e86\u60c5\u62a5\u641c\n\u96c6\u4e0e\u4fa6\u5bdf\u6d3b\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E37", "label": "E37: \u7f8e\u56fd\u6d77\u519bP-8A\u53cd\n\u6f5c\u5de1\u903b\u673a\u7a7f\u8d8a\u53f0\u6e7e\u6d77\u5ce1\u7684\u519b\u4e8b\u884c\n\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E38", "label": "E38: \u7f8e\u65b9\u5bf9\u7a7f\u8d8a\u53f0\u6e7e\u6d77\u5ce1\n\u884c\u52a8\u8fdb\u884c\u5b98\u65b9\u5b9a\u6027\uff0c\u58f0\u79f0\u662f\u4e3a\u4e86\n\u7ef4\u62a4\u6240\u8c13\u7684\u0027\u822a\u884c\u81ea\u7531\u0027\u548c\u0027\u7a7f\n\u8d8a\u81ea\u7531\u0027\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E39", "label": "E39: \u89e3\u653e\u519b\u4e1c\u90e8\u6218\u533a\u5bf9\u7f8e\n\u519bP-8A\u98de\u673a\u5b9e\u65bd\u4e86\u4f8b\u884c\u7684\u8ddf\n\u8e2a\u76d1\u89c6\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E40", "label": "E40: \u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\n\u903b\u673a\u4ece\u5609\u624b\u7eb3\u7a7a\u519b\u57fa\u5730\u8d77\u98de\uff0c\u7ecf\n\u5df4\u58eb\u6d77\u5ce1\u8fdb\u5165\u5357\u6d77\uff0c\u5e76\u5728\u83b7\u5f97K\nC-135\u7a7a\u4e2d\u52a0\u6cb9\u540e\u7ee7\u7eed\u98de\u5411\n\u897f\u6c99\u7fa4\u5c9b\uff0c\u5b9e\u65bd\u519b\u4e8b\u98de\u884c\u6216\u4fa6\u5bdf\n\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E41", "label": "E41: \u4e2d\u56fd\u4e00\u67b6\u6b7c-11\u6218\n\u6597\u673a\u62e6\u622a\u4e86\u7f8e\u519bP-8A\u53cd\u6f5c\u5de1\n\u903b\u673a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E42", "label": "E42: \u4e00\u67b6\u7f8e\u519bP-8A\u53cd\n\u6f5c\u5de1\u903b\u673a\u5728\u53f0\u6e7e\u6d77\u5ce1\u4e0a\u7a7a\u8fdb\u884c\u7a7f\n\u8d8a\u98de\u884c\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E43", "label": "E43: \u4e2d\u56fd\u7a7a\u519b\u51fa\u52a8\u8fd0-8\nG\u7535\u5b50\u5e72\u6270\u673a\u3001\u82cf-30MKK\n\u3001\u6b7c-10\u548c\u6b7c-16\u7b49\u591a\u578b\u6218\n\u673a\uff0c\u5bf9\u7f8e\u519bP-8A\u5b9e\u65bd\u4e86\u7535\u5b50\n\u5e72\u6270\u3001\u4f34\u98de\u76d1\u89c6\u7b49\u53cd\u5236\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E44", "label": "E44: \u89e3\u653e\u519b\u4e1c\u90e8\u6218\u533a\u65b0\u95fb\n\u53d1\u8a00\u4eba\u65bd\u6bc5\u9646\u519b\u5927\u6821\u4e8e2023\n\u5e7410\u670812\u65e5\u5411\u5a92\u4f53\u901a\u62a5\uff0c\u7f8e\n\u519b\u4e00\u67b6P-8A\u53cd\u6f5c\u5de1\u903b\u673a\u8fc7\u822a\n\u53f0\u6e7e\u6d77\u5ce1\u5e76\u8fdb\u884c\u516c\u5f00\u7092\u4f5c\uff0c\u8fd9\u662f\n\u6218\u533a\u5b98\u65b9\u5bf9\u6b64\u4e8b\u4ef6\u7684\u6b63\u5f0f\u8868\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E45", "label": "E45: \u7f8e\u519b\u4e00\u67b6P-8A\u53cd\n\u6f5c\u5de1\u903b\u673a\u5728\u53f0\u6e7e\u6d77\u5ce1\u8fdb\u884c\u4e86\u7a7f\u8d8a\n\u98de\u884c\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E46", "label": "E46: \u4e2d\u56fd\u4eba\u6c11\u89e3\u653e\u519b\u4e1c\u90e8\n\u6218\u533a\u5bf9\u7f8e\u519b\u98de\u673a\u8fc7\u822a\u884c\u52a8\u5b9e\u65bd\u4e86\n\u8ddf\u8e2a\u76d1\u89c6\u3001\u8b66\u6212\u548c\u4f9d\u6cd5\u4f9d\u89c4\u5904\u7f6e\n\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E47", "label": "E47: \u7f8e\u56fd\u6d77\u519b\u51fa\u52a8P-8\nA\u53cd\u6f5c\u5de1\u903b\u673a\uff0c\u518d\u6b21\u6267\u884c\u7a7f\u8d8a\u53f0\n\u6e7e\u6d77\u5ce1\u7684\u519b\u4e8b\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E48", "label": "E48: \u4e2d\u56fd\u4eba\u6c11\u89e3\u653e\u519b\u4e1c\u90e8\n\u6218\u533a\u7ec4\u7ec7\u6218\u673a\u5bf9\u7f8e\u56fdP-8A\u4fa6\n\u5bdf\u673a\u5b9e\u65bd\u4e86\u5168\u7a0b\u8ddf\u8e2a\u548c\u76d1\u89c6\u884c\u52a8\n\u3002", "shape": "box"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E19", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.705\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E19 \u5728 E43 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E43", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E17", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.718\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E17 \u5728 E39 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E39", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.701\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E29 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E29", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.740\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E24 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E24", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E27", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.785\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E27 \u5728 E43 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E43", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E17", "id": "t5", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.716\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E17 \u5728 E33 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E33", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E15", "id": "t6", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.751\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E15 \u5728 E30 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E30", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E18", "id": "t7", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.732\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E18 \u5728 E31 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E31", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t8", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.711\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E15 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E21", "id": "t9", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.702\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E21 \u5728 E34 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E34", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E24", "id": "t10", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.705\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E24 \u5728 E33 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E33", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t11", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.721\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E13 \u5728 E21 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E21", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E34", "id": "t12", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.858\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E34 \u5728 E41 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E41", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E39", "id": "t13", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.775\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E39 \u5728 E46 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E46", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E36", "id": "t14", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.708\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E36 \u5728 E43 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E43", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t15", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.701\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E31", "id": "t16", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.715\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E31 \u5728 E37 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E37", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t17", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.761\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E10 \u5728 E15 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E43", "id": "t18", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.746\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E43 \u5728 E48 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E48", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E12", "id": "t19", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.718\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E12 \u5728 E17 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E17", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t20", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.714\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E14 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E17", "id": "t21", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.822\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E17 \u5728 E21 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E21", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E32", "id": "t22", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.754\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E32 \u5728 E36 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E36", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t23", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.716\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E11 \u5728 E15 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E29", "id": "t24", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.850\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E29 \u5728 E32 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E32", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t25", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.794\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E6 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E23", "id": "t26", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.769\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E23 \u5728 E26 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E26", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E26", "id": "t27", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.745\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E26 \u5728 E29 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E29", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E37", "id": "t28", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.730\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E37 \u5728 E40 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E40", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t29", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.702\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E45", "id": "t30", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.908\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E45 \u5728 E47 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E47", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t31", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.825\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E46", "id": "t32", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.820\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E46 \u5728 E48 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E48", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E30", "id": "t33", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.786\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E30 \u5728 E32 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E32", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E21", "id": "t34", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.743\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E21 \u5728 E23 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E23", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E23", "id": "t35", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.736\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E23 \u5728 E25 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E25", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E42", "id": "t36", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.723\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E42 \u5728 E44 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E44", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t37", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.712\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E11 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t38", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.711\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E40", "id": "t39", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.711\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E40 \u5728 E42 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E42", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E41", "id": "t40", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.710\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E41 \u5728 E43 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E43", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t41", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.843\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E4 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t42", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.805\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E14", "id": "t43", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.790\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E14 \u5728 E15 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E12", "id": "t44", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.782\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E12 \u5728 E13 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E36", "id": "t45", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.769\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E36 \u5728 E37 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E37", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E15", "id": "t46", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.760\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E15 \u5728 E16 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E16", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t47", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.754\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E11 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E44", "id": "t48", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.739\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E44 \u5728 E45 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E45", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E26", "id": "t49", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.734\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E26 \u5728 E27 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E27", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E16", "id": "t50", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.732\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E16 \u5728 E17 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E17", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E21", "id": "t51", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.728\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E21 \u5728 E22 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E22", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t52", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.707\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E5 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E24", "id": "t53", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.705\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E24 \u5728 E25 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E25", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t54", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE1 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E2 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E19", "id": "t55", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE20 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E19 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E20", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E27", "id": "t56", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE28 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E27 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E28", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E34", "id": "t57", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE35 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E34 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E35", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E37", "id": "t58", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE38 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E37 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E38", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "color": {"background": "#dbeeff", "border": "#3a7bd5", "highlight": {"background": "#b8d9f8", "border": "#1a4fa0"}, "hover": {"background": "#c9e8ff", "border": "#2a5ec0"}}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyCausal=[];var _pyTemporal=[{"from": "E19", "to": "E43", "reason": "语义嵌入相似度 0.705，按事件编号 E19 在 E43 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E17", "to": "E39", "reason": "语义嵌入相似度 0.718，按事件编号 E17 在 E39 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E8", "to": "E29", "reason": "语义嵌入相似度 0.701，按事件编号 E8 在 E29 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E7", "to": "E24", "reason": "语义嵌入相似度 0.740，按事件编号 E7 在 E24 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E27", "to": "E43", "reason": "语义嵌入相似度 0.785，按事件编号 E27 在 E43 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E17", "to": "E33", "reason": "语义嵌入相似度 0.716，按事件编号 E17 在 E33 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E15", "to": "E30", "reason": "语义嵌入相似度 0.751，按事件编号 E15 在 E30 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E18", "to": "E31", "reason": "语义嵌入相似度 0.732，按事件编号 E18 在 E31 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E2", "to": "E15", "reason": "语义嵌入相似度 0.711，按事件编号 E2 在 E15 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E21", "to": "E34", "reason": "语义嵌入相似度 0.702，按事件编号 E21 在 E34 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E24", "to": "E33", "reason": "语义嵌入相似度 0.705，按事件编号 E24 在 E33 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E13", "to": "E21", "reason": "语义嵌入相似度 0.721，按事件编号 E13 在 E21 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E34", "to": "E41", "reason": "语义嵌入相似度 0.858，按事件编号 E34 在 E41 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E39", "to": "E46", "reason": "语义嵌入相似度 0.775，按事件编号 E39 在 E46 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E36", "to": "E43", "reason": "语义嵌入相似度 0.708，按事件编号 E36 在 E43 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E5", "to": "E12", "reason": "语义嵌入相似度 0.701，按事件编号 E5 在 E12 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E31", "to": "E37", "reason": "语义嵌入相似度 0.715，按事件编号 E31 在 E37 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E10", "to": "E15", "reason": "语义嵌入相似度 0.761，按事件编号 E10 在 E15 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E43", "to": "E48", "reason": "语义嵌入相似度 0.746，按事件编号 E43 在 E48 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E12", "to": "E17", "reason": "语义嵌入相似度 0.718，按事件编号 E12 在 E17 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E9", "to": "E14", "reason": "语义嵌入相似度 0.714，按事件编号 E9 在 E14 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E17", "to": "E21", "reason": "语义嵌入相似度 0.822，按事件编号 E17 在 E21 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E32", "to": "E36", "reason": "语义嵌入相似度 0.754，按事件编号 E32 在 E36 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E11", "to": "E15", "reason": "语义嵌入相似度 0.716，按事件编号 E11 在 E15 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E29", "to": "E32", "reason": "语义嵌入相似度 0.850，按事件编号 E29 在 E32 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E6", "to": "E9", "reason": "语义嵌入相似度 0.794，按事件编号 E6 在 E9 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E23", "to": "E26", "reason": "语义嵌入相似度 0.769，按事件编号 E23 在 E26 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E26", "to": "E29", "reason": "语义嵌入相似度 0.745，按事件编号 E26 在 E29 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E37", "to": "E40", "reason": "语义嵌入相似度 0.730，按事件编号 E37 在 E40 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E7", "to": "E10", "reason": "语义嵌入相似度 0.702，按事件编号 E7 在 E10 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E45", "to": "E47", "reason": "语义嵌入相似度 0.908，按事件编号 E45 在 E47 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E4", "to": "E6", "reason": "语义嵌入相似度 0.825，按事件编号 E4 在 E6 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E46", "to": "E48", "reason": "语义嵌入相似度 0.820，按事件编号 E46 在 E48 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E30", "to": "E32", "reason": "语义嵌入相似度 0.786，按事件编号 E30 在 E32 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E21", "to": "E23", "reason": "语义嵌入相似度 0.743，按事件编号 E21 在 E23 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E23", "to": "E25", "reason": "语义嵌入相似度 0.736，按事件编号 E23 在 E25 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E42", "to": "E44", "reason": "语义嵌入相似度 0.723，按事件编号 E42 在 E44 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E9", "to": "E11", "reason": "语义嵌入相似度 0.712，按事件编号 E9 在 E11 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E5", "to": "E7", "reason": "语义嵌入相似度 0.711，按事件编号 E5 在 E7 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E40", "to": "E42", "reason": "语义嵌入相似度 0.711，按事件编号 E40 在 E42 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E41", "to": "E43", "reason": "语义嵌入相似度 0.710，按事件编号 E41 在 E43 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E3", "to": "E4", "reason": "语义嵌入相似度 0.843，按事件编号 E3 在 E4 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E9", "to": "E10", "reason": "语义嵌入相似度 0.805，按事件编号 E9 在 E10 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E14", "to": "E15", "reason": "语义嵌入相似度 0.790，按事件编号 E14 在 E15 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E12", "to": "E13", "reason": "语义嵌入相似度 0.782，按事件编号 E12 在 E13 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E36", "to": "E37", "reason": "语义嵌入相似度 0.769，按事件编号 E36 在 E37 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E15", "to": "E16", "reason": "语义嵌入相似度 0.760，按事件编号 E15 在 E16 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E11", "to": "E12", "reason": "语义嵌入相似度 0.754，按事件编号 E11 在 E12 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E44", "to": "E45", "reason": "语义嵌入相似度 0.739，按事件编号 E44 在 E45 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E26", "to": "E27", "reason": "语义嵌入相似度 0.734，按事件编号 E26 在 E27 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E16", "to": "E17", "reason": "语义嵌入相似度 0.732，按事件编号 E16 在 E17 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E21", "to": "E22", "reason": "语义嵌入相似度 0.728，按事件编号 E21 在 E22 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E4", "to": "E5", "reason": "语义嵌入相似度 0.707，按事件编号 E4 在 E5 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E24", "to": "E25", "reason": "语义嵌入相似度 0.705，按事件编号 E24 在 E25 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E1", "to": "E2", "reason": "孤立点消除：E1 与前一事件 E2 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E19", "to": "E20", "reason": "孤立点消除：E20 与前一事件 E19 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E27", "to": "E28", "reason": "孤立点消除：E28 与前一事件 E27 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E34", "to": "E35", "reason": "孤立点消除：E35 与前一事件 E34 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E37", "to": "E38", "reason": "孤立点消除：E38 与前一事件 E37 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}];var _pyEvents=[{"id": "E1", "text": "2013年11月23日，中国政府宣布按照国际通行做法划设东海防空识别区，这是一项军事/行政行动，具有对外博弈意义。"}, {"id": "E2", "text": "美国海军将其首批服役的P-8A反潜巡逻机部署到了位于日本的嘉手纳空军基地。"}, {"id": "E3", "text": "美国海军P-8A反潜巡逻机频繁进入中国划设的东海防空识别区，甚至进入中国沿海空域进行侦察活动。"}, {"id": "E4", "text": "美军P-8A反潜巡逻机在中国海南岛以东约217千米空域实施侦察行动。"}, {"id": "E5", "text": "中国海军航空兵出动一架歼-11BH型战机对美军P-8A反潜巡逻机进行了拦截和驱离。"}, {"id": "E6", "text": "美军P-8A反潜巡逻机搭载CNN记者进入中国南海空域，并抵近南沙有关岛礁海域进行侦察活动。"}, {"id": "E7", "text": "中国守礁部队对抵近侦察的美军P-8A飞机实施了无线电喊话警告，并将其驱离。"}, {"id": "E8", "text": "2016年，美军'疯狂狐狸'VP-5中队在嘉手纳空军基地发布宣传片，高调展示部署到日本的P-8A反潜巡逻机，并称其部署为'历史性时刻'，此举被视为通过宣传片展示军事部署以释放政治军事信号。"}, {"id": "E9", "text": "美国海军P-8A反潜巡逻机飞往南海上空，飞越了中国南沙群岛的渚碧礁、赤瓜礁、永暑礁和美济礁等4个岛礁，这是美国海军军机在南海争议海域实施的抵近侦察/飞越行动。"}, {"id": "E10", "text": "2018年8月10日，解放军军机在南沙群岛空域对美军P-8A反潜巡逻机实施了6次严厉警告，要求其立即离开，这是一次典型的警告和驱离军事应对行动。"}, {"id": "E11", "text": "2019年6月14日，一架编号为“169334”的美国海军P-8A反潜巡逻机从嘉手纳空军基地起飞，进入中国东海防空识别区，并进行了长时间的巡逻侦察活动。"}, {"id": "E12", "text": "美国海军一架从嘉手纳空军基地起飞的P-8A反潜巡逻机，在关岛以西约620千米的公海海域，对中国海军正常航行的052型驱逐舰“呼和浩特”舰实施了抵近侦察和低空绕飞干扰。"}, {"id": "E13", "text": "面对美军P-8A的抵近侦察和干扰，中国海军“呼和浩特”舰在警告无效后，使用激光设备对美军飞机进行了反制并成功将其驱离。"}, {"id": "E14", "text": "美国国防部通过公开视频披露并宣传了美军一架P-8A反潜巡逻机在当月中旬飞越南海的全过程。"}, {"id": "E15", "text": "美军一架P-8A反潜巡逻机在南海南沙岛礁附近空域实施侦察飞行。"}, {"id": "E16", "text": "中方对接近南沙岛礁空域的美军P-8A反潜巡逻机进行了警告，并要求其立即远离。"}, {"id": "E17", "text": "美军P-8A反潜巡逻机在东沙群岛附近海域对中国海军潜艇实施抵近侦察，并投放声呐浮标进行搜索。"}, {"id": "E18", "text": "解放军海空军一线部队对美军侦察行动迅速作出军事反应。"}, {"id": "E19", "text": "中美双方军机在相关空域展开电子对抗/电子战交锋。"}, {"id": "E20", "text": "美军P-8A在交锋后自毁声呐浮标并撤离争议海域，行动终止。"}, {"id": "E21", "text": "美军P-8A反潜巡逻机在公海对中国海军进行例行军事演练的舰艇编队实施了抵近绕飞侦察，最近距离仅400余米。"}, {"id": "E22", "text": "中国海军舰艇在多次警告美军P-8A反潜巡逻机无果后，采取了驱离措施。"}, {"id": "E23", "text": "澳大利亚海军P-8A反潜巡逻机对中国海军052D型导弹驱逐舰实施抵近绕飞干扰，构成挑衅行为。"}, {"id": "E24", "text": "中国海军军舰对澳大利亚军机进行无线电喊话警告，作为初步应对措施。"}, {"id": "E25", "text": "中国海军军舰使用激光设备对澳大利亚军机进行驱离，采取强硬反制动作。"}, {"id": "E26", "text": "澳大利亚皇家空军一架P-8A反潜巡逻机在中国沿海空域执行侦察任务。"}, {"id": "E27", "text": "中国空军出动歼-16重型战斗机对澳军P-8A侦察机实施拦截，并在其前方连续发射红外干扰弹进行战术反制。"}, {"id": "E28", "text": "澳大利亚P-8A侦察机在遭遇拦截后终止侦察活动，返回其驻地。"}, {"id": "E29", "text": "美国海军一架P-8A反潜巡逻机从嘉手纳空军基地起飞，进入中国东海空域，并在长江出海口附近执行侦察飞行任务。"}, {"id": "E30", "text": "美军P-8A反潜巡逻机由北向南飞越台湾海峡。"}, {"id": "E31", "text": "解放军对美军P-8A飞越台海行动采取了坚决反制行动。"}, {"id": "E32", "text": "美国海军P-8A反潜巡逻机从驻日美军基地起飞，由北向南进入中国南海空域执行侦察任务。"}, {"id": "E33", "text": "中国军方对飞至距中国西沙群岛26海里海域上空的美军P-8A飞机进行语音警告。"}, {"id": "E34", "text": "中国歼-11战斗机出现在美军P-8A飞机附近，对其进行伴飞驱离。"}, {"id": "E35", "text": "2023年4月9日，中国人民解放军东部战区在台海周边组织实施了代号为“联合利剑”的大规模环岛军事演习。"}, {"id": "E36", "text": "在解放军环岛军演期间，美国海军一架P-8A反潜巡逻机从嘉手纳空军基地起飞，直接抵近台湾岛恒春附近空域，对正在进行的军演实施了情报搜集与侦察活动。"}, {"id": "E37", "text": "美国海军P-8A反潜巡逻机穿越台湾海峡的军事行动。"}, {"id": "E38", "text": "美方对穿越台湾海峡行动进行官方定性，声称是为了维护所谓的'航行自由'和'穿越自由'。"}, {"id": "E39", "text": "解放军东部战区对美军P-8A飞机实施了例行的跟踪监视行动。"}, {"id": "E40", "text": "美军P-8A反潜巡逻机从嘉手纳空军基地起飞，经巴士海峡进入南海，并在获得KC-135空中加油后继续飞向西沙群岛，实施军事飞行或侦察行动。"}, {"id": "E41", "text": "中国一架歼-11战斗机拦截了美军P-8A反潜巡逻机。"}, {"id": "E42", "text": "一架美军P-8A反潜巡逻机在台湾海峡上空进行穿越飞行。"}, {"id": "E43", "text": "中国空军出动运-8G电子干扰机、苏-30MKK、歼-10和歼-16等多型战机，对美军P-8A实施了电子干扰、伴飞监视等反制行动。"}, {"id": "E44", "text": "解放军东部战区新闻发言人施毅陆军大校于2023年10月12日向媒体通报，美军一架P-8A反潜巡逻机过航台湾海峡并进行公开炒作，这是战区官方对此事件的正式表态。"}, {"id": "E45", "text": "美军一架P-8A反潜巡逻机在台湾海峡进行了穿越飞行。"}, {"id": "E46", "text": "中国人民解放军东部战区对美军飞机过航行动实施了跟踪监视、警戒和依法依规处置。"}, {"id": "E47", "text": "美国海军出动P-8A反潜巡逻机，再次执行穿越台湾海峡的军事行动。"}, {"id": "E48", "text": "中国人民解放军东部战区组织战机对美国P-8A侦察机实施了全程跟踪和监视行动。"}];var _origGraphMeta={"doc_id": "E011", "doc_name": "E011 美军P-8A反潜机首次飞越台湾海峡（2020-2025，多次）.txt"};var _graphJsonPath="D:\\code\\PycharmProjects\\pytorch\\causal_inference\\output\\doc_results\\E011\\graph.json";var _savePort=7760;var _pyDocText="近年来，美P-8A反潜巡逻机频繁在东南沿海空域对我国进行高频率抵近侦察，持续进行战场态势感知，强化对水下目标的监控活动，甚至公然在我国沿海关键水域航道上空或解放军潜艇活动海域进行降高战术动作并投放大量声呐浮标，接收声呐信号，企图跟踪、监视、封堵、压制我军水下兵力活动。P-8A机载电子探测设备不仅对我国沿海目标构成了威胁，还可探测我国陆上重要军事目标与设施，从而增大了这些目标暴露的可能性。毫无疑问，美国P-8A反潜巡逻机频繁活动在我国沿海空域已经对我军事部署、舰机航行、空防战备乃至军事信息安全等构成很大威胁，理所当然应受到我军的坚决反制。\n随着空中侦察技术的不断发展，对我国怀有敌意国家的军用侦察机已经不再像冷战时期那样冒险进入我国领空，而是频繁飞行在中国的领空、领海线以外附近空域，凭借其先进的机载雷达及电子侦察设备企图获取中国沿海甚至内陆的军事动态，以及雷达、通信等电子设备工作信号特征等各种重要情报。另外，高技术局部战争表明，现代空袭作战样式已经不再是传统的临空投弹轰炸，而更主要是以远程巡航导弹以及多种机载制导武器在领空、领海线以外精确打击、摧毁内陆纵深的各种重要目标。因而新时期的国防安全形势对我军空防能力建设提出了更高要求。\n2013年11月23日，中国政府宣布，按照国际通行做法划设东海防空识别区。在国际上，防空识别区是濒海国家为防范可能面临的空中威胁，在领空外划设的空域范围，用于及时识别、监视、管制和处置进入该空域的航空器，并留出预警时间，以保卫空防安全。如前所述，现代远程武器在领空、领海线以外就能够精确打击、摧毁内陆纵深的各种重要目标，而作为中国经济重心的东南沿海地区实际上一直面临着传统安全威胁和非传统安全威胁。因此划设东海防空识别区是增加国土安全防御纵深的必要措施，可为防范各种突发情况留出足够预警时间，从而有效行使我自卫权。\n毫无疑问，防空识别区的划设是建立在具备对该广阔空域各种飞行目标进行全昼夜、全天候有效发现、识别和管控能力基础之上的。因此，东海防空识别区的划设意味着我军不仅已经拥有国际先进水准的远距离探测、识别、跟踪技术设施，而且在作战装备方面已经具有有效应对各种突发情况的实战能力。就在我国宣布划设东海防空识别区不久，美国海军便将其首批服役的P-8A部署到了嘉手纳空军基地，并频繁进入我防空识别区甚至沿海空域对中国军情进行持续侦察甚至挑衅。但P-8A所有动向也每每受到我军的严密监视，必要时我军会施以警告、干扰乃至驱离等反制行动。\n据外媒报道，2014年8月19日，1架美军P-8A反潜巡逻机在我国海南岛东约217千米空域从事侦察活动时，受到中国海军航空兵1架歼-11BH型战机的“羞辱性驱离”。报道还称，这架挂载实弹且飞行性能极为优异的歼-11围绕美军P-8A做出一系列高难度特技飞行动作，就“像一部法拉利绕着笨重的校车转圈”，最近距离约9米，导致惊慌失措的美机不得不放弃任务离开这一空域。然而，事实却是，当日解放军正在海南岛以东区域举行重要军演，美军这架P-8A竟然实施抵近侦察。在受到我军1架歼-11BH伴飞警告后，该机飞行员仍执迷不悟，直至我军歼-11BH围绕该机进行了桶滚机动，才使其因惊恐而飞离该空域。美方就此事件颠倒黑白，反诬中方飞行员的做法“不专业”。\n2015年5月20日，美国有线电视新闻网（CNN）记者搭乘1架P-8A进入我国南海岛屿空域并抵近我南沙有关岛礁海域进行侦察活动，我方守礁部队依照规定对其进行无线电喊话驱离。\n2016年，驻嘉手纳空军基地的美军“疯狂狐狸”VP-5中队发布宣传片，高调展示部署日本的P-8A反潜巡逻机，并称该机的部署为“历史性时刻”。宣传片中，美军公开了P-8A在我国周边海域侦拍052C型驱逐舰以及所谓逼迫中国海军潜艇紧急下潜的画面。此外，宣传片中还展示了P-8A发射“鱼叉”导弹打击水面目标的作战能力。\n2018年8月10日，美国有线电视新闻网（CNN）报道称，美国记者当天从日本冲绳登上美国海军P-8A反潜巡逻机飞往南海上空。这架P-8A飞越了中国南沙群岛的渚碧礁、赤瓜礁、永暑礁和美济礁等4个岛礁。在CNN新闻节目的现场连线中，CNN驻香港资深国际记者伊万·沃特森介绍，该团队搭乘美国海军P-8A反潜巡逻机飞越中国南海，目睹了至少4处由珊瑚礁填成的人工岛，以及其上进行的大规模建设。P-8A的感应器探测到渚碧礁的大型潟湖内停靠有包括我国海警船在内的86艘舰船，而永暑礁长长的飞机跑道旁则有成排机库。这架P-8A飞行过程中，收到解放军军机6次严厉警告：“美军飞机，我是中国海军。中国对南沙群岛包括岛礁和周边海域拥有主权。请立即离开，保持距离，以免发生任何误判！”\n2019年6月14日，1架编号为“169334”的美国海军P-8A反潜逻机自嘉手纳空军基地起飞，一路向西闯入我国东海防空识别区后，转变航向径直朝北，在我防空识别区内进行了长时间的巡逻侦察。\n2020年2月17日，1架从嘉手纳空军基地起飞的美国海军P-8A潜巡逻机在关岛以西620千米公海海面发现正常航行中的中国海军052型“呼和浩特”舰（舷号161），随即对该舰实施抵近侦察并多次做低空绕飞等干扰和挑衅动作。“呼和浩特”舰警告无果后采用激光设对其进行了反制驱离。事后，美国太平洋舰队官员对媒体声称，中国舰发射的激光对飞机和机上人员有极大伤害，已经达到武器级别，并怨中国海军舰艇对P-8A的处置“鲁莽、不专业”。\n2020年7月末，1架P-8A反潜巡逻机与1架KC-135R空中加油编队出现在南海上空，从P-8A的飞行轨迹看，距离广东海岸最近时96.5千米。同年8月24日，美国国防部公开了一段视频，称记录了当中旬美军1架P-8A反潜巡逻机飞越南海的全过程。视频中一段录音示，飞机在接近南沙岛礁空域时，遭我方警告：“美国P-8A军机，里是中国永暑礁，中国对包括永暑礁在内的南沙群岛及其附近海域拥主权，为避免误判，立即远离！”\n2021年1月6日，美国海军P-8A反潜巡逻机在距离香港约150千米的东沙群岛附近海域上空对正在执行战备任务的中国海军潜艇投放声呐浮标进行搜索，解放军海空军一线部队迅速作出了反应。据海外媒体报道，双方军机展开了激烈的“高强度电子战交锋”，最终美军P-8A不得不自毁其投放的声呐浮标，撤离这一空域。同年2月，美国海军P-8A反潜巡逻机对在公海水域进行例行军事演练活动的中国海军舰艇编队进行绕飞侦察，最近时距离中方舰艇仅400余米。中国海军舰艇在对其进行多次警告无果后采取了驱离措施，美机这才飞离事发海域。\n2022年2月19日，正在穿越托雷斯海峡的1艘中国海军052D型导弹驱逐舰遭遇澳大利亚海军的P-8A反潜巡逻机抵近绕飞干扰，中方军舰对其进行无线电喊话警告后使用激光设备将其驱离。由于在此次事件中，中国海军舰艇拥有被澳大利亚宣称为专属经济区的国际海域自由航行的正当权利，因而澳大利亚方面虽企图利用新闻媒体对该事件进行炒作，但并没有在国际舆论场引起波澜。\n2022年5月26日，1架皇家澳大利亚空军P-8A反潜巡逻机在对中国沿海空域进行侦察时，遭到中国空军歼-16重型战斗机的拦截。澳方声称，中方歼-16除进行警告和机动拦截外，还在P-8A前方连续发射了红外干扰弹，澳军P-8A惧于发动机吸入异物导致发生故障，只得终止侦察活动返回驻地。作为一个远在南半球的国家，澳大利亚近年来已多次将其P-8A反潜巡逻机派往嘉手纳空军基地或菲律宾马尼拉空军基地进行部署，积极参与美国牵头的针对中国的军事围堵活动，为此受到解放军的强力反制显然是咎由自取。\n2022年6月22日，1架美国海军的P-8A反潜巡逻机从嘉手纳空军基地起飞进入东海，在中国长江出海口外进行侦察飞行。美国海军没有公布该机的飞行目的，但据台湾媒体分析，这架P-8A似乎是在对中国当时刚刚下水的航母“福建”舰进行远程侦察和窥视。根据飞行轨迹分析，该机在长江口外的海域曾进行过转向飞行，将机头电子设备直接指向长江口。\n2022年12月8日，1架美国海军P-8A反潜巡逻机由北向南飞越台湾海峡。对此解放军采取了坚决反制行动。\n2023年2月24日，1架美国海军P-8A反潜巡逻机从驻日美军基地起飞后由北向南直接飞往中国南海进行侦察活动，该机此次再度有CNN记者搭乘进行实况报道。据CNN记者报道，当该机飞至距中国西沙群岛26海里海域上空、6553米高度时通过无线电收到语音警告：“美国飞机，中国领空是12海里，不要再靠近，否则你将承担所有责任。”警告过后仅几分钟，1架携带4枚空空导弹的中国歼-11战斗机出现在距离美军机左侧约152米处。歼-11从后方逼近P-8A，进行了一些机动飞行同时进行广播驱离。\n解放军已经在南海多次驱离非法进入的外军军机，图为中国空军的一架歼-11B战斗机在南海使用“滚筒”机动驱离了非法进入南海的美军P8反潜巡逻机\nCNN记者在P-8A中和歼-11同框解说：“中国战斗机距离非常之近，可以清晰地看到机体上的涂装，以及战斗机所携带的各式导弹，甚至可以看到中国飞行员在转头观察我们。”我军飞行员直接喊话：“美国飞机正在接近中国领空，请保持安全距离，否则将被拦截。”美军称解放军战机动作很“粗鲁”，有点“咄咄逼人”。为了规避空中撞击风险，这架P-8A选择转向脱离。该机在飞回冲绳途中接近菲律宾北方海域上空时，声称发现我国海军052D型导弹驱逐舰“长沙”舰（舷号173）正在航行，于是将飞行高度下降到大约300米，低空飞掠“长沙”舰并进行拍摄。搭机的CNN记者对这艘中国军舰进行了仔细观察和现场解说。随后，这架P-8A飞行到距台湾东岸38海里外，声称又发现1艘航行中的中国海军052D型导弹驱逐舰，美机再次对中国军舰进行低空飞越和现场拍摄解说，并因此受到我国这艘052D型导弹驱逐舰的警告。\n2023年4月9日，在中国人民解放军东部战区举行大规模“联合利剑”环岛军演期间，美国海军P-8A反潜巡逻机从嘉手纳空军基地起飞后直接抵近台岛恒春附近空域，对军演进行情报搜集活动。\n2023年7月13日，1架美国海军P-8A反潜巡逻机穿越台湾海峡，并声称这一举动是为了维护所谓的“航行自由”和“穿越自由”。事实上，这并非美国P-8A军机第一次途经台湾海峡飞行，特意对此次穿越飞行进行高调渲染显然别有用心。解放军东部战区照例对其进行了跟踪监视。\n2023年8月，1架隶属于美国海军第16巡逻中队的P-8A反潜巡逻机从嘉手纳空军基地起飞，经巴士海峡进入南海。在飞行约2小时后，1架美军KC-135空中加油机为这架P-8A提供了空中加油。P-8A完成空中加油与KC-135分航之后，继续向西飞向中国西沙群岛，在距离西沙永兴岛约160千米时声称遭遇中国1架歼-11战斗机拦截。P-8A机组成员戈登·基斯林中尉事后说：“只要美军前往永兴岛附近就会受到拦截。”另一名机组成员艾琳·麦克唐纳更是感慨：“这几乎就像时钟一样准时。”\n美国海军学会网站则披露了更多细节，当美国的P-8A反潜巡逻机逼近永兴岛时，发现中国海军航母“山东”舰正在不远处巡航，中方战机直接贴近这架P-8A飞行。由于双方距离非常近，连飞行员的头盔和脸都看得非常清楚。中国军机在拦截过程中始终保持在P-8A左翼，随军记者谢尔伯恩看到中国战机挂载了2枚空空导弹和2个吊舱。双方距离一度接近到足以肉眼看到对方飞行员的肢体动作，因而对P-8A机组人员造成极大心理压力。其间，P-8A数次企图摆脱中国军机的贴身拦截，但最终功亏一篑。中国军机在伴飞约1小时后与P-8A脱离接触 不过 很多人就美方发布的视频实况指出，此次拦截P-8A的中方战机是1架苏-35而非歼-11，并指出美方仍显“不够专业”。\n2023年9月有媒体报道，1架正在穿越台湾海峡上空的美军P-8A受到中国空军运-8G电子干扰机、苏-30MKK、歼-10和歼-16等多型战机的“款待”。\n2023年10月12日，解放军东部战区新闻发言人施毅陆军大校对媒体表示，美军1架P-8A反潜巡逻机过航台湾海峡并进行公开炒作。中国人民解放军东部战区组织战机对美机过航行动进行跟监警戒，依法依规处置。战区部队时刻保持高度戒备，坚决捍卫国家主权安全以及地区和平稳定。\n2023年12月6日，美国海军再次出动P-8A反潜巡逻机闯入台海，执行穿越台湾海峡任务。美方随即进行了大肆炒作，宣称所谓的“航行自由”，以及“实现对于地区和平与稳定的承诺”。中国人民解放军东部战区组织战机对美国P-8A进行了全程跟踪和监视，并保持高度警惕，随时反制各类挑衅。\n以上仅仅是有关近年来美军P-8A反潜巡逻机针对中国沿海或针对中国海军舰船从事侦察甚至挑衅活动公开报道中的一小部分，但足以说明美军P-8A反潜巡逻机针对中国活动有多么频繁和猖獗。而中国智库“南海战略态势感知计划”2024年3月22日发布的《2023年美军南海军事活动不完全报告》显示，2023年美军继续加强对华军事威慑，在南海及周边地区维系着高强度的抵近侦察、穿越台湾海峡、前沿存在、战略巡航、演习演训和战场建设等行动，其中美军大型侦察机的空中抵近侦察约1000架次。尽管如此，由于在非战争时期各国对飞行在本国领空以外附近空域的他国军用飞机基本上都不会采取武力处置方式，即便明知其在从事侦察、刺探活动，也往往较多采取无线电喊话、伴飞监视以及电子干扰等反制措施，使其无法完成预期任务。\n最近一段时期，美军P-8A反潜巡逻机多次以穿航台湾海峡方式，故意做出一副似乎仍有能力阻挡中国人民完成国家统一大业的姿态，为台湾岛内“台独”势力撑腰打气。然而实际上，P-8A这类目标特征显著、飞行性能仅相当于普通客机的反潜巡逻机，每每从嘉手纳空军基地出动到返航，整个过程都处于我军监视之中。可以说，一旦形势发展到中国人民不得不采用军事斗争方式实现国家领土完全统一之时，其绝没有胆色闯入我军划设的禁飞区，也无法在我军控制的海域和空域从事侦察以及反潜活动。否则，届时不要说我军的歼-20隐身战斗机能够轻而易举使其灰飞烟灭，即使其面对我军歼-10、歼-11以及歼-16或具有区域防空作战能力的水面战舰也基本没有生还的可能。因此，美军P-8A虽然作为反潜巡逻机或海上侦察机有其先进性，但倘若是在错误的时间、错误的地点从事错误的活动，也将不可避免地呈现出其生存能力十分脆弱的一面。";var _pyManualReviewEdges=[];</script><script>
+var _edgeLookup = {};      // edgeId -> {type, from, to, reason, manualReview, isNew}
+var _deletedEdges = {};    // edgeId -> true
+var _manualEdits = {};     // edgeId -> {originalType, newType, reason}
+var _simpActive = false;
+var _simpOrig = {};
+var _editMode = false;
+var _evtMode = 'list';     // 'list' | 'doc'
+var _addEdge = null;       // null | {role: 'source'|'target', anchorId: string}
+var _newEdgePair = null;   // null | {source: string, target: string}
+var _hasUnsaved = false;
+var _pyManualReviewEdges = _pyManualReviewEdges || [];
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _edgeTitle(reason, manualReview) {
+    var title = _esc(reason || '');
+    if (manualReview) return title ? (title + ' [人工审核]') : '[人工审核]';
+    return title;
+}
+function _edgeColor(edgeType, manualReview) {
+    if (manualReview) return '#f5a623';
+    return edgeType === 'causal' ? '#d62728' : '#1f77b4';
+}
+function _edgeWidth(edgeType) {
+    return edgeType === 'causal' ? 3 : 1.6;
+}
+function _edgeDashes(edgeType, manualReview) {
+    if (edgeType !== 'temporal') return false;
+    return manualReview ? [10, 6] : true;
+}
+function _edgeStyle(edgeType, manualReview) {
+    var color = _edgeColor(edgeType, manualReview);
+    return {
+        color: {color: color, hover: color, highlight: color},
+        width: _edgeWidth(edgeType),
+        dashes: _edgeDashes(edgeType, manualReview),
+    };
+}
+function _wait(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+/* ── 图遍历辅助 ─────────────────────────────────────────────── */
+function _liveEdges() {
+    return network.body.data.edges.get().filter(function(e) { return !_deletedEdges[e.id]; });
+}
+function getDescendants(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (f === cur && !visited[t]) queue.push(t);
+        });
+    }
+    return visited;
+}
+function getAncestors(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (t === cur && !visited[f]) queue.push(f);
+        });
+    }
+    return visited;
+}
+function hasEdge(fromId, toId) {
+    var f = String(fromId), t = String(toId);
+    return _liveEdges().some(function(e) { return String(e.from) === f && String(e.to) === t; });
+}
+
+/* ── 模式切换 ──────────────────────────────────────────────── */
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+            upd.push({id: id, label: String(id), title: ev ? (_esc(id) + ': ' + _esc(ev.text)) : ''});
+        });
+        if (btn) btn.textContent = '简洁模式';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label, title: o.title});
+        });
+        if (btn) btn.textContent = '详细模式';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+/* ── 编辑模式 ──────────────────────────────────────────────── */
+function toggleEditMode() {
+    var btn = document.getElementById('btn-edit');
+    if (_editMode) {
+        if (_hasUnsaved && !confirm('有未保存的修改，退出修改模式后将丢失，确定退出？')) return;
+        _editMode = false;
+        btn.textContent = '修改';
+        btn.style.background = '#f5f5f5';
+        btn.style.borderColor = '#aaa';
+        closeAllMenus();
+    } else {
+        _editMode = true;
+        btn.textContent = '退出修改';
+        btn.style.background = '#fff3cd';
+        btn.style.borderColor = '#f5a623';
+    }
+}
+function closeAllMenus() {
+    closeEdgeMenu();
+    closeNodeMenu();
+    closeCandidatePanel();
+}
+
+/* ── 边右键菜单 ─────────────────────────────────────────────── */
+function showEdgeMenu(edgeId, x, y) {
+    var menu = document.getElementById('edge-ctx-menu');
+    menu.setAttribute('data-eid', edgeId);
+    var e = _edgeLookup[edgeId] || {};
+    var typeLabel = e.type === 'causal' ? '因果边' : '时序边';
+    document.getElementById('ctx-type-label').textContent = '当前: ' + typeLabel;
+    // 预计算「修改方向」是否可用（会产生环或反向边已存在则禁用）
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && e.from && e.to) {
+        var fId = String(e.from), tId = String(e.to);
+        _deletedEdges[edgeId] = true;
+        var desc = getDescendants(tId);
+        delete _deletedEdges[edgeId];
+        var disabled = !!(desc[fId] || hasEdge(tId, fId));
+        reverseBtn.style.color = disabled ? '#bbb' : '';
+        reverseBtn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+        reverseBtn.setAttribute('data-disabled', disabled ? '1' : '0');
+    }
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeEdgeMenu() {
+    var menu = document.getElementById('edge-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function menuDelete() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    closeEdgeMenu();
+    _setUnsaved();
+}
+function menuModify() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId] || {};
+    var other = e.type === 'causal' ? '时序边' : '因果边';
+    document.getElementById('dlg-title').textContent = '修改为' + other;
+    document.getElementById('dlg-reason').value = e.reason || '';
+    var dlg = document.getElementById('modify-dlg');
+    dlg.setAttribute('data-eid', edgeId);
+    dlg.style.display = 'flex';
+    document.getElementById('dlg-reason').focus();
+}
+
+function menuReverse() {
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && reverseBtn.getAttribute('data-disabled') === '1') return;
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId];
+    if (!e) return;
+    var fromId = String(e.from), toId = String(e.to);
+    // 再次验证（防止菜单开启期间图结构变化）
+    _deletedEdges[edgeId] = true;
+    var desc = getDescendants(toId);
+    delete _deletedEdges[edgeId];
+    if (desc[fromId]) { showToast('修改方向会产生环路，无法执行', 2500, '#c0392b'); return; }
+    if (hasEdge(toId, fromId)) { showToast('反向边已存在', 2500, '#c0392b'); return; }
+    // 删除原边，添加反向边
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    var isCausal = (e.type === 'causal');
+    var newEid = 'rev_' + Date.now();
+    var style = _edgeStyle(e.type, true);
+    network.body.data.edges.add([{
+        id: newEid, from: toId, to: fromId, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(e.reason || '') + ' [方向已反转]',
+    }]);
+    _edgeLookup[newEid] = {type: e.type, from: toId, to: fromId, reason: e.reason, manualReview: true, isNew: true};
+    showToast('已反转方向: ' + toId + ' → ' + fromId, 2200, '#27ae60');
+    _setUnsaved();
+}
+/* ── 节点点击菜单 ───────────────────────────────────────────── */
+function showNodeMenu(nodeId, x, y) {
+    var menu = document.getElementById('node-ctx-menu');
+    menu.setAttribute('data-nid', String(nodeId));
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeNodeMenu() {
+    var menu = document.getElementById('node-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function startAddEdge(role) {
+    var nodeId = document.getElementById('node-ctx-menu').getAttribute('data-nid');
+    closeNodeMenu();
+    _addEdge = {role: role, anchorId: nodeId};
+    _showCandidatePanel(nodeId, role);
+}
+
+/* ── 候选节点面板 ───────────────────────────────────────────── */
+function _showCandidatePanel(anchorId, role) {
+    var allIds = network.body.data.nodes.getIds().map(String);
+    var excluded = {};
+    excluded[String(anchorId)] = true;
+    if (role === 'source') {
+        // anchor 是起点，选终点 B：B 不能是 anchor 的祖先（防环）且不能有 anchor→B（防重复）
+        var anc = getAncestors(anchorId);
+        Object.keys(anc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.from) === String(anchorId)) excluded[String(e.to)] = true;
+        });
+    } else {
+        // anchor 是终点，选起点 A：A 不能是 anchor 的后代（防环）且不能有 A→anchor（防重复）
+        var desc = getDescendants(anchorId);
+        Object.keys(desc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.to) === String(anchorId)) excluded[String(e.from)] = true;
+        });
+    }
+    var candidates = allIds.filter(function(id) { return !excluded[id]; });
+    if (candidates.length === 0) {
+        showToast('没有可新增的候选节点', 2000, '#555');
+        _addEdge = null;
+        return;
+    }
+    var title = role === 'source' ? '以该节点为起点，选择终点：' : '以该节点为终点，选择起点：';
+    document.getElementById('candidate-title').textContent = title;
+    var html = '';
+    candidates.forEach(function(id) {
+        var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+        var label = ev ? (id + ': ' + ev.text) : id;
+        html += '<div onclick="selectCandidate(\'' + id + '\')" '
+              + 'style="padding:6px 10px;cursor:pointer;border-radius:4px;margin-bottom:3px;'
+              + 'font-size:12px;background:#f0f7ff;border:1px solid #c5d8f0;" '
+              + 'onmouseover="this.style.background=\'#dbeeff\'" '
+              + 'onmouseout="this.style.background=\'#f0f7ff\'">'
+              + _esc(label) + '</div>';
+    });
+    document.getElementById('candidate-body').innerHTML = html;
+    document.getElementById('candidate-panel').style.display = 'flex';
+}
+function closeCandidatePanel() {
+    var p = document.getElementById('candidate-panel');
+    if (p) p.style.display = 'none';
+    _addEdge = null;
+}
+function selectCandidate(candidateId) {
+    if (!_addEdge) { closeCandidatePanel(); return; }
+    var src = _addEdge.role === 'source' ? _addEdge.anchorId : candidateId;
+    var tgt = _addEdge.role === 'target' ? _addEdge.anchorId : candidateId;
+    closeCandidatePanel();
+    _newEdgePair = {source: src, target: tgt};
+    _showNewEdgeDlg(src, tgt);
+}
+
+/* ── 新建边对话框 ───────────────────────────────────────────── */
+function _showNewEdgeDlg(src, tgt) {
+    document.getElementById('new-edge-subtitle').textContent = src + ' → ' + tgt;
+    document.getElementById('new-edge-reason').value = '';
+    document.getElementById('new-edge-type').value = 'causal';
+    document.getElementById('new-edge-dlg').style.display = 'flex';
+    document.getElementById('new-edge-reason').focus();
+}
+function closeNewEdgeDlg() {
+    document.getElementById('new-edge-dlg').style.display = 'none';
+    _newEdgePair = null;
+}
+function applyNewEdge() {
+    if (!_newEdgePair) { closeNewEdgeDlg(); return; }
+    var reason = document.getElementById('new-edge-reason').value.trim();
+    if (!reason) { alert('请填写原因。'); return; }
+    var edgeType = document.getElementById('new-edge-type').value;
+    var src = _newEdgePair.source, tgt = _newEdgePair.target;
+    var eid = 'new_' + Date.now();
+    var style = _edgeStyle(edgeType, true);
+    network.body.data.edges.add([{
+        id: eid, from: src, to: tgt, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(reason) + ' [人工新增]',
+    }]);
+    _edgeLookup[eid] = {type: edgeType, from: src, to: tgt, reason: reason, manualReview: true, isNew: true};
+    closeNewEdgeDlg();
+    showToast('已新增边 ' + src + ' → ' + tgt, 2000, '#27ae60');
+    _setUnsaved();
+}
+
+/* ── 修改对话框 ────────────────────────────────────────────── */
+function closeModifyDlg() {
+    document.getElementById('modify-dlg').style.display = 'none';
+}
+function applyModify() {
+    var dlg = document.getElementById('modify-dlg');
+    var edgeId = dlg.getAttribute('data-eid');
+    var reason = document.getElementById('dlg-reason').value.trim();
+    if (!reason) { alert('请填写修改原因。'); return; }
+    var e = _edgeLookup[edgeId];
+    if (!e) { closeModifyDlg(); return; }
+    var newType = e.type === 'causal' ? 'temporal' : 'causal';
+    var style = _edgeStyle(newType, true);
+    network.body.data.edges.update([{
+        id: edgeId,
+        color: style.color,
+        dashes: style.dashes, width: style.width,
+        title: _esc(reason) + ' [人工审核]',
+    }]);
+    _manualEdits[edgeId] = {originalType: e.type, newType: newType, reason: reason};
+    e.reason = reason; e.type = newType; e.manualReview = true;
+    closeModifyDlg();
+    _setUnsaved();
+}
+
+/* ── 保存/下载 ─────────────────────────────────────────────── */
+function _setUnsaved() {
+    _hasUnsaved = true;
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '有未保存的修改'; el.style.opacity = '1'; }
+}
+function _updateGraphInfo(data) {
+    var causalCount = document.getElementById('causal-count');
+    var temporalCount = document.getElementById('temporal-count');
+    var titleEl = document.getElementById('doc-title');
+    if (causalCount) causalCount.textContent = String((data.causal_edges || []).length);
+    if (temporalCount) temporalCount.textContent = String((data.temporal_edges || []).length);
+    if (titleEl && data.doc_name) {
+        titleEl.textContent = String(data.doc_name).replace(/\.txt$/i, '');
+    }
+}
+function _loadLatestGraph() {
+    if (!_graphJsonPath) return Promise.resolve(false);
+    var url = 'http://localhost:' + _savePort + '/load_graph?path=' + encodeURIComponent(_graphJsonPath) + '&_ts=' + Date.now();
+    return fetch(url, {cache: 'no-store'}).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    }).then(function(res) {
+        if (!res.ok || !res.body || !res.body.data) return false;
+        _applyLoadedData(res.body.data);
+        return true;
+    }).catch(function() {
+        return false;
+    });
+}
+function _saveRequest(data) {
+    return fetch('http://localhost:' + _savePort + '/save_graph', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({path: _graphJsonPath, data: data}),
+    }).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    });
+}
+function _waitForSaveServer(maxAttempts) {
+    var attempts = 0;
+    function probe() {
+        attempts += 1;
+        return _loadLatestGraph().then(function(ok) {
+            if (ok || attempts >= maxAttempts) return ok;
+            return _wait(500).then(probe);
+        }).catch(function() {
+            if (attempts >= maxAttempts) return false;
+            return _wait(500).then(probe);
+        });
+    }
+    return probe();
+}
+function _saveFallback(data, msg) {
+    showToast(msg, 6000, '#c0392b');
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '保存失败，修改尚未写入 graph.json'; el.style.opacity = '1'; }
+}
+function _handleSaveResponse(res, data) {
+    if (res.ok && (!res.body || res.body.ok !== false)) {
+        showToast('已保存并重载 ✓', 3000, '#27ae60');
+        var el = document.getElementById('save-status');
+        if (el) { el.textContent = ''; el.style.opacity = '0'; }
+        _applyLoadedData(res.body.data || data);
+        return true;
+    }
+    var err = (res.body && res.body.error) ? ('保存失败：' + res.body.error) : '保存失败';
+    _saveFallback(data, err);
+    return false;
+}
+function buildSaveData() {
+    var causal = [], temporal = [];
+    for (var eid in _edgeLookup) {
+        if (_deletedEdges[eid]) continue;
+        var e = _edgeLookup[eid];
+        if (e.type === 'causal') {
+            var d = {cause: e.from, effect: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            causal.push(d);
+        } else {
+            var d = {source: e.from, target: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            temporal.push(d);
+        }
+    }
+    var evts = (_pyEvents || []).map(function(e) { return {event_id: e.id, text: e.text}; });
+    return {
+        doc_id: (_origGraphMeta || {}).doc_id || '',
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        doc_text: _pyDocText || '',
+        events: evts, causal_edges: causal, temporal_edges: temporal,
+        manual_review_edges: _pyManualReviewEdges || [],
+    };
+}
+function saveGraph() {
+    var data = buildSaveData();
+    showToast('保存中…', 30000, '#555');
+    _saveRequest(data).then(function(res) {
+        _handleSaveResponse(res, data);
+    }).catch(function() {
+        showToast('本地保存服务暂未就绪，正在自动重试…', 4000, '#e67e22');
+        _waitForSaveServer(6).then(function(ok) {
+            if (!ok) {
+                _saveFallback(data, '自动保存服务仍未就绪，未写入 graph.json');
+                return;
+            }
+            showToast('本地保存服务已就绪，正在重试保存…', 4000, '#e67e22');
+            _saveRequest(data).then(function(res) {
+                _handleSaveResponse(res, data);
+            }).catch(function() {
+                _saveFallback(data, '自动重试保存失败，未写入 graph.json');
+            });
+        });
+    });
+}
+function _applyLoadedData(data) {
+    /* 用服务器返回的 graph.json 内容就地重建可视化，边恢复红/蓝色，状态全清零 */
+    if (!data || typeof network === 'undefined') return;
+    network.body.data.edges.clear();
+    _edgeLookup = {};
+    _deletedEdges = {};
+    _manualEdits = {};
+    _hasUnsaved = false;
+    _pyCausal = (data.causal_edges || []).map(function(e) {
+        return {from: e.cause, to: e.effect, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    _pyTemporal = (data.temporal_edges || []).map(function(e) {
+        return {from: e.source, to: e.target, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    if (Array.isArray(data.events)) {
+        _pyEvents = data.events.map(function(ev) { return {id: ev.event_id, text: ev.text || ''}; });
+    }
+    if (typeof data.doc_text === 'string') {
+        _pyDocText = data.doc_text;
+    }
+    if (data.doc_id || data.doc_name) {
+        _origGraphMeta = {
+            doc_id: data.doc_id || ((_origGraphMeta || {}).doc_id || ''),
+            doc_name: data.doc_name || ((_origGraphMeta || {}).doc_name || ''),
+        };
+    }
+    _pyManualReviewEdges = Array.isArray(data.manual_review_edges) ? data.manual_review_edges : [];
+    _pyCausal.forEach(function(e, i) {
+        var eid = 'c' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('causal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'causal', from:String(e.from), to:String(e.to), reason:e.reason, manualReview:manualReview};
+    });
+    _pyTemporal.forEach(function(e, i) {
+        var eid = 't' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('temporal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'temporal', from:String(e.from), to:String(e.to), reason:e.reason||'', manualReview:manualReview};
+    });
+    _updateGraphInfo(data);
+    _renderEventPanel();
+}
+function downloadGraph(data) {
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'graph.json';
+    a.click();
+}
+function showToast(msg, duration, bg) {
+    var toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.style.background = bg || '#333';
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    if (toast._timer) clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() {
+        toast.style.opacity = '0';
+        setTimeout(function() { toast.style.display = 'none'; }, 400);
+    }, duration || 2500);
+}
+
+/* ── 事件面板（列表/全文切换） ─────────────────────────────── */
+function toggleEventList() {
+    _evtMode = (_evtMode === 'list') ? 'doc' : 'list';
+    _renderEventPanel();
+}
+function _renderEventPanel() {
+    var body = document.getElementById('evt-list-body');
+    var btn  = document.getElementById('btn-evtlist');
+    if (!body) return;
+    if (_evtMode === 'doc') {
+        body.innerHTML = '<pre style="white-space:pre-wrap;margin:0;font-size:12px;font-family:sans-serif;'
+            + 'color:#333;word-break:break-all;">' + _esc(_pyDocText || '（无全文）') + '</pre>';
+        if (btn) btn.textContent = '正在显示全文 ▲（点击返回事件列表）';
+    } else {
+        var html = '';
+        (_pyEvents || []).forEach(function(e) {
+            html += '<div style="margin-bottom:6px;">'
+                  + '<span style="font-weight:700;color:#1f77b4;">' + _esc(e.id) + '</span>'
+                  + '<span style="color:#555;">: ' + _esc(e.text) + '</span></div>';
+        });
+        body.innerHTML = html;
+        if (btn) btn.textContent = '事件列表 ▼（点击查看全文）';
+    }
+}
+/* ── 候选面板拖动 ───────────────────────────────────────── */
+var _candDrag = null;
+document.addEventListener('mousedown', function(e) {
+    var handle = document.getElementById('candidate-drag-handle');
+    if (!handle || !handle.contains(e.target)) return;
+    if (e.button !== 0) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    var rect = panel.getBoundingClientRect();
+    // 如果还在用百分比定位，先转换为具体像素坐标
+    panel.style.top  = rect.top  + 'px';
+    panel.style.left = rect.left + 'px';
+    panel.style.marginLeft = '0';
+    _candDrag = { startX: e.clientX, startY: e.clientY,
+                  initLeft: rect.left, initTop: rect.top };
+    e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+    if (!_candDrag) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    panel.style.left = (_candDrag.initLeft + e.clientX - _candDrag.startX) + 'px';
+    panel.style.top  = (_candDrag.initTop  + e.clientY - _candDrag.startY) + 'px';
+});
+document.addEventListener('mouseup', function(e) {
+    if (e.button === 0) _candDrag = null;
+});
+/* ── 初始化 ────────────────────────────────────────────────── */
+window.addEventListener('load', function() {
+    (_pyCausal || []).forEach(function(e, i) {
+        _edgeLookup['c' + i] = {type:'causal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    (_pyTemporal || []).forEach(function(e, i) {
+        _edgeLookup['t' + i] = {type:'temporal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    if (typeof network !== 'undefined') {
+        network.on('click', function(params) {
+            if (!_editMode) { closeAllMenus(); return; }
+            closeEdgeMenu();
+            closeNodeMenu();
+            // 如果处于候选选择状态，任意点击画布空白处取消
+            if (_addEdge && params.nodes.length === 0 && params.edges.length === 0) {
+                closeCandidatePanel();
+                return;
+            }
+            if (params.nodes.length > 0) {
+                // 如果候选面板已展开，直接调 selectCandidate
+                var panel = document.getElementById('candidate-panel');
+                if (panel && panel.style.display !== 'none') {
+                    selectCandidate(String(params.nodes[0]));
+                } else {
+                    showNodeMenu(params.nodes[0], params.pointer.DOM.x, params.pointer.DOM.y);
+                }
+            } else if (params.edges.length > 0) {
+                if (document.getElementById('candidate-panel').style.display !== 'none') return;
+                showEdgeMenu(params.edges[0], params.pointer.DOM.x, params.pointer.DOM.y);
+            }
+        });
+    }
+    _updateGraphInfo({
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        causal_edges: _pyCausal || [],
+        temporal_edges: _pyTemporal || [],
+    });
+    _renderEventPanel();
+    _loadLatestGraph();
+});
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:340px;"><div id="doc-title" style="font-weight:600;font-size:14px;margin-bottom:4px;">E011 美军P-8A反潜机首次飞越台湾海峡（2020-2025，多次）</div><div>因果边：<b id="causal-count">0</b> 条&emsp;时序边：<b id="temporal-count">59</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button><button id="btn-edit" onclick="toggleEditMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">修改</button><button id="btn-save" onclick="saveGraph()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">保存</button></div><div id="save-status" style="font-size:11px;color:#e67e22;margin-top:4px;min-height:14px;"></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:300px;z-index:9999;display:flex;flex-direction:column;gap:8px;"><div id="events-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:12px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1 1 0;min-height:0;"><button id="btn-evtlist" onclick="toggleEventList()" style="width:100%;text-align:left;font-weight:700;font-size:13px;border:none;background:none;cursor:pointer;padding:0 0 6px 0;color:#333;border-bottom:1px solid #e0e0e0;margin-bottom:8px;">事件列表 ▼</button><div id="evt-list-body"></div></div><div id="doc-links-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:8px 14px;font-family:sans-serif;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:0 0 auto;max-height:40%;min-height:36px;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:5px;">文档网络</div><a href="../D001/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">1 D001 特朗普当选后蔡英文通话——打破37年惯例（2016.12）</a><a href="../D002/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">2 D002 蔡英文首次过境美国——访问洛杉矶和休斯敦（2019.7）</a><a href="../D003/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">3 D003 美国副国务卿克拉奇访台——1979年来最高级别国务院官员（2020.9）</a><a href="../D004/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">4 D004 美国卫生部长阿扎访台（2020.8）</a><a href="../D005/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">5 D005 美国驻联合国大使克拉夫特访台计划受阻（2021.1）</a><a href="../D006/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">6 D006 佩洛西访台（2022.8）</a><a href="../D007/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">7 D007 蔡英文过境纽约：在哥伦比亚大学领奖（2023.3.29-31）</a><a href="../D008/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">8 D008 蔡英文会晤众议长麦卡锡——首次台湾领导人在美国本土会见众议长（2023.4.5）</a><a href="../D009/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">9 D009 赖清德过境夏威夷引发＂海空联合战备警巡演练＂（2023.8）</a><a href="../D010/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">10 D010 赖清德就职后首次过境美国计划被特朗普政府拒绝（2025.8）</a><a href="../D011/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">11 D011 美国国务卿访华涉台交锋系列（多次，2023-2025）</a><a href="../D012/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">12 D012 拜登四次＂口误＂宣称协防台湾（2021-2023）</a><a href="../D013/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">13 D013 G7首次在联合声明中提及台海问题（2021.6）</a><a href="../D014/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">14 D014 北约战略概念文件首次点名中国——台海涉及（2022.6）</a><a href="../D015/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">15 D015 G7外长会不到48小时后解放军启动军演（2025.3）</a><a href="../D018/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">16 D018 立陶宛宣布允许台湾以＂台湾＂名义设代表处（2021.7）</a><a href="../D019/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">17 D019 中方召回驻立大使并要求立方召回驻华大使（2021.8）</a><a href="../D020/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">18 D020 ＂驻立陶宛台湾代表处＂正式挂牌及中方降级外交关系（2021.11）</a><a href="../D021/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">19 D021 欧盟在WTO起诉中国＂歧视立陶宛贸易＂并最终撤诉（2022-2025）</a><a href="../D022/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">20 D022 立陶宛新政府承认设＂台湾代表处＂是＂战略大错＂（2024-2026）</a><a href="../D023/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">21 D023 捷克前参议长柯佳洛访台计划遭中方施压及本人猝逝（2019-2020.1）</a><a href="../D024/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">22 D024 捷克参议长维特齐率89人代表团访台（2020.8.30-9.4）</a><a href="../D025/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">23 D025 安倍晋三＂台湾有事就是日本有事＂论（2021-2022）</a><a href="../D027/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">24 D027 高市早苗＂台湾有事存亡危机事态＂言论引发中日外交危机（2025.11-12）</a><a href="../D028/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">25 D028 日本＂安保三文件＂修订与中日涉台根本冲突（2022.12）</a><a href="../D030/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">26 D030 菲律宾开放吕宋岛基地——含涉台战略意图（2023-2024）</a><a href="../D031/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">27 D031 菲律宾参谋总长要求军队做好＂应对武统台湾＂准备（2025.4）</a><a href="../D032/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">28 D032 中菲南海冲突与台湾问题捆绑（2023-2025）</a><a href="../D033/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">29 D033 《台湾旅行法》签署引发中方抗议（2018.3）</a><a href="../D034/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">30 D034 《台北法案》签署（2020.3）</a><a href="../D035/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">31 D035 美国年度《国防授权法案》持续纳入涉台条款（2020-2025）</a><a href="../D036/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">32 D036 美国国务院删除＂不支持台湾独立＂表述（2025.2）</a><a href="../D038/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">33 D038 习拜巴厘岛峰会涉台交锋（2022.11）</a><a href="../D039/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">34 D039 习拜旧金山峰会涉台博弈（2023.11）</a><a href="../D040/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">35 D040 习近平与特朗普通话涉台（2025）</a><a href="../E001/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">36 E001 美国军舰穿越台海定期化——从偶发到常态（2018年起）</a><a href="../E002/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">37 E002 2023年6月中美军舰150码危险横切事件（2023.6）</a><a href="../E003/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">38 E003 特朗普第二任期首次美舰穿越台海——两舰待三天（2025.2.10-12）</a><a href="../E004/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">39 E004 日本海上自卫队涟号首次穿越台湾海峡（2024.9.25）</a><a href="../E005/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">40 E005 德国军舰22年来首次穿越台海——巴登-符腾堡号事件（2024.9）</a><a href="../E006/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">41 E006 荷兰军舰穿越台海与中方发动海峡中线以东拦截（2024）</a><a href="../E007/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">42 E007 英国里士满号护卫舰联同美舰穿越台海（2025.9）</a><a href="../E008/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">43 E008 澳大利亚与加拿大军舰联合穿越台海引发武直-10拦截（2025.9）</a><a href="../E009/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">44 E009 加拿大军舰穿越台海与中方激烈反应（多次，2020-2025）</a><a href="../E010/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">45 E010 法国、意大利等国军舰陆续加入穿越台海序列（2021-2025）</a><div style="padding:3px 0;font-size:12px;color:#1f77b4;font-weight:700;">46 E011 美军P-8A反潜机首次飞越台湾海峡（2020-2025，多次）</div></div></div><div id="save-toast" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10010;color:#fff;font-family:sans-serif;font-size:14px;font-weight:600;padding:10px 22px;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,0.25);transition:opacity 0.4s;pointer-events:none;"></div><div id="edge-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:140px;"><div id="ctx-type-label" style="padding:4px 14px;color:#666;font-size:11px;border-bottom:1px solid #eee;margin-bottom:4px;"></div><div onclick="menuDelete()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background=''">删除</div><div onclick="menuModify()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background=''">修改类型</div><div id="ctx-reverse-btn" onclick="menuReverse()" style="padding:6px 14px;cursor:pointer;" onmouseover="if(this.getAttribute('data-disabled')!=='1')this.style.background='#e8f5e9'" onmouseout="this.style.background=''">修改方向</div><div onclick="closeEdgeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="node-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:220px;"><div onclick="startAddEdge('target')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为终点，选择起点：</div><div onclick="startAddEdge('source')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为起点，选择终点：</div><div onclick="closeNodeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="candidate-panel" style="display:none;position:fixed;top:20%;left:50%;margin-left:-150px;z-index:10001;background:#fff;border:1px solid #c0c0c0;border-radius:10px;font-family:sans-serif;min-width:300px;max-width:420px;max-height:65vh;overflow:hidden;flex-direction:column;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="candidate-drag-handle" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px 14px;cursor:grab;background:#f5f5f5;border-bottom:1px solid #e0e0e0;border-radius:10px 10px 0 0;flex-shrink:0;"><div id="candidate-title" style="font-weight:700;font-size:14px;user-select:none;"></div><button onclick="closeCandidatePanel()" style="border:none;background:none;cursor:pointer;font-size:16px;color:#999;padding:0;">✕</button></div><div id="candidate-body" style="padding:10px 14px;overflow-y:auto;max-height:55vh;"></div></div><div id="new-edge-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div style="font-weight:700;font-size:15px;margin-bottom:4px;">新增边</div><div id="new-edge-subtitle" style="font-size:13px;color:#555;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:4px;">类型</label><select id="new-edge-type" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:5px;margin-bottom:10px;"><option value="causal">因果边</option><option value="temporal">时序边</option></select><label style="display:block;font-size:13px;margin-bottom:6px;">原因（必填）</label><textarea id="new-edge-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeNewEdgeDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyNewEdge()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#27ae60;color:#fff;font-weight:600;">新增</button></div></div></div><div id="modify-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="dlg-title" style="font-weight:700;font-size:15px;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:6px;">修改原因（必填）</label><textarea id="dlg-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeModifyDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyModify()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#f5a623;color:#fff;font-weight:600;">确认修改</button></div></div></div></body>
+</html>

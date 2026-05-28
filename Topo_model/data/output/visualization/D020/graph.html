@@ -1,0 +1,747 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "E1", "label": "E1: \u7acb\u9676\u5b9b\u519b\u4eba\u5728\u8fb9\u5883\u5730\u533a\n\u5bf9\u805a\u96c6\u7684\u96be\u6c11\u5b9e\u65bd\u4e86\u66b4\u529b\u9a71\u9010\u884c\n\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E2", "label": "E2: \u767d\u4fc4\u7f57\u65af\uff08\u901a\u8fc7\u5176\u56fd\u5bb6\n\u65b0\u95fb\u53f0\u53d1\u5e03\u7684\u89c6\u9891\uff09\u4e25\u5389\u8c34\u8d23\u7acb\n\u9676\u5b9b\u519b\u4eba\u7684\u4e0a\u8ff0\u884c\u4e3a\uff0c\u5e76\u5c06\u5176\u5b9a\n\u6027\u4e3a\u5f53\u4ee3\u7684\u7eb3\u7cb9\u201c\u76d6\u4e16\u592a\u4fdd\u201d\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E3", "label": "E3: \u7acb\u9676\u5b9b\u653f\u5e9c\u52a8\u7528\u519b\u961f\u548c\n\u519b\u72ac\u66b4\u529b\u5bf9\u5f85\u96be\u6c11\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E4", "label": "E4: \u4e2d\u534e\u4eba\u6c11\u5171\u548c\u56fd\u5916\u4ea4\u90e8\n\u53d1\u8a00\u4eba\u8d75\u7acb\u575a\u5728\u4f8b\u884c\u8bb0\u8005\u4f1a\u4e0a\uff0c\n\u5bf9\u7acb\u9676\u5b9b\u653f\u5e9c\u52a8\u7528\u519b\u961f\u3001\u519b\u72ac\u66b4\n\u529b\u5bf9\u5f85\u96be\u6c11\u7684\u884c\u4e3a\u8868\u793a\u4e25\u91cd\u5173\u5207\n\u548c\u4e25\u5389\u8c34\u8d23\uff0c\u5e76\u547c\u5401\u7acb\u9676\u5b9b\u505c\u6b62\n\u66b4\u529b\uff0c\u7ef4\u62a4\u96be\u6c11\u7684\u4eba\u6743\u548c\u57fa\u672c\u6743\n\u5229\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E5", "label": "E5: \u4e2d\u56fd\u5bf9\u7acb\u9676\u5b9b\u91c7\u53d6\u5916\u4ea4\n\u964d\u7ea7\u63aa\u65bd\uff0c\u6682\u505c\u4e2d\u56fd\u9a7b\u7acb\u9676\u5b9b\u5927\n\u4f7f\u9986\u7684\u9886\u4e8b\u4e1a\u52a1\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E6", "label": "E6: \u4e2d\u56fd\u5355\u65b9\u9762\u5b9e\u65bd\u5916\u4ea4\u964d\n\u7ea7\u52a8\u4f5c\uff0c\u5c06\u9a7b\u7acb\u9676\u5b9b\u5927\u4f7f\u9986\u6b63\u5f0f\n\u66f4\u540d\u4e3a\u4ee3\u529e\u5904\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E7", "label": "E7: \u4e2d\u56fd\u5916\u4ea4\u90e8\u5bf9\u7acb\u9676\u5b9b\u63d0\n\u51fa\u5916\u4ea4\u8981\u6c42\uff0c\u6307\u4ee4\u5176\u66f4\u6539\u9a7b\u534e\u5916\n\u4ea4\u673a\u6784\u79f0\u8c13\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E8", "label": "E8: \u7acb\u9676\u5b9b\u653f\u5e9c\u4e8e2021\n\u5e7412\u67083\u65e5\u6b63\u5f0f\u5ba3\u5e03\u5bf9\u4e2d\u56fd\u5317\n\u4eac\u51ac\u5965\u4f1a\u8fdb\u884c\u5916\u4ea4\u62b5\u5236\uff0c\u6210\u4e3a\u5168\n\u7403\u9996\u4e2a\u91c7\u53d6\u6b64\u884c\u52a8\u7684\u56fd\u5bb6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E9", "label": "E9: \u5c3d\u7ba1\u653f\u5e9c\u5ba3\u5e03\u5916\u4ea4\u62b5\u5236\n\uff0c\u7acb\u9676\u5b9b\u4f53\u80b2\u4ee3\u8868\u56e2\u4ecd\u6d3e\u51fa\u81ea\u72ec\n\u7acb\u4ee5\u6765\u89c4\u6a21\u6700\u5927\u7684\u51ac\u5965\u4ee3\u8868\u56e2\uff0c\n\u5e76\u5982\u5e38\u62b5\u8fbe\u4e2d\u56fd\u53c2\u8d5b\uff0c\u4f53\u73b0\u4e86\u4f53\n\u80b2\u4ea4\u6d41\u5c42\u9762\u7684\u535a\u5f08\u52a8\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E10", "label": "E10: \u7acb\u9676\u5b9b\u65b9\u9762\u5b9e\u65bd\u7684\u5916\n\u4ea4\u4eba\u5458\u64a4\u79bb\u53ca\u5916\u4ea4\u8fd0\u4f5c\u6a21\u5f0f\u964d\u7ea7\n\u4e8b\u4ef6\uff0c\u5177\u4f53\u8868\u73b0\u4e3a\u7acb\u9676\u5b9b\u9a7b\u4e2d\u56fd\n\u768419\u540d\u5916\u4ea4\u4eba\u5458\u53ca\u5176\u5bb6\u5c5e\u5168\u6570\n\u64a4\u79bb\u5317\u4eac\uff0c\u5bf9\u4e2d\u4e8b\u52a1\u5168\u6570\u6539\u4ee5\u8fdc\n\u8ddd\u65b9\u5f0f\u8fd0\u4f5c\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E11", "label": "E11: \u4e2d\u56fd\u65b9\u9762\u5bf9\u7acb\u9676\u5b9b\u9a7b\n\u534e\u5916\u4ea4\u673a\u6784\u63d0\u51fa\u5f3a\u5236\u6027\u5916\u4ea4\u8981\u6c42\n\uff0c\u8981\u6c42\u5176\u5927\u4f7f\u9986\u6539\u540d\u4e3a\u201c\u4ee3\u529e\u5904\n\u201d\u5e76\u91cd\u65b0\u7533\u8bf7\u8bc6\u522b\u6587\u4ef6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E12", "label": "E12: \u7acb\u9676\u5b9b\u65b9\u9762\u56e0\u6b64\u53ec\u56de\n\u5176\u5916\u4ea4\u4eba\u5458\uff0c\u4f5c\u4e3a\u5bf9\u6b64\u4e8b\u7684\u53cd\u5236\n\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E13", "label": "E13: \u6b27\u76df\u5b98\u65b9\u6307\u8d23\u4e2d\u56fd\u9488\n\u5bf9\u7acb\u9676\u5b9b\u91c7\u53d6\u4e86\u4e00\u7cfb\u5217\u6b67\u89c6\u6027\u8d38\n\u6613\u63aa\u65bd\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E14", "label": "E14: \u6b27\u76df\u5c31\u6b64\u4e8b\u5411\u4e16\u754c\u8d38\n\u6613\u7ec4\u7ec7\u5bf9\u4e2d\u56fd\u63d0\u8d77\u4e86\u8d38\u6613\u8bc9\u8bbc\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E15", "label": "E15: \u4e2d\u56fd\u6d77\u5173\u603b\u7f72\u5ba3\u5e03\u6682\n\u505c\u63a5\u53d7\u7acb\u9676\u5b9b\u725b\u8089\u8fdb\u53e3\u7533\u62a5\uff0c\u8fd9\n\u662f\u4e2d\u56fd\u5bf9\u7acb\u9676\u5b9b\u5b9e\u65bd\u7684\u8d38\u6613\u5236\u88c1\n\u6216\u53cd\u5236\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E16", "label": "E16: \u7acb\u9676\u5b9b\u4ea4\u901a\u4e0e\u901a\u8baf\u90e8\n\u526f\u90e8\u957f\u74e6\u4f0a\u4e18\u51ef\u7ef4\u4e18\u7279\u8bbf\u95ee\u53f0\u6e7e\n\uff0c\u6784\u6210\u4e00\u4e2a\u6d89\u53ca\u53f0\u6e7e\u5730\u533a\u7684\u653f\u6cbb\n\u4e8b\u4ef6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E17", "label": "E17: \u4e2d\u65b9\u56e0\u4e0d\u6ee1\u7acb\u9676\u5b9b\u5b98\n\u5458\u8bbf\u95ee\u53f0\u6e7e\uff0c\u51b3\u5b9a\u5bf9\u74e6\u4f0a\u4e18\u51ef\u7ef4\n\u4e18\u7279\u4e2a\u4eba\u91c7\u53d6\u5236\u88c1\u63aa\u65bd\uff0c\u8fd9\u662f\u4e00\n\u9879\u653f\u6cbb\u53cd\u5236\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E18", "label": "E18: \u4e2d\u56fd\u653f\u5e9c\u6682\u505c\u4e0e\u7acb\u9676\n\u5b9b\u4ea4\u901a\u4e0e\u901a\u8baf\u90e8\u4e4b\u95f4\u4efb\u4f55\u5f62\u5f0f\u7684\n\u5b98\u65b9\u4ea4\u5f80\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E19", "label": "E19: \u4e2d\u56fd\u653f\u5e9c\u6682\u505c\u4e0e\u7acb\u9676\n\u5b9b\u5728\u56fd\u9645\u9053\u8def\u8fd0\u8f93\u9886\u57df\u7684\u4ea4\u6d41\u5408\n\u4f5c\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E20", "label": "E20: \u7acb\u9676\u5b9b\u5916\u4ea4\u90e8\u53ec\u89c1\u4e2d\n\u56fd\u9a7b\u7ef4\u5c14\u7ebd\u65af\u4ee3\u529e\uff0c\u5c31\u4e2d\u56fd\u56e0\u74e6\n\u4f0a\u4e18\u51ef\u7ef4\u4e18\u8bbf\u53f0\u800c\u5b9e\u65bd\u7684\u5236\u88c1\u63d0\n\u51fa\u6297\u8bae\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E21", "label": "E21: \u7acb\u9676\u5b9b\u653f\u5e9c\u901a\u8fc7\u6279\u51c6\n\u5176\u5370\u592a\u5730\u533a\u6218\u7565\u6587\u4ef6\uff0c\u6b63\u5f0f\u5c06\u4e2d\n\u56fd\u5b9a\u6027\u4e3a\u5728\u56fd\u5185\u5de9\u56fa\u4e13\u5236\u63a7\u5236\u65b9\n\u6cd5\uff0c\u5e76\u5bf9\u81ea\u7531\u5f00\u653e\u7684\u6c11\u4e3b\u793e\u4f1a\u6784\n\u6210\u91cd\u5927\u6311\u6218\uff0c\u4ece\u800c\u786e\u7acb\u4e86\u5bf9\u534e\u7684\n\u8d1f\u9762\u6218\u7565\u7acb\u573a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E22", "label": "E22: \u4e2d\u65b9\u89e3\u9664\u5bf9\u7acb\u9676\u5b9b\u7684\n\u5927\u90e8\u5206\u5236\u88c1\u63aa\u65bd\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E23", "label": "E23: \u7acb\u9676\u5b9b\u5916\u957f\u84dd\u65af\u67cf\u5409\n\u65af\u5bf9\u5916\u58f0\u660e\uff0c\u4e2d\u65b9\u5df2\u89e3\u9664\u5bf9\u7acb\u9676\n\u5b9b\u7684\u5927\u90e8\u5206\u5236\u88c1\u63aa\u65bd\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E24", "label": "E24: \u4e2d\u56fd\u5bf9\u7acb\u7684\u7acb\u9676\u5b9b\u5b9e\n\u65bd\u5916\u4ea4\u5236\u88c1\uff0c\u5177\u4f53\u63aa\u65bd\u4e3a\u81ea20\n24\u5e741\u670824\u65e5\u8d77\u505c\u6b62\u5411\u7acb\u9676\n\u5b9b\u516c\u6c11\u53d1\u653e\u7b7e\u8bc1\uff0c\u6b64\u4e3e\u65e8\u5728\u9650\u5236\n\u4e24\u56fd\u95f4\u7684\u65c5\u884c\u548c\u5916\u4ea4\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E25", "label": "E25: \u7acb\u9676\u5b9b\u5916\u4ea4\u90e8\u957f\u52a0\u5e03\n\u91cc\u57c3\u5362\u65af\u00b7\u5170\u8328\u8d1d\u5409\u65af\u5728\u5e03\u9c81\u585e\n\u5c14\u7684\u6b27\u76df\u5916\u4ea4\u90e8\u957f\u975e\u6b63\u5f0f\u4f1a\u8bae\u4e0a\n\u6307\u63a7\u4e2d\u56fd\u5f00\u542f\u65b0\u7684\u5916\u4ea4\u538b\u529b\u6218\u7ebf\n\uff0c\u79f0\u4e4b\u4e3a\u0027\u5916\u4ea4\u80c1\u8feb\u0027\uff0c\u8fd9\u662f\u7acb\n\u9676\u5b9b\u5b98\u65b9\u5728\u6b27\u76df\u573a\u5408\u5bf9\u4e2d\u56fd\u7684\u5916\n\u4ea4\u6307\u63a7\u548c\u5b9a\u6027\u8868\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E26", "label": "E26: 2024\u5e745\u67087\u65e5\n\uff0c\u7acb\u9676\u5b9b\u603b\u7edf\u5409\u5854\u7eb3\u65af\u00b7\u7459\u585e\u8fbe\n\uff08\u4e89\u53d6\u8fde\u4efb\uff09\u63d0\u51fa\u5bf9\u534e\u5173\u7cfb\u6539\u5584\n\u653f\u7b56\u5efa\u8bae\uff0c\u8981\u6c42\u5c06\u53f0\u6e7e\u4ee3\u8868\u5904\u66f4\n\u540d\u4e3a\u53f0\u5317\u4ee3\u8868\u5904\uff0c\u4ee5\u6539\u5584\u4e0e\u4e2d\u534e\n\u4eba\u6c11\u5171\u548c\u56fd\u7684\u5173\u7cfb\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E27", "label": "E27: \u4e2d\u56fd\u5ba3\u5e03\u5bf9\u90e8\u5206\u6b27\u6d32\n\u56fd\u5bb6\u5b9e\u65bd\u5355\u65b9\u9762\u514d\u7b7e\u653f\u7b56\uff0c\u4f46\u5c06\n\u7acb\u9676\u5b9b\u6392\u9664\u5728\u5916\uff0c\u8fd9\u88ab\u89c6\u4e3a\u4e00\u79cd\n\u533a\u522b\u5bf9\u5f85\u6216\u5916\u4ea4\u65bd\u538b\u624b\u6bb5\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E28", "label": "E28: \u7acb\u9676\u5b9b\u653f\u5e9c\u5ba3\u5e03\u9a71\u9010\n\u4e2d\u56fd\u9a7b\u7acb\u9676\u5b9b\u4ee3\u529e\u5904\u7684\u4e09\u540d\u96c7\u5458\n\uff0c\u5e76\u5c06\u5176\u5217\u4e3a\u4e0d\u53d7\u6b22\u8fce\u7684\u4eba\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E29", "label": "E29: \u4e2d\u56fd\u5916\u4ea4\u90e8\u5bf9\u7acb\u9676\u5b9b\n\u9a71\u9010\u5916\u4ea4\u5b98\u7684\u884c\u4e3a\u8868\u793a\u5f3a\u70c8\u8c34\u8d23\n\u548c\u575a\u51b3\u53cd\u5bf9\uff0c\u8fd9\u662f\u4e2d\u56fd\u5b98\u65b9\u5bf9\u6b64\n\u4e8b\u4ef6\u7684\u6b63\u5f0f\u8868\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E30", "label": "E30: \u7acb\u9676\u5b9b\u8bae\u4f1a\u901a\u8fc7\u6cd5\u5f8b\n\u4fee\u6b63\u6848\uff0c\u7981\u6b62\u62e5\u6709\u4e2d\u56fd\u56fd\u7c4d\u7684\u4eba\n\u5458\u5728\u7acb\u9676\u5b9b\u6b66\u88c5\u90e8\u961f\u4e2d\u670d\u5f79\uff0c\u5305\n\u62ec\u5fd7\u613f\u5175\u5f79\u548c\u4e49\u52a1\u5175\u5f79\uff0c\u5e76\u89c4\u5b9a\n\u5df2\u5728\u519b\u961f\u670d\u5f79\u7684\u4e2d\u56fd\u56fd\u7c4d\u4eba\u5458\u5c06\n\u4e0d\u518d\u7ee7\u7eed\u670d\u5f79\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E31", "label": "E31: \u7acb\u9676\u5b9b\u5f53\u5c40\u5728\u7ef4\u5c14\u7ebd\n\u65af\u673a\u573a\u62d2\u7edd\u4e86\u4e00\u540d\u4e2d\u56fd\u5916\u4ea4\u5b98\u5165\n\u5883\uff0c\u8be5\u5916\u4ea4\u5b98\u5728\u77ed\u6682\u51fa\u56fd\u65c5\u884c\u540e\n\u8fd4\u56de\u65f6\u88ab\u62d2\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E32", "label": "E32: \u4e2d\u5229\u4e24\u56fd\u653f\u6cbb/\u5916\u4ea4\n\u5173\u7cfb\u6076\u5316\u81f3\u50f5\u6301\u72b6\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E33", "label": "E33: \u4e2d\u56fd\u5b98\u65b9\u673a\u6784\u53d1\u5e03\u516c\n\u544a\uff0c\u5ba3\u5e03\u4e2d\u56fd\u9a7b\u7acb\u9676\u5b9b\u4ee3\u529e\u5904\u7684\n\u9886\u4e8b\u4e1a\u52a1\u6682\u7531\u4e2d\u56fd\u9a7b\u62c9\u8131\u7ef4\u4e9a\u5927\n\u4f7f\u9986\u4ee3\u7ba1\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E34", "label": "E34: \u65f6\u4efb\u7acb\u9676\u5b9b\u603b\u7406\u91d1\u9676\n\u5854\u65af\u00b7\u5e15\u5362\u8328\u5361\u65af\u8bc1\u5b9e\uff0c\u7acb\u9676\u5b9b\n\u653f\u5e9c\u5df2\u5411\u4e2d\u56fd\u53d1\u51fa\u4fee\u590d\u53cc\u8fb9\u5173\u7cfb\n\u7684\u5916\u4ea4\u63d0\u8bae\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E35", "label": "E35: \u7acb\u9676\u5b9b\u65b0\u4efb\u603b\u7406\u56e0\u52a0\n\u00b7\u9c81\u5409\u5c3c\u57c3\u5185\u5411\u8bae\u4f1a\u63d0\u4ea4\u65b0\u7248\u65bd\n\u653f\u7eb2\u9886\uff0c\u5176\u4e2d\u627f\u8bfa\u5176\u5185\u9601\u5c06\u5bfb\u6c42\n\u4e0e\u4e2d\u56fd\u7684\u5173\u7cfb\u6062\u590d\u81f3\u4e0e\u5176\u4ed6\u6b27\u76df\n\u56fd\u5bb6\u76f8\u540c\u7684\u5916\u4ea4\u6c34\u5e73\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E36", "label": "E36: \u7acb\u9676\u5b9b\u603b\u7406\u9c81\u5409\u5c3c\u57c3\n\u5185\u516c\u5f00\u6279\u8bc4\u8be5\u56fd\u8bbe\u7acb\u53f0\u6e7e\u529e\u4e8b\u5904\n\u7684\u51b3\u7b56\uff0c\u6307\u51fa\u8fd9\u662f\u4e00\u4e2a\u6218\u7565\u9519\u8bef\n\uff0c\u5ffd\u89c6\u56fd\u5185\u5229\u76ca\u5e76\u504f\u79bb\u6b27\u76df\u65b9\u5411\n\uff0c\u8fd9\u53cd\u6620\u4e86\u5bf9\u8fc7\u5f80\u5916\u4ea4\u51b3\u7b56\u7684\u53cd\n\u601d\uff0c\u65e8\u5728\u8c03\u6574\u5bf9\u534e\u5173\u7cfb\u7acb\u573a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E37", "label": "E37: \u7acb\u9676\u5b9b\u603b\u7edf\u7459\u585e\u8fbe\u5c31\n\u6062\u590d\u5bf9\u534e\u5173\u7cfb\u53d1\u8868\u6761\u4ef6\u6027\u8868\u6001\uff0c\n\u8868\u793a\u53ef\u5728\u7b26\u5408\u53cc\u65b9\u610f\u613f\u4e0b\u6062\u590d\u5173\n\u7cfb\uff0c\u4f46\u540c\u65f6\u8b66\u544a\u4e0e\u4e2d\u56fd\u8fc7\u4e8e\u5bc6\u5207\n\u53ef\u80fd\u4ea7\u751f\u98ce\u9669\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E38", "label": "E38: \u7acb\u9676\u5b9b\u603b\u7406\u9c81\u5409\u5c3c\u57c3\n\u5185\u91ca\u653e\u6539\u5584\u5bf9\u534e\u5173\u7cfb\u7684\u5916\u4ea4\u4fe1\u53f7\n\uff0c\u8868\u793a\u613f\u610f\u8003\u8651\u5c06\u9a7b\u7acb\u9676\u5b9b\u7684\u53f0\n\u6e7e\u4ee3\u8868\u5904\u66f4\u540d\u4e3a\u201c\u53f0\u5317\u4ee3\u8868\u5904\u201d\n\u3002", "shape": "box"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u66b4\u529b\u884c\u4e3a\u5f15\u53d1\u767d\u4fc4\u7f57\u65af\u516c\u5f00\u8c34\u8d23", "to": "E2", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E1", "id": "c1", "title": "\u66b4\u529b\u884c\u4e3a\u5bfc\u81f4\u4e2d\u56fd\u5916\u4ea4\u90e8\u8c34\u8d23", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c2", "title": "\u653f\u5e9c\u66b4\u529b\u884c\u4e3a\u5f15\u53d1\u4e2d\u56fd\u5916\u4ea4\u90e8\u8c34\u8d23", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E11", "id": "c3", "title": "\u4e2d\u56fd\u5916\u4ea4\u8981\u6c42\u5f15\u53d1\u7acb\u9676\u5b9b\u53ec\u56de\u4eba\u5458", "to": "E12", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E16", "id": "c4", "title": "\u7acb\u9676\u5b9b\u5b98\u5458\u8bbf\u53f0\u5f15\u53d1\u4e2d\u65b9\u4e2a\u4eba\u5236\u88c1", "to": "E17", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E16", "id": "c5", "title": "\u8bbf\u53f0\u5bfc\u81f4\u4e2d\u65b9\u6682\u505c\u4e0e\u7acb\u4ea4\u901a\u90e8\u4ea4\u5f80", "to": "E18", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E16", "id": "c6", "title": "\u8bbf\u53f0\u5bfc\u81f4\u4e2d\u65b9\u6682\u505c\u9053\u8def\u8fd0\u8f93\u5408\u4f5c", "to": "E19", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E17", "id": "c7", "title": "\u4e2d\u65b9\u5236\u88c1\u5f15\u53d1\u7acb\u9676\u5b9b\u5916\u4ea4\u6297\u8bae", "to": "E20", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E24", "id": "c8", "title": "\u4e2d\u56fd\u505c\u53d1\u7b7e\u8bc1\u5f15\u53d1\u7acb\u9676\u5b9b\u6307\u63a7\u80c1\u8feb", "to": "E25", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E28", "id": "c9", "title": "\u7acb\u9676\u5b9b\u9a71\u9010\u5916\u4ea4\u5b98\u5f15\u53d1\u4e2d\u56fd\u8c34\u8d23", "to": "E29", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E32", "id": "c10", "title": "\u5916\u4ea4\u5173\u7cfb\u50f5\u6301\u5bfc\u81f4\u9886\u4e8b\u4e1a\u52a1\u4ee3\u7ba1", "to": "E33", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E36", "id": "c11", "title": "\u603b\u7406\u6279\u8bc4\u9519\u8bef\u540e\u63d0\u51fa\u66f4\u540d\u5efa\u8bae", "to": "E38", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.724\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E29 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E29", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.717\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E11 \u5728 E33 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E33", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.719\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E24 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E24", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.726\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E24 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E24", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.760\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E18 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E18", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E26", "id": "t5", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.719\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E26 \u5728 E37 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E37", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E26", "id": "t6", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.719\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E26 \u5728 E36 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E36", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t7", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.721\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E11 \u5728 E20 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E20", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t8", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.744\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t9", "title": "\u4e24\u8981\u6c42\u63cf\u8ff0\u540c\u4e00\u4e8b\u4ef6\uff0c\u65e0\u76f4\u63a5\u56e0\u679c", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E24", "id": "t10", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.738\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E24 \u5728 E27 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E27", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E34", "id": "t11", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.724\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E34 \u5728 E37 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E37", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t12", "title": "\u540c\u4e00\u4e8b\u4ef6\u7684\u4e0d\u540c\u8868\u8ff0\uff0c\u65e0\u4fc3\u53d1\u5173\u7cfb", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t13", "title": "\u4e24\u4e8b\u4ef6\u540c\u65f6\u53d1\u751f\uff0c\u65e0\u76f4\u63a5\u56e0\u679c\u8bc1\u636e", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E18", "id": "t14", "title": "\u540c\u4e00\u5236\u88c1\u51b3\u5b9a\u4e0b\u7684\u4e0d\u540c\u65b9\u9762\uff0c\u5e76\u5217", "to": "E19", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t15", "title": "\u5916\u4ea4\u964d\u7ea7\u8fde\u7eed\u6b65\u9aa4\uff0c\u65e0\u660e\u786e\u4fc3\u53d1\u8bc1\u636e", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E17", "id": "t16", "title": "\u5e76\u5217\u5236\u88c1\u63aa\u65bd\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb", "to": "E18", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E31", "id": "t17", "title": "\u62d2\u5165\u5883\u662f\u5173\u7cfb\u50f5\u6301\u8868\u73b0\uff0c\u975e\u539f\u56e0", "to": "E32", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E22", "id": "t18", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.875\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E22 \u5728 E23 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E23", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t19", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.756\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E35", "id": "t20", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.749\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E35 \u5728 E36 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E36", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t21", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.735\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E13 \u5728 E14 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E14", "id": "t22", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE15 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E14 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E20", "id": "t23", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE21 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E20 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E21", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E29", "id": "t24", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE30 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E29 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E30", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t25", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E5 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t26", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E13 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t27", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E22 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E22", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t28", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E26 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E26", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "color": {"background": "#dbeeff", "border": "#3a7bd5", "highlight": {"background": "#b8d9f8", "border": "#1a4fa0"}, "hover": {"background": "#c9e8ff", "border": "#2a5ec0"}}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyCausal=[{"from": "E1", "to": "E2", "reason": "暴力行为引发白俄罗斯公开谴责", "manual_review": false}, {"from": "E1", "to": "E4", "reason": "暴力行为导致中国外交部谴责", "manual_review": false}, {"from": "E3", "to": "E4", "reason": "政府暴力行为引发中国外交部谴责", "manual_review": false}, {"from": "E11", "to": "E12", "reason": "中国外交要求引发立陶宛召回人员", "manual_review": false}, {"from": "E16", "to": "E17", "reason": "立陶宛官员访台引发中方个人制裁", "manual_review": false}, {"from": "E16", "to": "E18", "reason": "访台导致中方暂停与立交通部交往", "manual_review": false}, {"from": "E16", "to": "E19", "reason": "访台导致中方暂停道路运输合作", "manual_review": false}, {"from": "E17", "to": "E20", "reason": "中方制裁引发立陶宛外交抗议", "manual_review": false}, {"from": "E24", "to": "E25", "reason": "中国停发签证引发立陶宛指控胁迫", "manual_review": false}, {"from": "E28", "to": "E29", "reason": "立陶宛驱逐外交官引发中国谴责", "manual_review": false}, {"from": "E32", "to": "E33", "reason": "外交关系僵持导致领事业务代管", "manual_review": false}, {"from": "E36", "to": "E38", "reason": "总理批评错误后提出更名建议", "manual_review": false}];var _pyTemporal=[{"from": "E4", "to": "E29", "reason": "语义嵌入相似度 0.724，按事件编号 E4 在 E29 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E11", "to": "E33", "reason": "语义嵌入相似度 0.717，按事件编号 E11 在 E33 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E5", "to": "E24", "reason": "语义嵌入相似度 0.719，按事件编号 E5 在 E24 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E8", "to": "E24", "reason": "语义嵌入相似度 0.726，按事件编号 E8 在 E24 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E5", "to": "E18", "reason": "语义嵌入相似度 0.760，按事件编号 E5 在 E18 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E26", "to": "E37", "reason": "语义嵌入相似度 0.719，按事件编号 E26 在 E37 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E26", "to": "E36", "reason": "语义嵌入相似度 0.719，按事件编号 E26 在 E36 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E11", "to": "E20", "reason": "语义嵌入相似度 0.721，按事件编号 E11 在 E20 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E5", "to": "E10", "reason": "语义嵌入相似度 0.744，按事件编号 E5 在 E10 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E7", "to": "E11", "reason": "两要求描述同一事件，无直接因果", "manual_review": false}, {"from": "E24", "to": "E27", "reason": "语义嵌入相似度 0.738，按事件编号 E24 在 E27 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E34", "to": "E37", "reason": "语义嵌入相似度 0.724，按事件编号 E34 在 E37 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E1", "to": "E3", "reason": "同一事件的不同表述，无促发关系", "manual_review": false}, {"from": "E6", "to": "E7", "reason": "两事件同时发生，无直接因果证据", "manual_review": false}, {"from": "E18", "to": "E19", "reason": "同一制裁决定下的不同方面，并列", "manual_review": false}, {"from": "E5", "to": "E6", "reason": "外交降级连续步骤，无明确促发证据", "manual_review": false}, {"from": "E17", "to": "E18", "reason": "并列制裁措施，无直接促发关系", "manual_review": false}, {"from": "E31", "to": "E32", "reason": "拒入境是关系僵持表现，非原因", "manual_review": false}, {"from": "E22", "to": "E23", "reason": "语义嵌入相似度 0.875，按事件编号 E22 在 E23 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E8", "to": "E9", "reason": "语义嵌入相似度 0.756，按事件编号 E8 在 E9 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E35", "to": "E36", "reason": "语义嵌入相似度 0.749，按事件编号 E35 在 E36 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E13", "to": "E14", "reason": "语义嵌入相似度 0.735，按事件编号 E13 在 E14 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E14", "to": "E15", "reason": "孤立点消除：E15 与前一事件 E14 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E20", "to": "E21", "reason": "孤立点消除：E21 与前一事件 E20 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E29", "to": "E30", "reason": "孤立点消除：E30 与前一事件 E29 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E1", "to": "E5", "reason": "子图桥接：E1 → E5 为跨连通分量最小跨度对，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E1", "to": "E13", "reason": "子图桥接：E1 → E13 为跨连通分量最小跨度对，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E1", "to": "E22", "reason": "子图桥接：E1 → E22 为跨连通分量最小跨度对，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E1", "to": "E26", "reason": "子图桥接：E1 → E26 为跨连通分量最小跨度对，仅表达时序，不表达因果。", "manual_review": false}];var _pyEvents=[{"id": "E1", "text": "立陶宛军人在边境地区对聚集的难民实施了暴力驱逐行动。"}, {"id": "E2", "text": "白俄罗斯（通过其国家新闻台发布的视频）严厉谴责立陶宛军人的上述行为，并将其定性为当代的纳粹“盖世太保”。"}, {"id": "E3", "text": "立陶宛政府动用军队和军犬暴力对待难民。"}, {"id": "E4", "text": "中华人民共和国外交部发言人赵立坚在例行记者会上，对立陶宛政府动用军队、军犬暴力对待难民的行为表示严重关切和严厉谴责，并呼吁立陶宛停止暴力，维护难民的人权和基本权利。"}, {"id": "E5", "text": "中国对立陶宛采取外交降级措施，暂停中国驻立陶宛大使馆的领事业务。"}, {"id": "E6", "text": "中国单方面实施外交降级动作，将驻立陶宛大使馆正式更名为代办处。"}, {"id": "E7", "text": "中国外交部对立陶宛提出外交要求，指令其更改驻华外交机构称谓。"}, {"id": "E8", "text": "立陶宛政府于2021年12月3日正式宣布对中国北京冬奥会进行外交抵制，成为全球首个采取此行动的国家。"}, {"id": "E9", "text": "尽管政府宣布外交抵制，立陶宛体育代表团仍派出自独立以来规模最大的冬奥代表团，并如常抵达中国参赛，体现了体育交流层面的博弈动态。"}, {"id": "E10", "text": "立陶宛方面实施的外交人员撤离及外交运作模式降级事件，具体表现为立陶宛驻中国的19名外交人员及其家属全数撤离北京，对中事务全数改以远距方式运作。"}, {"id": "E11", "text": "中国方面对立陶宛驻华外交机构提出强制性外交要求，要求其大使馆改名为“代办处”并重新申请识别文件。"}, {"id": "E12", "text": "立陶宛方面因此召回其外交人员，作为对此事的反制行动。"}, {"id": "E13", "text": "欧盟官方指责中国针对立陶宛采取了一系列歧视性贸易措施。"}, {"id": "E14", "text": "欧盟就此事向世界贸易组织对中国提起了贸易诉讼。"}, {"id": "E15", "text": "中国海关总署宣布暂停接受立陶宛牛肉进口申报，这是中国对立陶宛实施的贸易制裁或反制行动。"}, {"id": "E16", "text": "立陶宛交通与通讯部副部长瓦伊丘凯维丘特访问台湾，构成一个涉及台湾地区的政治事件。"}, {"id": "E17", "text": "中方因不满立陶宛官员访问台湾，决定对瓦伊丘凯维丘特个人采取制裁措施，这是一项政治反制行动。"}, {"id": "E18", "text": "中国政府暂停与立陶宛交通与通讯部之间任何形式的官方交往。"}, {"id": "E19", "text": "中国政府暂停与立陶宛在国际道路运输领域的交流合作。"}, {"id": "E20", "text": "立陶宛外交部召见中国驻维尔纽斯代办，就中国因瓦伊丘凯维丘访台而实施的制裁提出抗议。"}, {"id": "E21", "text": "立陶宛政府通过批准其印太地区战略文件，正式将中国定性为在国内巩固专制控制方法，并对自由开放的民主社会构成重大挑战，从而确立了对华的负面战略立场。"}, {"id": "E22", "text": "中方解除对立陶宛的大部分制裁措施。"}, {"id": "E23", "text": "立陶宛外长蓝斯柏吉斯对外声明，中方已解除对立陶宛的大部分制裁措施。"}, {"id": "E24", "text": "中国对立的立陶宛实施外交制裁，具体措施为自2024年1月24日起停止向立陶宛公民发放签证，此举旨在限制两国间的旅行和外交行动。"}, {"id": "E25", "text": "立陶宛外交部长加布里埃卢斯·兰茨贝吉斯在布鲁塞尔的欧盟外交部长非正式会议上指控中国开启新的外交压力战线，称之为'外交胁迫'，这是立陶宛官方在欧盟场合对中国的外交指控和定性表态。"}, {"id": "E26", "text": "2024年5月7日，立陶宛总统吉塔纳斯·瑙塞达（争取连任）提出对华关系改善政策建议，要求将台湾代表处更名为台北代表处，以改善与中华人民共和国的关系。"}, {"id": "E27", "text": "中国宣布对部分欧洲国家实施单方面免签政策，但将立陶宛排除在外，这被视为一种区别对待或外交施压手段。"}, {"id": "E28", "text": "立陶宛政府宣布驱逐中国驻立陶宛代办处的三名雇员，并将其列为不受欢迎的人。"}, {"id": "E29", "text": "中国外交部对立陶宛驱逐外交官的行为表示强烈谴责和坚决反对，这是中国官方对此事件的正式表态。"}, {"id": "E30", "text": "立陶宛议会通过法律修正案，禁止拥有中国国籍的人员在立陶宛武装部队中服役，包括志愿兵役和义务兵役，并规定已在军队服役的中国国籍人员将不再继续服役。"}, {"id": "E31", "text": "立陶宛当局在维尔纽斯机场拒绝了一名中国外交官入境，该外交官在短暂出国旅行后返回时被拒。"}, {"id": "E32", "text": "中利两国政治/外交关系恶化至僵持状态。"}, {"id": "E33", "text": "中国官方机构发布公告，宣布中国驻立陶宛代办处的领事业务暂由中国驻拉脱维亚大使馆代管。"}, {"id": "E34", "text": "时任立陶宛总理金陶塔斯·帕卢茨卡斯证实，立陶宛政府已向中国发出修复双边关系的外交提议。"}, {"id": "E35", "text": "立陶宛新任总理因加·鲁吉尼埃内向议会提交新版施政纲领，其中承诺其内阁将寻求与中国的关系恢复至与其他欧盟国家相同的外交水平。"}, {"id": "E36", "text": "立陶宛总理鲁吉尼埃内公开批评该国设立台湾办事处的决策，指出这是一个战略错误，忽视国内利益并偏离欧盟方向，这反映了对过往外交决策的反思，旨在调整对华关系立场。"}, {"id": "E37", "text": "立陶宛总统瑙塞达就恢复对华关系发表条件性表态，表示可在符合双方意愿下恢复关系，但同时警告与中国过于密切可能产生风险。"}, {"id": "E38", "text": "立陶宛总理鲁吉尼埃内释放改善对华关系的外交信号，表示愿意考虑将驻立陶宛的台湾代表处更名为“台北代表处”。"}];var _origGraphMeta={"doc_id": "D020", "doc_name": "D020 ＂驻立陶宛台湾代表处＂正式挂牌及中方降级外交关系（2021.11）.txt"};var _graphJsonPath="D:\\code\\PycharmProjects\\pytorch\\causal_inference\\output\\doc_results\\D020\\graph.json";var _savePort=7760;var _pyDocText="这是自1981年后中国再度因台湾问题向欧洲国家施展降级的外交手段。中华人民共和国宣布降级外交关系后，有17名立陶宛议会议员向立陶宛总统吉塔纳斯·瑙塞达发公开信，要求抵制2022年北京冬奥，不派出代表团参加该比赛，对此立陶宛国家奥林匹克委员会发表声明称政治中立是国际奥林匹克委员会的基本原则之一，且如果该国不派运动员参赛会受到国际奥委会的制裁，最终立陶宛方面于2021年12月3日正式宣布外交抵制北京冬奥，成为世界上首个宣布外交抵制该届冬奥的国家，但立陶宛队仍派出独立后最大规模冬奥代表团，如常抵达中国参赛。\n2021年11月19日，《中国青年报》引用白俄罗斯国家新闻台17日发布的一段视频，斥责立陶宛军人暴力驱逐聚集在边境地区的难民的行为，认为立陶宛军人是当代的纳粹“盖世太保”。11月22日，中华人民共和国外交部发言人赵立坚在主持外交部例行记者会上表示对立陶宛政府动用军队、军犬暴力对待难民表示严重关切，予以严厉谴责，呼吁立陶宛停止暴力，采取有效措施，维护难民的人权和各项基本权利，同时指出立陶宛所标榜的、捍卫的所谓“自由民主”是多么虚伪。\n2021年11月25日，中国驻立陶宛大使馆的领事业务暂停。11月26日，中国驻立陶宛大使馆正式更名为中华人民共和国驻立陶宛共和国代办处，同时中国外交部要求立陶宛方面也要更改驻华外交机构称谓。\n2021年12月15日，立陶宛驻中国的19名外交人员及其家属全数撤离北京，包括临时代办契雅佩涅（Audra Čiapienė）在内，对中事务全数改以远距方式运作。立陶宛外交部表示，北京单方面要求立陶宛驻中国大使馆改名为不存在于《维也纳外交关系公约》的“代办处”，且要求立陶宛驻中人员为因应“大使馆改为代办处”必须重新申请识别文件，否则将单方面撤销既有证件，引发立陶宛的疑虑，因此召回外交人员。\n2022年8月12日，由于中方不满立陶宛交通与通讯部副部长瓦伊丘凯维丘特访问台湾，决定对瓦伊丘凯维丘特采取制裁措施；暂停中方同立方交通与通讯部任何形式的交往，暂停同立国际道路运输领域交流合作。8月18日，立陶宛外交部召见中国驻维尔纽斯的代办，抗议中国对瓦伊丘凯维丘访台一事进行制裁。\n2023年7月5日，立陶宛政府批准该国的印太地区战略。该文件认为，中国在国内巩固了日益强化的专制的控制方法，而且中国对自由和开放的民主社会构成了重大挑战。中国与俄罗斯的关系升温，以及中国对俄罗斯入侵乌克兰的态度，正在加剧中国与民主国家之间的紧张关系。\n2024年2月5日，立陶宛外交部长加布里埃卢斯·兰茨贝吉斯在布鲁塞尔举行的欧盟外交部长非正式会议上向同事通报其外交情况时表示，在北京缓解了对维尔纽斯的经济压力后，另一场外交压力的新战线已经开启，并称之为“外交胁迫”。加布里埃卢斯·兰茨贝吉斯指出，自中国单方面降低了与立陶宛的外交关系级别后，又自1月24日起停止向立陶宛公民发放签证，从而限制了两国之间的旅行和所有外交行动。\n2024年5月7日，争取连任的立陶宛总统吉塔纳斯·瑙塞达要求将“台湾代表处”更名为“台北代表处”，以改善与中华人民共和国关系。同年，中华人民共和国宣布单方面给予部分欧洲国家免签证入境待遇，但立陶宛被排除在外。\n2024年11月29日，立陶宛宣布驱逐中国驻立陶宛代办的三名雇员，宣布其为不受欢迎的人。中国外交部随后称，对此行为表示强烈谴责和坚决反对。立陶宛政府解释，3名外交官遭驱逐是因为他们的身份认证已过期，且涉嫌违反维也纳外交关系公约等法律。\n2024年12月19日，立陶宛议会通过法律修正案，拥有中国国籍的人禁止在立陶宛武装部队中服役，也不得参与任何形式的志愿兵役和义务兵役，而还在军队服役并拥有中国国籍的人将不再服兵役。\n2025年5月18日，最后一名中国外交官在短暂出国旅行之后，于维尔纽斯机场被拒绝入境，理由是应名中国官员持有外交护照，没有得到立陶宛的有效认证。\n2025年6月，由于双方的外交关系陷入僵持，立陶宛境内已无中国驻立陶宛外交人员驻留，中国驻立陶宛代办处公告领务暂由中国驻拉脱维亚大使馆代管。同月，时任总理金陶塔斯·帕卢茨卡斯证实已向中国发出修复双方关系的提议，但未收到回应。\n立陶宛领导层对于与中国关系的方针近年起伏不定。2024年12月始，由帕卢茨卡斯领导的政府施政纲领，以中俄建立战略伙伴关系、在白俄罗斯增长影响力为由，将中国视为立陶宛在外交与安全方面的“重大挑战”。2025年9月，新任总理因加·鲁吉尼埃内向议会提交新版施政纲领则去除该论述，承诺内阁将寻求与中国的关系恢复至“与其他欧盟国家相同的外交水平”。同年12月，瑙塞达总统顾问表示立陶宛无意在设立台湾办事处一事上作出让步。\n2026年2月3日，总理鲁吉尼埃内表示立陶宛设立台湾办事处是一战略大错，罔顾国内利益且偏离欧盟大方向，“以为这样就能抢先世界，但世界并不领情”，有如“跳向火车头并损失惨重”；同日，总统瑙塞达称可在符合双方意愿下恢复关系，但又声称与中国过于密切“会产生风险”。2月11日，鲁吉尼埃内表示愿意考虑将驻立陶宛台湾代表处更名为“台北代表处”。\n根据立陶宛企业署官网，2020年立陶宛原产商品对华出口额为2.44亿欧元，同比增长17%。主要出口产品为谷物（28%）、家具（16%）以及光学、摄影、测量、医疗和手术器械（13%）。2020年立陶宛对华服务贸易出口为4600万美元，其中运输服务占三分之二。\n2021年底两国关系恶化后，立陶宛的对华出口也受到波及。2021年10月底，中国的合作伙伴取消了立陶宛啤酒厂商沃福斯·恩格尔曼所有订单，造成的损失达50万欧元。12月，立陶宛媒体报道中国海关将立陶宛从系统中移除，这导致立陶宛的货品无法在华清关。同时中国要求跨国公司与立陶宛企业切断联系，否则将被排除在中国市场之外。中国外交部发言人表示不了解有关具体情况，同时称立陶宛“背信弃义”。立陶宛转而希望台湾能向立陶宛出口开放农业市场。\n2022年1月27日，欧盟认为中国的一系列措施是对立陶宛采取歧视性贸易，并向世贸组织提起了诉讼。2月9日，中国海关总署宣布暂停接受立陶宛牛肉进口申报。\n2023年10月，立陶宛外长蓝斯柏吉斯表示，中方已解除大部分制裁措施。2024年2月5日，立陶宛外长蓝斯柏吉斯向欧盟同僚表示，在缓解了对维尔纽斯的经济压力后的同时，北京向立陶宛采取新的外交胁迫。";var _pyManualReviewEdges=[];</script><script>
+var _edgeLookup = {};      // edgeId -> {type, from, to, reason, manualReview, isNew}
+var _deletedEdges = {};    // edgeId -> true
+var _manualEdits = {};     // edgeId -> {originalType, newType, reason}
+var _simpActive = false;
+var _simpOrig = {};
+var _editMode = false;
+var _evtMode = 'list';     // 'list' | 'doc'
+var _addEdge = null;       // null | {role: 'source'|'target', anchorId: string}
+var _newEdgePair = null;   // null | {source: string, target: string}
+var _hasUnsaved = false;
+var _pyManualReviewEdges = _pyManualReviewEdges || [];
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _edgeTitle(reason, manualReview) {
+    var title = _esc(reason || '');
+    if (manualReview) return title ? (title + ' [人工审核]') : '[人工审核]';
+    return title;
+}
+function _edgeColor(edgeType, manualReview) {
+    if (manualReview) return '#f5a623';
+    return edgeType === 'causal' ? '#d62728' : '#1f77b4';
+}
+function _edgeWidth(edgeType) {
+    return edgeType === 'causal' ? 3 : 1.6;
+}
+function _edgeDashes(edgeType, manualReview) {
+    if (edgeType !== 'temporal') return false;
+    return manualReview ? [10, 6] : true;
+}
+function _edgeStyle(edgeType, manualReview) {
+    var color = _edgeColor(edgeType, manualReview);
+    return {
+        color: {color: color, hover: color, highlight: color},
+        width: _edgeWidth(edgeType),
+        dashes: _edgeDashes(edgeType, manualReview),
+    };
+}
+function _wait(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+/* ── 图遍历辅助 ─────────────────────────────────────────────── */
+function _liveEdges() {
+    return network.body.data.edges.get().filter(function(e) { return !_deletedEdges[e.id]; });
+}
+function getDescendants(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (f === cur && !visited[t]) queue.push(t);
+        });
+    }
+    return visited;
+}
+function getAncestors(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (t === cur && !visited[f]) queue.push(f);
+        });
+    }
+    return visited;
+}
+function hasEdge(fromId, toId) {
+    var f = String(fromId), t = String(toId);
+    return _liveEdges().some(function(e) { return String(e.from) === f && String(e.to) === t; });
+}
+
+/* ── 模式切换 ──────────────────────────────────────────────── */
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+            upd.push({id: id, label: String(id), title: ev ? (_esc(id) + ': ' + _esc(ev.text)) : ''});
+        });
+        if (btn) btn.textContent = '简洁模式';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label, title: o.title});
+        });
+        if (btn) btn.textContent = '详细模式';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+/* ── 编辑模式 ──────────────────────────────────────────────── */
+function toggleEditMode() {
+    var btn = document.getElementById('btn-edit');
+    if (_editMode) {
+        if (_hasUnsaved && !confirm('有未保存的修改，退出修改模式后将丢失，确定退出？')) return;
+        _editMode = false;
+        btn.textContent = '修改';
+        btn.style.background = '#f5f5f5';
+        btn.style.borderColor = '#aaa';
+        closeAllMenus();
+    } else {
+        _editMode = true;
+        btn.textContent = '退出修改';
+        btn.style.background = '#fff3cd';
+        btn.style.borderColor = '#f5a623';
+    }
+}
+function closeAllMenus() {
+    closeEdgeMenu();
+    closeNodeMenu();
+    closeCandidatePanel();
+}
+
+/* ── 边右键菜单 ─────────────────────────────────────────────── */
+function showEdgeMenu(edgeId, x, y) {
+    var menu = document.getElementById('edge-ctx-menu');
+    menu.setAttribute('data-eid', edgeId);
+    var e = _edgeLookup[edgeId] || {};
+    var typeLabel = e.type === 'causal' ? '因果边' : '时序边';
+    document.getElementById('ctx-type-label').textContent = '当前: ' + typeLabel;
+    // 预计算「修改方向」是否可用（会产生环或反向边已存在则禁用）
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && e.from && e.to) {
+        var fId = String(e.from), tId = String(e.to);
+        _deletedEdges[edgeId] = true;
+        var desc = getDescendants(tId);
+        delete _deletedEdges[edgeId];
+        var disabled = !!(desc[fId] || hasEdge(tId, fId));
+        reverseBtn.style.color = disabled ? '#bbb' : '';
+        reverseBtn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+        reverseBtn.setAttribute('data-disabled', disabled ? '1' : '0');
+    }
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeEdgeMenu() {
+    var menu = document.getElementById('edge-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function menuDelete() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    closeEdgeMenu();
+    _setUnsaved();
+}
+function menuModify() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId] || {};
+    var other = e.type === 'causal' ? '时序边' : '因果边';
+    document.getElementById('dlg-title').textContent = '修改为' + other;
+    document.getElementById('dlg-reason').value = e.reason || '';
+    var dlg = document.getElementById('modify-dlg');
+    dlg.setAttribute('data-eid', edgeId);
+    dlg.style.display = 'flex';
+    document.getElementById('dlg-reason').focus();
+}
+
+function menuReverse() {
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && reverseBtn.getAttribute('data-disabled') === '1') return;
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId];
+    if (!e) return;
+    var fromId = String(e.from), toId = String(e.to);
+    // 再次验证（防止菜单开启期间图结构变化）
+    _deletedEdges[edgeId] = true;
+    var desc = getDescendants(toId);
+    delete _deletedEdges[edgeId];
+    if (desc[fromId]) { showToast('修改方向会产生环路，无法执行', 2500, '#c0392b'); return; }
+    if (hasEdge(toId, fromId)) { showToast('反向边已存在', 2500, '#c0392b'); return; }
+    // 删除原边，添加反向边
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    var isCausal = (e.type === 'causal');
+    var newEid = 'rev_' + Date.now();
+    var style = _edgeStyle(e.type, true);
+    network.body.data.edges.add([{
+        id: newEid, from: toId, to: fromId, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(e.reason || '') + ' [方向已反转]',
+    }]);
+    _edgeLookup[newEid] = {type: e.type, from: toId, to: fromId, reason: e.reason, manualReview: true, isNew: true};
+    showToast('已反转方向: ' + toId + ' → ' + fromId, 2200, '#27ae60');
+    _setUnsaved();
+}
+/* ── 节点点击菜单 ───────────────────────────────────────────── */
+function showNodeMenu(nodeId, x, y) {
+    var menu = document.getElementById('node-ctx-menu');
+    menu.setAttribute('data-nid', String(nodeId));
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeNodeMenu() {
+    var menu = document.getElementById('node-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function startAddEdge(role) {
+    var nodeId = document.getElementById('node-ctx-menu').getAttribute('data-nid');
+    closeNodeMenu();
+    _addEdge = {role: role, anchorId: nodeId};
+    _showCandidatePanel(nodeId, role);
+}
+
+/* ── 候选节点面板 ───────────────────────────────────────────── */
+function _showCandidatePanel(anchorId, role) {
+    var allIds = network.body.data.nodes.getIds().map(String);
+    var excluded = {};
+    excluded[String(anchorId)] = true;
+    if (role === 'source') {
+        // anchor 是起点，选终点 B：B 不能是 anchor 的祖先（防环）且不能有 anchor→B（防重复）
+        var anc = getAncestors(anchorId);
+        Object.keys(anc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.from) === String(anchorId)) excluded[String(e.to)] = true;
+        });
+    } else {
+        // anchor 是终点，选起点 A：A 不能是 anchor 的后代（防环）且不能有 A→anchor（防重复）
+        var desc = getDescendants(anchorId);
+        Object.keys(desc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.to) === String(anchorId)) excluded[String(e.from)] = true;
+        });
+    }
+    var candidates = allIds.filter(function(id) { return !excluded[id]; });
+    if (candidates.length === 0) {
+        showToast('没有可新增的候选节点', 2000, '#555');
+        _addEdge = null;
+        return;
+    }
+    var title = role === 'source' ? '以该节点为起点，选择终点：' : '以该节点为终点，选择起点：';
+    document.getElementById('candidate-title').textContent = title;
+    var html = '';
+    candidates.forEach(function(id) {
+        var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+        var label = ev ? (id + ': ' + ev.text) : id;
+        html += '<div onclick="selectCandidate(\'' + id + '\')" '
+              + 'style="padding:6px 10px;cursor:pointer;border-radius:4px;margin-bottom:3px;'
+              + 'font-size:12px;background:#f0f7ff;border:1px solid #c5d8f0;" '
+              + 'onmouseover="this.style.background=\'#dbeeff\'" '
+              + 'onmouseout="this.style.background=\'#f0f7ff\'">'
+              + _esc(label) + '</div>';
+    });
+    document.getElementById('candidate-body').innerHTML = html;
+    document.getElementById('candidate-panel').style.display = 'flex';
+}
+function closeCandidatePanel() {
+    var p = document.getElementById('candidate-panel');
+    if (p) p.style.display = 'none';
+    _addEdge = null;
+}
+function selectCandidate(candidateId) {
+    if (!_addEdge) { closeCandidatePanel(); return; }
+    var src = _addEdge.role === 'source' ? _addEdge.anchorId : candidateId;
+    var tgt = _addEdge.role === 'target' ? _addEdge.anchorId : candidateId;
+    closeCandidatePanel();
+    _newEdgePair = {source: src, target: tgt};
+    _showNewEdgeDlg(src, tgt);
+}
+
+/* ── 新建边对话框 ───────────────────────────────────────────── */
+function _showNewEdgeDlg(src, tgt) {
+    document.getElementById('new-edge-subtitle').textContent = src + ' → ' + tgt;
+    document.getElementById('new-edge-reason').value = '';
+    document.getElementById('new-edge-type').value = 'causal';
+    document.getElementById('new-edge-dlg').style.display = 'flex';
+    document.getElementById('new-edge-reason').focus();
+}
+function closeNewEdgeDlg() {
+    document.getElementById('new-edge-dlg').style.display = 'none';
+    _newEdgePair = null;
+}
+function applyNewEdge() {
+    if (!_newEdgePair) { closeNewEdgeDlg(); return; }
+    var reason = document.getElementById('new-edge-reason').value.trim();
+    if (!reason) { alert('请填写原因。'); return; }
+    var edgeType = document.getElementById('new-edge-type').value;
+    var src = _newEdgePair.source, tgt = _newEdgePair.target;
+    var eid = 'new_' + Date.now();
+    var style = _edgeStyle(edgeType, true);
+    network.body.data.edges.add([{
+        id: eid, from: src, to: tgt, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(reason) + ' [人工新增]',
+    }]);
+    _edgeLookup[eid] = {type: edgeType, from: src, to: tgt, reason: reason, manualReview: true, isNew: true};
+    closeNewEdgeDlg();
+    showToast('已新增边 ' + src + ' → ' + tgt, 2000, '#27ae60');
+    _setUnsaved();
+}
+
+/* ── 修改对话框 ────────────────────────────────────────────── */
+function closeModifyDlg() {
+    document.getElementById('modify-dlg').style.display = 'none';
+}
+function applyModify() {
+    var dlg = document.getElementById('modify-dlg');
+    var edgeId = dlg.getAttribute('data-eid');
+    var reason = document.getElementById('dlg-reason').value.trim();
+    if (!reason) { alert('请填写修改原因。'); return; }
+    var e = _edgeLookup[edgeId];
+    if (!e) { closeModifyDlg(); return; }
+    var newType = e.type === 'causal' ? 'temporal' : 'causal';
+    var style = _edgeStyle(newType, true);
+    network.body.data.edges.update([{
+        id: edgeId,
+        color: style.color,
+        dashes: style.dashes, width: style.width,
+        title: _esc(reason) + ' [人工审核]',
+    }]);
+    _manualEdits[edgeId] = {originalType: e.type, newType: newType, reason: reason};
+    e.reason = reason; e.type = newType; e.manualReview = true;
+    closeModifyDlg();
+    _setUnsaved();
+}
+
+/* ── 保存/下载 ─────────────────────────────────────────────── */
+function _setUnsaved() {
+    _hasUnsaved = true;
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '有未保存的修改'; el.style.opacity = '1'; }
+}
+function _updateGraphInfo(data) {
+    var causalCount = document.getElementById('causal-count');
+    var temporalCount = document.getElementById('temporal-count');
+    var titleEl = document.getElementById('doc-title');
+    if (causalCount) causalCount.textContent = String((data.causal_edges || []).length);
+    if (temporalCount) temporalCount.textContent = String((data.temporal_edges || []).length);
+    if (titleEl && data.doc_name) {
+        titleEl.textContent = String(data.doc_name).replace(/\.txt$/i, '');
+    }
+}
+function _loadLatestGraph() {
+    if (!_graphJsonPath) return Promise.resolve(false);
+    var url = 'http://localhost:' + _savePort + '/load_graph?path=' + encodeURIComponent(_graphJsonPath) + '&_ts=' + Date.now();
+    return fetch(url, {cache: 'no-store'}).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    }).then(function(res) {
+        if (!res.ok || !res.body || !res.body.data) return false;
+        _applyLoadedData(res.body.data);
+        return true;
+    }).catch(function() {
+        return false;
+    });
+}
+function _saveRequest(data) {
+    return fetch('http://localhost:' + _savePort + '/save_graph', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({path: _graphJsonPath, data: data}),
+    }).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    });
+}
+function _waitForSaveServer(maxAttempts) {
+    var attempts = 0;
+    function probe() {
+        attempts += 1;
+        return _loadLatestGraph().then(function(ok) {
+            if (ok || attempts >= maxAttempts) return ok;
+            return _wait(500).then(probe);
+        }).catch(function() {
+            if (attempts >= maxAttempts) return false;
+            return _wait(500).then(probe);
+        });
+    }
+    return probe();
+}
+function _saveFallback(data, msg) {
+    showToast(msg, 6000, '#c0392b');
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '保存失败，修改尚未写入 graph.json'; el.style.opacity = '1'; }
+}
+function _handleSaveResponse(res, data) {
+    if (res.ok && (!res.body || res.body.ok !== false)) {
+        showToast('已保存并重载 ✓', 3000, '#27ae60');
+        var el = document.getElementById('save-status');
+        if (el) { el.textContent = ''; el.style.opacity = '0'; }
+        _applyLoadedData(res.body.data || data);
+        return true;
+    }
+    var err = (res.body && res.body.error) ? ('保存失败：' + res.body.error) : '保存失败';
+    _saveFallback(data, err);
+    return false;
+}
+function buildSaveData() {
+    var causal = [], temporal = [];
+    for (var eid in _edgeLookup) {
+        if (_deletedEdges[eid]) continue;
+        var e = _edgeLookup[eid];
+        if (e.type === 'causal') {
+            var d = {cause: e.from, effect: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            causal.push(d);
+        } else {
+            var d = {source: e.from, target: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            temporal.push(d);
+        }
+    }
+    var evts = (_pyEvents || []).map(function(e) { return {event_id: e.id, text: e.text}; });
+    return {
+        doc_id: (_origGraphMeta || {}).doc_id || '',
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        doc_text: _pyDocText || '',
+        events: evts, causal_edges: causal, temporal_edges: temporal,
+        manual_review_edges: _pyManualReviewEdges || [],
+    };
+}
+function saveGraph() {
+    var data = buildSaveData();
+    showToast('保存中…', 30000, '#555');
+    _saveRequest(data).then(function(res) {
+        _handleSaveResponse(res, data);
+    }).catch(function() {
+        showToast('本地保存服务暂未就绪，正在自动重试…', 4000, '#e67e22');
+        _waitForSaveServer(6).then(function(ok) {
+            if (!ok) {
+                _saveFallback(data, '自动保存服务仍未就绪，未写入 graph.json');
+                return;
+            }
+            showToast('本地保存服务已就绪，正在重试保存…', 4000, '#e67e22');
+            _saveRequest(data).then(function(res) {
+                _handleSaveResponse(res, data);
+            }).catch(function() {
+                _saveFallback(data, '自动重试保存失败，未写入 graph.json');
+            });
+        });
+    });
+}
+function _applyLoadedData(data) {
+    /* 用服务器返回的 graph.json 内容就地重建可视化，边恢复红/蓝色，状态全清零 */
+    if (!data || typeof network === 'undefined') return;
+    network.body.data.edges.clear();
+    _edgeLookup = {};
+    _deletedEdges = {};
+    _manualEdits = {};
+    _hasUnsaved = false;
+    _pyCausal = (data.causal_edges || []).map(function(e) {
+        return {from: e.cause, to: e.effect, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    _pyTemporal = (data.temporal_edges || []).map(function(e) {
+        return {from: e.source, to: e.target, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    if (Array.isArray(data.events)) {
+        _pyEvents = data.events.map(function(ev) { return {id: ev.event_id, text: ev.text || ''}; });
+    }
+    if (typeof data.doc_text === 'string') {
+        _pyDocText = data.doc_text;
+    }
+    if (data.doc_id || data.doc_name) {
+        _origGraphMeta = {
+            doc_id: data.doc_id || ((_origGraphMeta || {}).doc_id || ''),
+            doc_name: data.doc_name || ((_origGraphMeta || {}).doc_name || ''),
+        };
+    }
+    _pyManualReviewEdges = Array.isArray(data.manual_review_edges) ? data.manual_review_edges : [];
+    _pyCausal.forEach(function(e, i) {
+        var eid = 'c' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('causal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'causal', from:String(e.from), to:String(e.to), reason:e.reason, manualReview:manualReview};
+    });
+    _pyTemporal.forEach(function(e, i) {
+        var eid = 't' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('temporal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'temporal', from:String(e.from), to:String(e.to), reason:e.reason||'', manualReview:manualReview};
+    });
+    _updateGraphInfo(data);
+    _renderEventPanel();
+}
+function downloadGraph(data) {
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'graph.json';
+    a.click();
+}
+function showToast(msg, duration, bg) {
+    var toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.style.background = bg || '#333';
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    if (toast._timer) clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() {
+        toast.style.opacity = '0';
+        setTimeout(function() { toast.style.display = 'none'; }, 400);
+    }, duration || 2500);
+}
+
+/* ── 事件面板（列表/全文切换） ─────────────────────────────── */
+function toggleEventList() {
+    _evtMode = (_evtMode === 'list') ? 'doc' : 'list';
+    _renderEventPanel();
+}
+function _renderEventPanel() {
+    var body = document.getElementById('evt-list-body');
+    var btn  = document.getElementById('btn-evtlist');
+    if (!body) return;
+    if (_evtMode === 'doc') {
+        body.innerHTML = '<pre style="white-space:pre-wrap;margin:0;font-size:12px;font-family:sans-serif;'
+            + 'color:#333;word-break:break-all;">' + _esc(_pyDocText || '（无全文）') + '</pre>';
+        if (btn) btn.textContent = '正在显示全文 ▲（点击返回事件列表）';
+    } else {
+        var html = '';
+        (_pyEvents || []).forEach(function(e) {
+            html += '<div style="margin-bottom:6px;">'
+                  + '<span style="font-weight:700;color:#1f77b4;">' + _esc(e.id) + '</span>'
+                  + '<span style="color:#555;">: ' + _esc(e.text) + '</span></div>';
+        });
+        body.innerHTML = html;
+        if (btn) btn.textContent = '事件列表 ▼（点击查看全文）';
+    }
+}
+/* ── 候选面板拖动 ───────────────────────────────────────── */
+var _candDrag = null;
+document.addEventListener('mousedown', function(e) {
+    var handle = document.getElementById('candidate-drag-handle');
+    if (!handle || !handle.contains(e.target)) return;
+    if (e.button !== 0) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    var rect = panel.getBoundingClientRect();
+    // 如果还在用百分比定位，先转换为具体像素坐标
+    panel.style.top  = rect.top  + 'px';
+    panel.style.left = rect.left + 'px';
+    panel.style.marginLeft = '0';
+    _candDrag = { startX: e.clientX, startY: e.clientY,
+                  initLeft: rect.left, initTop: rect.top };
+    e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+    if (!_candDrag) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    panel.style.left = (_candDrag.initLeft + e.clientX - _candDrag.startX) + 'px';
+    panel.style.top  = (_candDrag.initTop  + e.clientY - _candDrag.startY) + 'px';
+});
+document.addEventListener('mouseup', function(e) {
+    if (e.button === 0) _candDrag = null;
+});
+/* ── 初始化 ────────────────────────────────────────────────── */
+window.addEventListener('load', function() {
+    (_pyCausal || []).forEach(function(e, i) {
+        _edgeLookup['c' + i] = {type:'causal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    (_pyTemporal || []).forEach(function(e, i) {
+        _edgeLookup['t' + i] = {type:'temporal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    if (typeof network !== 'undefined') {
+        network.on('click', function(params) {
+            if (!_editMode) { closeAllMenus(); return; }
+            closeEdgeMenu();
+            closeNodeMenu();
+            // 如果处于候选选择状态，任意点击画布空白处取消
+            if (_addEdge && params.nodes.length === 0 && params.edges.length === 0) {
+                closeCandidatePanel();
+                return;
+            }
+            if (params.nodes.length > 0) {
+                // 如果候选面板已展开，直接调 selectCandidate
+                var panel = document.getElementById('candidate-panel');
+                if (panel && panel.style.display !== 'none') {
+                    selectCandidate(String(params.nodes[0]));
+                } else {
+                    showNodeMenu(params.nodes[0], params.pointer.DOM.x, params.pointer.DOM.y);
+                }
+            } else if (params.edges.length > 0) {
+                if (document.getElementById('candidate-panel').style.display !== 'none') return;
+                showEdgeMenu(params.edges[0], params.pointer.DOM.x, params.pointer.DOM.y);
+            }
+        });
+    }
+    _updateGraphInfo({
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        causal_edges: _pyCausal || [],
+        temporal_edges: _pyTemporal || [],
+    });
+    _renderEventPanel();
+    _loadLatestGraph();
+});
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:340px;"><div id="doc-title" style="font-weight:600;font-size:14px;margin-bottom:4px;">D020 ＂驻立陶宛台湾代表处＂正式挂牌及中方降级外交关系（2021.11）</div><div>因果边：<b id="causal-count">12</b> 条&emsp;时序边：<b id="temporal-count">29</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button><button id="btn-edit" onclick="toggleEditMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">修改</button><button id="btn-save" onclick="saveGraph()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">保存</button></div><div id="save-status" style="font-size:11px;color:#e67e22;margin-top:4px;min-height:14px;"></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:300px;z-index:9999;display:flex;flex-direction:column;gap:8px;"><div id="events-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:12px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1 1 0;min-height:0;"><button id="btn-evtlist" onclick="toggleEventList()" style="width:100%;text-align:left;font-weight:700;font-size:13px;border:none;background:none;cursor:pointer;padding:0 0 6px 0;color:#333;border-bottom:1px solid #e0e0e0;margin-bottom:8px;">事件列表 ▼</button><div id="evt-list-body"></div></div><div id="doc-links-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:8px 14px;font-family:sans-serif;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:0 0 auto;max-height:40%;min-height:36px;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:5px;">文档网络</div><a href="../D001/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">1 D001 特朗普当选后蔡英文通话——打破37年惯例（2016.12）</a><a href="../D002/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">2 D002 蔡英文首次过境美国——访问洛杉矶和休斯敦（2019.7）</a><a href="../D003/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">3 D003 美国副国务卿克拉奇访台——1979年来最高级别国务院官员（2020.9）</a><a href="../D004/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">4 D004 美国卫生部长阿扎访台（2020.8）</a><a href="../D005/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">5 D005 美国驻联合国大使克拉夫特访台计划受阻（2021.1）</a><a href="../D006/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">6 D006 佩洛西访台（2022.8）</a><a href="../D007/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">7 D007 蔡英文过境纽约：在哥伦比亚大学领奖（2023.3.29-31）</a><a href="../D008/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">8 D008 蔡英文会晤众议长麦卡锡——首次台湾领导人在美国本土会见众议长（2023.4.5）</a><a href="../D009/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">9 D009 赖清德过境夏威夷引发＂海空联合战备警巡演练＂（2023.8）</a><a href="../D010/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">10 D010 赖清德就职后首次过境美国计划被特朗普政府拒绝（2025.8）</a><a href="../D011/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">11 D011 美国国务卿访华涉台交锋系列（多次，2023-2025）</a><a href="../D012/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">12 D012 拜登四次＂口误＂宣称协防台湾（2021-2023）</a><a href="../D013/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">13 D013 G7首次在联合声明中提及台海问题（2021.6）</a><a href="../D014/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">14 D014 北约战略概念文件首次点名中国——台海涉及（2022.6）</a><a href="../D015/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">15 D015 G7外长会不到48小时后解放军启动军演（2025.3）</a><a href="../D018/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">16 D018 立陶宛宣布允许台湾以＂台湾＂名义设代表处（2021.7）</a><a href="../D019/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">17 D019 中方召回驻立大使并要求立方召回驻华大使（2021.8）</a><div style="padding:3px 0;font-size:12px;color:#1f77b4;font-weight:700;">18 D020 ＂驻立陶宛台湾代表处＂正式挂牌及中方降级外交关系（2021.11）</div></div></div><div id="save-toast" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10010;color:#fff;font-family:sans-serif;font-size:14px;font-weight:600;padding:10px 22px;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,0.25);transition:opacity 0.4s;pointer-events:none;"></div><div id="edge-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:140px;"><div id="ctx-type-label" style="padding:4px 14px;color:#666;font-size:11px;border-bottom:1px solid #eee;margin-bottom:4px;"></div><div onclick="menuDelete()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background=''">删除</div><div onclick="menuModify()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background=''">修改类型</div><div id="ctx-reverse-btn" onclick="menuReverse()" style="padding:6px 14px;cursor:pointer;" onmouseover="if(this.getAttribute('data-disabled')!=='1')this.style.background='#e8f5e9'" onmouseout="this.style.background=''">修改方向</div><div onclick="closeEdgeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="node-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:220px;"><div onclick="startAddEdge('target')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为终点，选择起点：</div><div onclick="startAddEdge('source')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为起点，选择终点：</div><div onclick="closeNodeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="candidate-panel" style="display:none;position:fixed;top:20%;left:50%;margin-left:-150px;z-index:10001;background:#fff;border:1px solid #c0c0c0;border-radius:10px;font-family:sans-serif;min-width:300px;max-width:420px;max-height:65vh;overflow:hidden;flex-direction:column;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="candidate-drag-handle" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px 14px;cursor:grab;background:#f5f5f5;border-bottom:1px solid #e0e0e0;border-radius:10px 10px 0 0;flex-shrink:0;"><div id="candidate-title" style="font-weight:700;font-size:14px;user-select:none;"></div><button onclick="closeCandidatePanel()" style="border:none;background:none;cursor:pointer;font-size:16px;color:#999;padding:0;">✕</button></div><div id="candidate-body" style="padding:10px 14px;overflow-y:auto;max-height:55vh;"></div></div><div id="new-edge-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div style="font-weight:700;font-size:15px;margin-bottom:4px;">新增边</div><div id="new-edge-subtitle" style="font-size:13px;color:#555;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:4px;">类型</label><select id="new-edge-type" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:5px;margin-bottom:10px;"><option value="causal">因果边</option><option value="temporal">时序边</option></select><label style="display:block;font-size:13px;margin-bottom:6px;">原因（必填）</label><textarea id="new-edge-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeNewEdgeDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyNewEdge()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#27ae60;color:#fff;font-weight:600;">新增</button></div></div></div><div id="modify-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="dlg-title" style="font-weight:700;font-size:15px;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:6px;">修改原因（必填）</label><textarea id="dlg-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeModifyDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyModify()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#f5a623;color:#fff;font-weight:600;">确认修改</button></div></div></div></body>
+</html>

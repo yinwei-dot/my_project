@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d99faa", "border": "#3a7bd5", "highlight": {"background": "#d99faa", "border": "#1a1a1a"}, "hover": {"background": "#d99faa", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u7f8e\u56fd\u4e0e\u53f0\u6e7e\u65b9\u9762\u8fdb\u884c\u519b\n\u4e8b\u8054\u7cfb\u3002\n\u25b2 0.39 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#10)\n\u8bed\u4e49\u5206: 0.465 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.447 + 0.30\u00d7\u7a00\u7f3a\u6027 0.291\n\u7efc\u5408\u5206: 0.394 (#7)"}, {"color": {"background": "#d6383a", "border": "#c0910a", "highlight": {"background": "#d6383a", "border": "#1a1a1a"}, "hover": {"background": "#d6383a", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u53f0\u5f53\u5c40\u5411\u7f8e\u65b9\u8c0b\u5212\u91c7\u8d2d\n\u9c7c\u53c9\u5bfc\u5f39\u7684\u8ba1\u5212\u52a8\u4f5c\u3002\n\u25b2 0.91 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.824 (#3)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.190\n\u7efc\u5408\u5206: 0.912 (#1)"}, {"color": {"background": "#d9b8c4", "border": "#3a7bd5", "highlight": {"background": "#d9b8c4", "border": "#1a1a1a"}, "hover": {"background": "#d9b8c4", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u53f0\u519b\u8ba1\u5212\u5728\u672a\u6765\u4e09\u5e74\u5185\n\uff0c\u5c06\u5176\u5bfc\u5f39\u90e8\u961f\u201c\u6d77\u5cf0\u5927\u961f\u201d\u7684\n\u7f16\u5236\u4ece4\u4e2a\u4e2d\u961f\u6269\u5145\u81f38.5\u4e2a\n\u4e2d\u961f\u3002\n\u25b2 0.27 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#10)\n\u8bed\u4e49\u5206: 0.218 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.168 + 0.30\u00d7\u7a00\u7f3a\u6027 0.461\n\u7efc\u5408\u5206: 0.271 (#10)"}, {"color": {"background": "#d6484c", "border": "#e07b20", "highlight": {"background": "#d6484c", "border": "#1a1a1a"}, "hover": {"background": "#d6484c", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u7f8e\u56fd\u56fd\u9632\u5b89\u5168\u5408\u4f5c\u5c40\u4f5c\n\u4e3a\u5b98\u65b9\u673a\u6784\uff0c\u6279\u51c6\u5411\u53f0\u6e7e\u51fa\u552e1\n00\u5957\u5cb8\u57fa\u201c\u9c7c\u53c9\u201d\u5bfc\u5f39\u7cfb\u7edf\uff0c\n\u8fd9\u662f\u4e00\u4e2a\u6d89\u53ca\u5bf9\u53f0\u519b\u552e\u7684\u653f\u6cbb\u519b\n\u4e8b\u52a8\u4f5c\u3002\n\u25b2 0.83 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.589 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.617 + 0.30\u00d7\u7a00\u7f3a\u6027 0.052\n\u7efc\u5408\u5206: 0.831 (#2)"}, {"color": {"background": "#d9c1cf", "border": "#3a7bd5", "highlight": {"background": "#d9c1cf", "border": "#1a1a1a"}, "hover": {"background": "#d9c1cf", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u53f0\u5f53\u5c40\u9884\u8ba12023\u5e74\n\u83b7\u5f97\u8fd9\u6279\u9c7c\u53c9\u5bfc\u5f39\uff0c\u76f8\u5173\u8bbe\u5907\u5c06\n\u4ece2024\u5e74\u5f00\u59cb\u4ea4\u4ed8\uff0c\u5bfc\u5f39\u5219\n\u4ece2025\u5e74\u8fd0\u62b5\u53f0\u6e7e\u3002\n\u25b2 0.22 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.138 (#13)\n\u8bed\u4e49\u5206: 0.308 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.283 + 0.30\u00d7\u7a00\u7f3a\u6027 0.328\n\u7efc\u5408\u5206: 0.223 (#11)"}, {"color": {"background": "#d75b60", "border": "#e07b20", "highlight": {"background": "#d75b60", "border": "#1a1a1a"}, "hover": {"background": "#d75b60", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u7f8e\u56fd\u5411\u53f0\u6e7e\u51fa\u552e\u6b66\u5668\u3002\n\u25b2 0.74 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.956 (#2)\n\u8bed\u4e49\u5206: 0.515 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.554 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.736 (#3)"}, {"color": {"background": "#d9a0ab", "border": "#3a7bd5", "highlight": {"background": "#d9a0ab", "border": "#1a1a1a"}, "hover": {"background": "#d9a0ab", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u4e2d\u56fd\u5916\u4ea4\u90e8\u53d1\u8a00\u4eba\u6c6a\u6587\n\u658c\u4e8e18\u65e5\u8868\u793a\uff0c\u7f8e\u53f0\u519b\u4e8b\u8054\u7cfb\n\u548c\u7f8e\u552e\u53f0\u6b66\u5668\u4e25\u91cd\u8fdd\u53cd\u4e00\u4e2a\u4e2d\u56fd\n\u539f\u5219\u548c\u4e2d\u7f8e\u4e09\u4e2a\u8054\u5408\u516c\u62a5\uff0c\u7279\u522b\n\u662f\u300a\u516b\u4e00\u4e03\u516c\u62a5\u300b\u89c4\u5b9a\uff0c\u4e25\u91cd\u635f\n\u5bb3\u4e2d\u56fd\u4e3b\u6743\u548c\u5b89\u5168\u5229\u76ca\uff0c\u4e25\u91cd\u5a01\n\u80c1\u53f0\u6d77\u548c\u5e73\u7a33\u5b9a\uff0c\u4e2d\u65b9\u5bf9\u6b64\u8868\u793a\n\u5f3a\u70c8\u4e0d\u6ee1\u548c\u575a\u51b3\u53cd\u5bf9\u3002\n\u25b2 0.39 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.404 (#8)\n\u8bed\u4e49\u5206: 0.373 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.217 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.388 (#8)"}, {"color": {"background": "#d89ca7", "border": "#3a7bd5", "highlight": {"background": "#d89ca7", "border": "#1a1a1a"}, "hover": {"background": "#d89ca7", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u7f8e\u56fd\u653f\u5e9c\u6279\u51c6\u5411\u53f0\u6e7e\u51fa\n\u552e\u5305\u62ec\u6d77\u9a6c\u65af\u9ad8\u673a\u52a8\u706b\u7bad\u70ae\u7cfb\u7edf\n\u3001ATACMS\u5f39\u9053\u5bfc\u5f39\u3001SL\nAM-ER\u9632\u533a\u5916\u7cbe\u786e\u6253\u51fb\u5bfc\u5f39\n\u4ee5\u53caF-16\u6218\u673a\u65b0\u578b\u4fa6\u5bdf\u540a\u8231\n\u5728\u5185\u7684\u519b\u4e8b\u88c5\u5907\uff0c\u603b\u4ef7\u503c\u7ea618\n.113\u4ebf\u7f8e\u5143\u3002\n\u25b2 0.41 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.422 (#7)\n\u8bed\u4e49\u5206: 0.396 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.379 + 0.30\u00d7\u7a00\u7f3a\u6027 0.285\n\u7efc\u5408\u5206: 0.409 (#6)"}, {"color": {"background": "#d88b94", "border": "#3a7bd5", "highlight": {"background": "#d88b94", "border": "#1a1a1a"}, "hover": {"background": "#d88b94", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u4e2d\u56fd\u56fd\u9632\u90e8\u65b0\u95fb\u53d1\u8a00\u4eba\n\u8c2d\u514b\u975e\u5c31\u7f8e\u56fd\u5bf9\u53f0\u519b\u552e\u95ee\u9898\u53d1\u8868\n\u8c08\u8bdd\uff0c\u6307\u51fa\u7f8e\u65b9\u6b64\u4e3e\u4e25\u91cd\u8fdd\u53cd\u4e00\n\u4e2a\u4e2d\u56fd\u539f\u5219\u548c\u4e2d\u7f8e\u4e09\u4e2a\u8054\u5408\u516c\u62a5\n\u7279\u522b\u662f\u201c\u516b\u00b7\u4e00\u4e03\u201d\u516c\u62a5\u89c4\u5b9a\uff0c\n\u662f\u5bf9\u4e2d\u56fd\u5185\u653f\u7684\u4e25\u91cd\u5e72\u6d89\uff0c\u635f\u5bb3\n\u4e2d\u56fd\u4e3b\u6743\u548c\u5b89\u5168\u5229\u76ca\uff0c\u7834\u574f\u4e2d\u7f8e\n\u4e24\u56fd\u4e24\u519b\u5173\u7cfb\u53ca\u53f0\u6d77\u548c\u5e73\u7a33\u5b9a\uff0c\n\u4e2d\u65b9\u5bf9\u6b64\u8868\u793a\u575a\u51b3\u53cd\u5bf9\u3002\n\u25b2 0.49 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.609 (#5)\n\u8bed\u4e49\u5206: 0.379 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.271 + 0.30\u00d7\u7a00\u7f3a\u6027 0.754\n\u7efc\u5408\u5206: 0.494 (#5)"}, {"color": {"background": "#d9abb6", "border": "#3a7bd5", "highlight": {"background": "#d9abb6", "border": "#1a1a1a"}, "hover": {"background": "#d9abb6", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u4e2d\u65b9\u9488\u5bf9\u7f8e\u65b9\u5bf9\u53f0\u519b\n\u552e\u8ba1\u5212\u53ca\u7f8e\u53f0\u519b\u4e8b\u8054\u7cfb\uff0c\u53d1\u51fa\u6b63\n\u5f0f\u5916\u4ea4\u8b66\u544a\u548c\u6566\u4fc3\uff0c\u8981\u6c42\u7f8e\u65b9\u7acb\n\u5373\u53d6\u6d88\u76f8\u5173\u8ba1\u5212\u3001\u505c\u6b62\u519b\u4e8b\u8054\u7cfb\n\u5e76\u614e\u91cd\u5904\u7406\u6d89\u53f0\u95ee\u9898\uff0c\u4ee5\u907f\u514d\u5bf9\n\u4e2d\u7f8e\u4e24\u56fd\u4e24\u519b\u5173\u7cfb\u53ca\u53f0\u6d77\u548c\u5e73\u7a33\n\u5b9a\u9020\u6210\u4e25\u91cd\u540e\u679c\u3002\n\u25b2 0.34 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.597 (#6)\n\u8bed\u4e49\u5206: 0.075 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.063 + 0.30\u00d7\u7a00\u7f3a\u6027 0.267\n\u7efc\u5408\u5206: 0.336 (#9)"}, {"color": {"background": "#d8777f", "border": "#3a7bd5", "highlight": {"background": "#d8777f", "border": "#1a1a1a"}, "hover": {"background": "#d8777f", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u7f8e\u56fd\u56fd\u52a1\u9662\u6b63\u5f0f\u6279\u51c6\n\u5411\u53f0\u6e7e\u51fa\u552e\u6700\u591a100\u5957\u201c\u9c7c\u53c9\n\u201d\u53cd\u8230\u5bfc\u5f39\u7cfb\u7edf\uff0c\u8fd9\u662f\u4e00\u4e2a\u6d89\u53ca\n\u7279\u5b9a\u6b66\u5668\u7cfb\u7edf\u7684\u653f\u6cbb\u519b\u4e8b\u52a8\u4f5c\u3002\n\u25b2 0.60 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.683 (#4)\n\u8bed\u4e49\u5206: 0.507 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.536 + 0.30\u00d7\u7a00\u7f3a\u6027 0.050\n\u7efc\u5408\u5206: 0.595 (#4)"}, {"color": {"background": "#dacfde", "border": "#3a7bd5", "highlight": {"background": "#dacfde", "border": "#1a1a1a"}, "hover": {"background": "#dacfde", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: \u7f8e\u56fd\u5b98\u65b9\u901a\u8fc7\u56fd\u52a1\u9662\n\u58f0\u660e\uff0c\u8868\u8fbe\u4e86\u5bf9\u53f0\u6e7e\u6d77\u5ce1\u548c\u5e73\u4e0e\n\u7a33\u5b9a\u7684\u6301\u4e45\u5229\u76ca\uff0c\u5e76\u5f3a\u8c03\u53f0\u6e7e\u5b89\n\u5168\u5bf9\u5370\u592a\u5730\u533a\u5b89\u5168\u4e0e\u7a33\u5b9a\u7684\u5173\u952e\n\u4f5c\u7528\uff0c\u6b64\u4e3e\u88ab\u8bc6\u522b\u4e3a\u91ca\u653e\u5173\u4e8e\u53f0\n\u6d77\u548c\u5370\u592a\u5b89\u5168\u5229\u76ca\u7684\u653f\u6cbb\u4fe1\u53f7\u3002\n\u25b2 0.15 (#13)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.163 (#12)\n\u8bed\u4e49\u5206: 0.138 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.054 + 0.30\u00d7\u7a00\u7f3a\u6027 0.636\n\u7efc\u5408\u5206: 0.151 (#13)"}, {"color": {"background": "#dacbd9", "border": "#3a7bd5", "highlight": {"background": "#dacbd9", "border": "#1a1a1a"}, "hover": {"background": "#dacbd9", "border": "#1a1a1a"}}, "id": "E13", "label": "E13: \u53f0\u5f53\u5c40\u9488\u5bf9\u7f8e\u552e\u53f0\u6b66\n\u5668\u4f5c\u51fa\u5b98\u65b9\u56de\u5e94\uff0c\u8bc1\u5b9e\u5df2\u6536\u5230\u901a\n\u77e5\u5e76\u8868\u793a\u8bda\u631a\u6b22\u8fce\uff0c\u540c\u65f6\u5f3a\u8c03\u5c06\n\u6301\u7eed\u5f3a\u5316\u9632\u536b\u6218\u529b\u4ee5\u7ef4\u62a4\u533a\u57df\u7a33\n\u5b9a\u548c\u5e73\u3002\n\u25b2 0.18 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.351 (#9)\n\u8bed\u4e49\u5206: 0.000 (#13)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.204\n\u7efc\u5408\u5206: 0.175 (#12)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "\u53f0\u65b9\u91c7\u8d2d\u8c0b\u5212\u4fc3\u6210\u7f8e\u65b9\u6279\u51c6\u519b\u552e", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c1", "title": "\u519b\u552e\u6279\u51c6\u540e\uff0c\u53f0\u65b9\u9884\u8ba1\u83b7\u5f97\u5bfc\u5f39", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c2", "title": "\u7f8e\u552e\u53f0\u6b66\u5668\u5f15\u53d1\u4e2d\u65b9\u5916\u4ea4\u6297\u8bae", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c3", "title": "\u7f8e\u552e\u53f0\u6b66\u5668\u5f15\u53d1\u4e2d\u56fd\u56fd\u9632\u90e8\u6297\u8bae", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c4", "title": "\u7f8e\u552e\u53f0\u6b66\u5668\u5f15\u53d1\u4e2d\u65b9\u6b63\u5f0f\u5916\u4ea4\u8b66\u544a", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E11", "id": "c5", "title": "\u7f8e\u6279\u51c6\u9c7c\u53c9\u519b\u552e\u540e\uff0c\u53f0\u65b9\u6b22\u8fce\u5e76\u56de\u5e94", "to": "E13", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.716\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E8 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.715\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E11 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.706\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E10 \u5728 E13 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t3", "title": "E4\u662fE6\u7684\u5177\u4f53\u5b9e\u4f8b\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.890\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t5", "title": "E12\u662fE11\u7684\u80cc\u666f\u58f0\u660e\uff0c\u65e0\u4fc3\u53d1\u5173\u7cfb", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t6", "title": "E1\u662f\u6982\u62ec\u6027\u80cc\u666f\uff0cE2\u662f\u5177\u4f53\u8ba1\u5212\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb\u3002", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t7", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.820\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t8", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE3 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E2 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E3", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "美国与台湾方面进行军事联系。"}, {"id": "E2", "text": "台当局向美方谋划采购鱼叉导弹的计划动作。"}, {"id": "E3", "text": "台军计划在未来三年内，将其导弹部队“海峰大队”的编制从4个中队扩充至8.5个中队。"}, {"id": "E4", "text": "美国国防安全合作局作为官方机构，批准向台湾出售100套岸基“鱼叉”导弹系统，这是一个涉及对台军售的政治军事动作。"}, {"id": "E5", "text": "台当局预计2023年获得这批鱼叉导弹，相关设备将从2024年开始交付，导弹则从2025年运抵台湾。"}, {"id": "E6", "text": "美国向台湾出售武器。"}, {"id": "E7", "text": "中国外交部发言人汪文斌于18日表示，美台军事联系和美售台武器严重违反一个中国原则和中美三个联合公报，特别是《八一七公报》规定，严重损害中国主权和安全利益，严重威胁台海和平稳定，中方对此表示强烈不满和坚决反对。"}, {"id": "E8", "text": "美国政府批准向台湾出售包括海马斯高机动火箭炮系统、ATACMS弹道导弹、SLAM-ER防区外精确打击导弹以及F-16战机新型侦察吊舱在内的军事装备，总价值约18.113亿美元。"}, {"id": "E9", "text": "中国国防部新闻发言人谭克非就美国对台军售问题发表谈话，指出美方此举严重违反一个中国原则和中美三个联合公报特别是“八·一七”公报规定，是对中国内政的严重干涉，损害中国主权和安全利益，破坏中美两国两军关系及台海和平稳定，中方对此表示坚决反对。"}, {"id": "E10", "text": "中方针对美方对台军售计划及美台军事联系，发出正式外交警告和敦促，要求美方立即取消相关计划、停止军事联系并慎重处理涉台问题，以避免对中美两国两军关系及台海和平稳定造成严重后果。"}, {"id": "E11", "text": "美国国务院正式批准向台湾出售最多100套“鱼叉”反舰导弹系统，这是一个涉及特定武器系统的政治军事动作。"}, {"id": "E12", "text": "美国官方通过国务院声明，表达了对台湾海峡和平与稳定的持久利益，并强调台湾安全对印太地区安全与稳定的关键作用，此举被识别为释放关于台海和印太安全利益的政治信号。"}, {"id": "E13", "text": "台当局针对美售台武器作出官方回应，证实已收到通知并表示诚挚欢迎，同时强调将持续强化防卫战力以维护区域稳定和平。"}];var _pyCausal=[{"from": "E2", "to": "E4", "reason": "台方采购谋划促成美方批准军售"}, {"from": "E4", "to": "E5", "reason": "军售批准后，台方预计获得导弹"}, {"from": "E6", "to": "E7", "reason": "美售台武器引发中方外交抗议"}, {"from": "E6", "to": "E9", "reason": "美售台武器引发中国国防部抗议"}, {"from": "E6", "to": "E10", "reason": "美售台武器引发中方正式外交警告"}, {"from": "E11", "to": "E13", "reason": "美批准鱼叉军售后，台方欢迎并回应"}];var _pyTemporal=[{"from": "E4", "to": "E8", "reason": "语义嵌入相似度 0.716，按事件编号 E4 在 E8 之前，补一条仅表达时序的边。"}, {"from": "E8", "to": "E11", "reason": "语义嵌入相似度 0.715，按事件编号 E8 在 E11 之前，补一条仅表达时序的边。"}, {"from": "E10", "to": "E13", "reason": "语义嵌入相似度 0.706，按事件编号 E10 在 E13 之前，补一条仅表达时序的边。"}, {"from": "E4", "to": "E6", "reason": "E4是E6的具体实例，无直接促发"}, {"from": "E7", "to": "E9", "reason": "语义嵌入相似度 0.890，按事件编号 E7 在 E9 之前，补一条仅表达时序的边。"}, {"from": "E11", "to": "E12", "reason": "E12是E11的背景声明，无促发关系"}, {"from": "E1", "to": "E2", "reason": "E1是概括性背景，E2是具体计划，无直接促发关系。"}, {"from": "E9", "to": "E10", "reason": "语义嵌入相似度 0.820，按事件编号 E9 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E3", "reason": "孤立点消除：E3 与前一事件 E2 构成时序关系，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 0.32364141941070557, "topo_rank": 10, "semantic": 0.464959, "semantic_rank": 5, "semantic_rich": 0.446712, "semantic_rare": 0.29109, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3943002097053528, "combined_rank": 7}, "E10": {"topo": 0.5973361730575562, "topo_rank": 6, "semantic": 0.075369, "semantic_rank": 12, "semantic_rich": 0.062796, "semantic_rare": 0.267174, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3363525865287781, "combined_rank": 9}, "E11": {"topo": 0.6830229759216309, "topo_rank": 4, "semantic": 0.507346, "semantic_rank": 4, "semantic_rich": 0.53603, "semantic_rare": 0.04998, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5951844879608155, "combined_rank": 4}, "E12": {"topo": 0.16346129775047302, "topo_rank": 12, "semantic": 0.138496, "semantic_rank": 11, "semantic_rich": 0.053778, "semantic_rare": 0.636126, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.15097864887523652, "combined_rank": 13}, "E13": {"topo": 0.35078316926956177, "topo_rank": 9, "semantic": 0.0, "semantic_rank": 13, "semantic_rich": 0.0, "semantic_rare": 0.203721, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.17539158463478088, "combined_rank": 12}, "E2": {"topo": 0.823641300201416, "topo_rank": 3, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.190478, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.911820650100708, "combined_rank": 1}, "E3": {"topo": 0.32364141941070557, "topo_rank": 10, "semantic": 0.218412, "semantic_rank": 10, "semantic_rich": 0.167727, "semantic_rare": 0.460622, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2710267097053528, "combined_rank": 10}, "E4": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 0.588909, "semantic_rank": 2, "semantic_rich": 0.616979, "semantic_rare": 0.052042, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8312751501007081, "combined_rank": 2}, "E5": {"topo": 0.13803419470787048, "topo_rank": 13, "semantic": 0.308476, "semantic_rank": 9, "semantic_rich": 0.283459, "semantic_rare": 0.327865, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.22325509735393523, "combined_rank": 11}, "E6": {"topo": 0.956252932548523, "topo_rank": 2, "semantic": 0.51535, "semantic_rank": 3, "semantic_rich": 0.553764, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.7358014662742615, "combined_rank": 3}, "E7": {"topo": 0.4038550555706024, "topo_rank": 8, "semantic": 0.373012, "semantic_rank": 8, "semantic_rich": 0.216697, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3884335277853012, "combined_rank": 8}, "E8": {"topo": 0.4220936894416809, "topo_rank": 7, "semantic": 0.395555, "semantic_rank": 6, "semantic_rich": 0.378758, "semantic_rare": 0.284577, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.40882434472084045, "combined_rank": 6}, "E9": {"topo": 0.6085687279701233, "topo_rank": 5, "semantic": 0.378775, "semantic_rank": 7, "semantic_rich": 0.270517, "semantic_rare": 0.753601, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.49367186398506163, "combined_rank": 5}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">E023 美国出售鱼叉反舰导弹系统（2020年批准）</div><div>因果边：<b>6</b> 条&emsp;时序边：<b>9</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.14 / T- 0.19</div><div>C+ 0.32 / C- 0.34</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="台当局向美方谋划采购鱼叉导弹的计划动作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局向美方谋划采购鱼叉导弹的计…</td><td style="padding:4px 6px;text-align:center;">0.824 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.19</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.912 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="美国国防安全合作局作为官方机构，批准向台湾出售100套岸基“鱼叉”导弹系统，这是一个涉及对台军售的政治军事动作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国国防安全合作局作为官方机构，…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.589 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.62 / 稀 0.05</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.831 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="美国向台湾出售武器。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国向台湾出售武器。</td><td style="padding:4px 6px;text-align:center;">0.956 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.515 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.55 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.736 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="美国国务院正式批准向台湾出售最多100套“鱼叉”反舰导弹系统，这是一个涉及特定武器系统的政治军事动作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国国务院正式批准向台湾出售最多…</td><td style="padding:4px 6px;text-align:center;">0.683 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.507 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.54 / 稀 0.05</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.595 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="中国国防部新闻发言人谭克非就美国对台军售问题发表谈话，指出美方此举严重违反一个中国原则和中美三个联合公报特别是“八·一七”公报规定，是对中国内政的严重干涉，损害中国主权和安全利益，破坏中美两国两军关系及台海和平稳定，中方对此表示坚决反对。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国防部新闻发言人谭克非就美国…</td><td style="padding:4px 6px;text-align:center;">0.609 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.379 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.27 / 稀 0.75</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.494 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="美国政府批准向台湾出售包括海马斯高机动火箭炮系统、ATACMS弹道导弹、SLAM-ER防区外精确打击导弹以及F-16战机新型侦察吊舱在内的军事装备，总价值约18.113亿美元。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国政府批准向台湾出售包括海马斯…</td><td style="padding:4px 6px;text-align:center;">0.422 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.396 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.38 / 稀 0.28</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.409 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="美国与台湾方面进行军事联系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国与台湾方面进行军事联系。</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.465 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.45 / 稀 0.29</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.394 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="中国外交部发言人汪文斌于18日表示，美台军事联系和美售台武器严重违反一个中国原则和中美三个联合公报，特别是《八一七公报》规定，严重损害中国主权和安全利益，严重威胁台海和平稳定，中方对此表示强烈不满和坚决反对。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国外交部发言人汪文斌于18日表…</td><td style="padding:4px 6px;text-align:center;">0.404 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.373 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.22 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.388 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="中方针对美方对台军售计划及美台军事联系，发出正式外交警告和敦促，要求美方立即取消相关计划、停止军事联系并慎重处理涉台问题，以避免对中美两国两军关系及台海和平稳定造成严重后果。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中方针对美方对台军售计划及美台军…</td><td style="padding:4px 6px;text-align:center;">0.597 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.075 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.06 / 稀 0.27</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.336 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="台军计划在未来三年内，将其导弹部队“海峰大队”的编制从4个中队扩充至8.5个中队。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台军计划在未来三年内，将其导弹部…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.218 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.17 / 稀 0.46</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.271 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="台当局预计2023年获得这批鱼叉导弹，相关设备将从2024年开始交付，导弹则从2025年运抵台湾。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局预计2023年获得这批鱼叉…</td><td style="padding:4px 6px;text-align:center;">0.138 <span style="color:#888;font-size:10px">(#13)</span></td><td style="padding:4px 6px;text-align:center;">0.308 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.28 / 稀 0.33</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.223 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="台当局针对美售台武器作出官方回应，证实已收到通知并表示诚挚欢迎，同时强调将持续强化防卫战力以维护区域稳定和平。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E13</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局针对美售台武器作出官方回应…</td><td style="padding:4px 6px;text-align:center;">0.351 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#13)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.20</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.175 <span style="color:#888;font-size:10px">(#12)</span></td></tr><tr title="美国官方通过国务院声明，表达了对台湾海峡和平与稳定的持久利益，并强调台湾安全对印太地区安全与稳定的关键作用，此举被识别为释放关于台海和印太安全利益的政治信号。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国官方通过国务院声明，表达了对…</td><td style="padding:4px 6px;text-align:center;">0.163 <span style="color:#888;font-size:10px">(#12)</span></td><td style="padding:4px 6px;text-align:center;">0.138 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.05 / 稀 0.64</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.151 <span style="color:#888;font-size:10px">(#13)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

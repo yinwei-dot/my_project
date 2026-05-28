@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#dadbeb", "border": "#3a7bd5", "highlight": {"background": "#dadbeb", "border": "#1a1a1a"}, "hover": {"background": "#dadbeb", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u4e2a\u522b\u56fd\u5bb6\u5728\u8054\u5408\u56fd\u5927\u4f1a\n\u5ba1\u8bae\u7b2c2758\u53f7\u51b3\u8bae\u8fc7\u7a0b\u4e2d\uff0c\n\u63d0\u51fa\u4e86\u6240\u8c13\u7684\u201c\u53cc\u91cd\u4ee3\u8868\u6743\u201d\u63d0\n\u6848\uff0c\u5176\u610f\u56fe\u662f\u5236\u9020\u201c\u4e24\u4e2a\u4e2d\u56fd\u201d\n\u6216\u201c\u4e00\u4e2d\u4e00\u53f0\u201d\u7684\u5c40\u9762\uff0c\u4f46\u8be5\u63d0\n\u6848\u672a\u80fd\u83b7\u5f97\u901a\u8fc7\uff0c\u6700\u7ec8\u6ca6\u4e3a\u5e9f\u6848\n\u3002\n\u25b2 0.09 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#4)\n\u8bed\u4e49\u5206: 0.000 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.809\n\u7efc\u5408\u5206: 0.092 (#10)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u8054\u5408\u56fd\u5927\u4f1a\u7b2c26\u5c4a\u4f1a\n\u8bae\u7b2c1976\u6b21\u5168\u4f53\u4f1a\u8bae\u4ee5\u538b\u5012\n\u591a\u6570\u7968\u901a\u8fc7\u4e86\u7b2c2758\u53f7\u51b3\u8bae\n\uff0c\u51b3\u5b9a\u6062\u590d\u4e2d\u534e\u4eba\u6c11\u5171\u548c\u56fd\u5728\u8054\n\u5408\u56fd\u7ec4\u7ec7\u4e2d\u7684\u4e00\u5207\u5408\u6cd5\u6743\u5229\uff0c\u5e76\n\u7acb\u5373\u5c06\u53f0\u6e7e\u5f53\u5c40\u7684\u4ee3\u8868\u4ece\u8054\u5408\u56fd\n\u53ca\u5176\u6240\u5c5e\u4e00\u5207\u673a\u6784\u4e2d\u9a71\u9010\u51fa\u53bb\u3002\n\u25b2 1.04 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.065\n\u7efc\u5408\u5206: 1.037 (#1)"}, {"color": {"background": "#d88b94", "border": "#e07b20", "highlight": {"background": "#d88b94", "border": "#1a1a1a"}, "hover": {"background": "#d88b94", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u8054\u5408\u56fd\u5927\u4f1a\u901a\u8fc7\u51b3\u8bae\uff0c\n\u6062\u590d\u4e2d\u534e\u4eba\u6c11\u5171\u548c\u56fd\u5728\u8054\u5408\u56fd\u7684\n\u4e00\u5207\u5408\u6cd5\u6743\u5229\uff0c\u5e76\u627f\u8ba4\u4e2d\u534e\u4eba\u6c11\n\u5171\u548c\u56fd\u653f\u5e9c\u7684\u4ee3\u8868\u4e3a\u4e2d\u56fd\u5728\u8054\u5408\n\u56fd\u7ec4\u7ec7\u7684\u552f\u4e00\u5408\u6cd5\u4ee3\u8868\u3002\n\u25b2 0.49 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.296 (#2)\n\u8bed\u4e49\u5206: 0.694 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.663 + 0.30\u00d7\u7a00\u7f3a\u6027 0.595\n\u7efc\u5408\u5206: 0.495 (#2)"}, {"color": {"background": "#d88d97", "border": "#3a7bd5", "highlight": {"background": "#d88d97", "border": "#1a1a1a"}, "hover": {"background": "#d88d97", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u8054\u5408\u56fd\u5927\u4f1a\u901a\u8fc7\u51b3\u8bae\uff0c\n\u7acb\u5373\u5c06\u53f0\u6e7e\u5f53\u5c40\uff08\u848b\u4ecb\u77f3\uff09\u7684\u4ee3\n\u8868\u4ece\u5176\u5728\u8054\u5408\u56fd\u7ec4\u7ec7\u53ca\u5176\u6240\u5c5e\u4e00\n\u5207\u673a\u6784\u4e2d\u975e\u6cd5\u5360\u636e\u7684\u5e2d\u4f4d\u4e0a\u9a71\u9010\n\u51fa\u53bb\u3002\n\u25b2 0.48 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.296 (#2)\n\u8bed\u4e49\u5206: 0.669 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.611 + 0.30\u00d7\u7a00\u7f3a\u6027 0.871\n\u7efc\u5408\u5206: 0.482 (#4)"}, {"color": {"background": "#d88c95", "border": "#e07b20", "highlight": {"background": "#d88c95", "border": "#1a1a1a"}, "hover": {"background": "#d88c95", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u8054\u5408\u56fd\u7cfb\u7edf\u5404\u673a\u6784\u6839\u636e\n\u76f8\u5173\u51b3\u8bae\uff0c\u91c7\u53d6\u884c\u52a8\uff0c\u5c06\u53f0\u6e7e\u5f53\n\u5c40\u7684\u4ee3\u8868\u4ece\u5404\u673a\u6784\u4e2d\u9a71\u9010\u51fa\u53bb\u3002\n\u25b2 0.49 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.145 (#9)\n\u8bed\u4e49\u5206: 0.834 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.750 + 0.30\u00d7\u7a00\u7f3a\u6027 0.993\n\u7efc\u5408\u5206: 0.490 (#3)"}, {"color": {"background": "#d9b8c5", "border": "#3a7bd5", "highlight": {"background": "#d9b8c5", "border": "#1a1a1a"}, "hover": {"background": "#d9b8c5", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u8054\u5408\u56fd\u7cfb\u7edf\u5404\u673a\u6784\u6839\u636e\n\u76f8\u5173\u51b3\u8bae\uff0c\u91c7\u53d6\u884c\u52a8\uff0c\u6062\u590d\u4e86\u4e2d\n\u534e\u4eba\u6c11\u5171\u548c\u56fd\u5728\u5404\u673a\u6784\u4e2d\u5e94\u4eab\u6709\n\u7684\u5408\u6cd5\u5e2d\u4f4d\u3002\n\u25b2 0.27 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.145 (#9)\n\u8bed\u4e49\u5206: 0.389 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.402 + 0.30\u00d7\u7a00\u7f3a\u6027 0.395\n\u7efc\u5408\u5206: 0.267 (#6)"}, {"color": {"background": "#d9b8c5", "border": "#3a7bd5", "highlight": {"background": "#d9b8c5", "border": "#1a1a1a"}, "hover": {"background": "#d9b8c5", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u8054\u5408\u56fd\u79d8\u4e66\u5904\u901a\u8fc7\u51fa\u5177\n\u6cd5\u5f8b\u610f\u89c1\uff0c\u5bf9\u53f0\u6e7e\u5730\u4f4d\u8fdb\u884c\u5b98\u65b9\n\u5b9a\u6027\uff0c\u5f3a\u8c03\u53f0\u6e7e\u4f5c\u4e3a\u4e2d\u56fd\u7684\u4e00\u4e2a\n\u7701\uff0c\u4e0d\u5177\u5907\u72ec\u7acb\u5730\u4f4d\u3002\n\u25b2 0.27 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#4)\n\u8bed\u4e49\u5206: 0.353 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.410 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.269 (#5)"}, {"color": {"background": "#dad9e8", "border": "#3a7bd5", "highlight": {"background": "#dad9e8", "border": "#1a1a1a"}, "hover": {"background": "#dad9e8", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u8054\u5408\u56fd\u5b98\u65b9\u6587\u4ef6\u5bf9\u53f0\u6e7e\n\u552f\u4e00\u79f0\u8c13\u5c31\u662f\u201c\u4e2d\u56fd\u53f0\u6e7e\u7701\u201d\u3002\n\u25b2 0.10 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#4)\n\u8bed\u4e49\u5206: 0.022 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.085 + 0.30\u00d7\u7a00\u7f3a\u6027 0.184\n\u7efc\u5408\u5206: 0.103 (#9)"}, {"color": {"background": "#d9b9c6", "border": "#3a7bd5", "highlight": {"background": "#d9b9c6", "border": "#1a1a1a"}, "hover": {"background": "#d9b9c6", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: 183\u4e2a\u56fd\u5bb6\u5728\u4e00\u4e2a\u4e2d\n\u56fd\u539f\u5219\u57fa\u7840\u4e0a\u4e0e\u4e2d\u56fd\u5efa\u7acb\u4e86\u5916\u4ea4\n\u5173\u7cfb\u3002\n\u25b2 0.26 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#4)\n\u8bed\u4e49\u5206: 0.344 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.297 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.264 (#7)"}, {"color": {"background": "#d9c3d0", "border": "#3a7bd5", "highlight": {"background": "#d9c3d0", "border": "#1a1a1a"}, "hover": {"background": "#d9c3d0", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u4e2d\u56fd\u5916\u4ea4\u90e8\u901a\u8fc7\u53d1\u5e03\n\u7acb\u573a\u6587\u4ef6\uff0c\u91cd\u7533\u8054\u5408\u56fd\u5927\u4f1a\u7b2c2\n758\u53f7\u51b3\u8bae\u90d1\u91cd\u786e\u8ba4\u5e76\u5145\u5206\u4f53\n\u73b0\u4e86\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\u3002\n\u25b2 0.21 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.185 (#4)\n\u8bed\u4e49\u5206: 0.245 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.228 + 0.30\u00d7\u7a00\u7f3a\u6027 0.789\n\u7efc\u5408\u5206: 0.215 (#8)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "\u51b3\u8bae\u901a\u8fc7\u76f4\u63a5\u4fc3\u53d1\u5404\u673a\u6784\u9a71\u9010\u53f0\u6e7e\u4ee3\u8868", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c1", "title": "\u51b3\u8bae\u901a\u8fc7\u76f4\u63a5\u4fc3\u53d1\u5404\u673a\u6784\u6062\u590d\u4e2d\u56fd\u5e2d\u4f4d", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c2", "title": "\u51b3\u8bae\u4e3a\u79d8\u4e66\u5904\u51fa\u5177\u6cd5\u5f8b\u610f\u89c1\u63d0\u4f9b\u6743\u5a01\u4f9d\u636e", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c3", "title": "\u51b3\u8bae\u786e\u7acb\u539f\u5219\uff0c\u4fc3\u53d1\u8054\u5408\u56fd\u6587\u4ef6\u7edf\u4e00\u79f0\u8c13", "to": "E8", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t0", "title": "\u5916\u4ea4\u90e8\u53d1\u5e03\u6587\u4ef6\u662f\u91cd\u7533\u7acb\u573a\uff0c\u975e\u51b3\u8bae\u76f4\u63a5\u4fc3\u53d1", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t1", "title": "\u5efa\u4ea4\u662f\u957f\u671f\u5b9e\u8df5\uff0c\u975e\u51b3\u8bae\u76f4\u63a5\u4fc3\u53d1\u884c\u52a8", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.779\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t3", "title": "E4\u662fE2\u5185\u5bb9\u7684\u7ec4\u6210\u90e8\u5206\uff0c\u65e0\u56e0\u679c", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t4", "title": "E3\u662fE2\u5185\u5bb9\u7684\u91cd\u590d\u63cf\u8ff0\uff0c\u65e0\u56e0\u679c", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t5", "title": "\u63d0\u6848\u5931\u8d25\u4e0e\u51b3\u8bae\u901a\u8fc7\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb\uff0c\u5c5e\u80cc\u666f\u4e0e\u7ed3\u679c", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t6", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.814\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E5 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E5", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "个别国家在联合国大会审议第2758号决议过程中，提出了所谓的“双重代表权”提案，其意图是制造“两个中国”或“一中一台”的局面，但该提案未能获得通过，最终沦为废案。"}, {"id": "E2", "text": "联合国大会第26届会议第1976次全体会议以压倒多数票通过了第2758号决议，决定恢复中华人民共和国在联合国组织中的一切合法权利，并立即将台湾当局的代表从联合国及其所属一切机构中驱逐出去。"}, {"id": "E3", "text": "联合国大会通过决议，恢复中华人民共和国在联合国的一切合法权利，并承认中华人民共和国政府的代表为中国在联合国组织的唯一合法代表。"}, {"id": "E4", "text": "联合国大会通过决议，立即将台湾当局（蒋介石）的代表从其在联合国组织及其所属一切机构中非法占据的席位上驱逐出去。"}, {"id": "E5", "text": "联合国系统各机构根据相关决议，采取行动，将台湾当局的代表从各机构中驱逐出去。"}, {"id": "E6", "text": "联合国系统各机构根据相关决议，采取行动，恢复了中华人民共和国在各机构中应享有的合法席位。"}, {"id": "E7", "text": "联合国秘书处通过出具法律意见，对台湾地位进行官方定性，强调台湾作为中国的一个省，不具备独立地位。"}, {"id": "E8", "text": "联合国官方文件对台湾唯一称谓就是“中国台湾省”。"}, {"id": "E9", "text": "183个国家在一个中国原则基础上与中国建立了外交关系。"}, {"id": "E10", "text": "中国外交部通过发布立场文件，重申联合国大会第2758号决议郑重确认并充分体现了一个中国原则。"}];var _pyCausal=[{"from": "E2", "to": "E5", "reason": "决议通过直接促发各机构驱逐台湾代表"}, {"from": "E2", "to": "E6", "reason": "决议通过直接促发各机构恢复中国席位"}, {"from": "E2", "to": "E7", "reason": "决议为秘书处出具法律意见提供权威依据"}, {"from": "E2", "to": "E8", "reason": "决议确立原则，促发联合国文件统一称谓"}];var _pyTemporal=[{"from": "E2", "to": "E10", "reason": "外交部发布文件是重申立场，非决议直接促发"}, {"from": "E2", "to": "E9", "reason": "建交是长期实践，非决议直接促发行动"}, {"from": "E3", "to": "E6", "reason": "语义嵌入相似度 0.779，按事件编号 E3 在 E6 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E4", "reason": "E4是E2内容的组成部分，无因果"}, {"from": "E2", "to": "E3", "reason": "E3是E2内容的重复描述，无因果"}, {"from": "E1", "to": "E2", "reason": "提案失败与决议通过无直接促发关系，属背景与结果"}, {"from": "E4", "to": "E5", "reason": "语义嵌入相似度 0.814，按事件编号 E4 在 E5 之前，补一条仅表达时序的边。"}];var _pyScores={"E1": {"topo": 0.18475258350372314, "topo_rank": 4, "semantic": 0.0, "semantic_rank": 10, "semantic_rich": 0.0, "semantic_rare": 0.809217, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.09237629175186157, "combined_rank": 10}, "E10": {"topo": 0.18475258350372314, "topo_rank": 4, "semantic": 0.24471, "semantic_rank": 8, "semantic_rich": 0.227878, "semantic_rare": 0.788994, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.21473129175186156, "combined_rank": 8}, "E2": {"topo": 1.0736414194107056, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.065315, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.0368207097053528, "combined_rank": 1}, "E3": {"topo": 0.29586368799209595, "topo_rank": 2, "semantic": 0.694031, "semantic_rank": 3, "semantic_rich": 0.662621, "semantic_rare": 0.59489, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.49494734399604795, "combined_rank": 2}, "E4": {"topo": 0.29586368799209595, "topo_rank": 2, "semantic": 0.6691, "semantic_rank": 4, "semantic_rich": 0.610865, "semantic_rare": 0.871326, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.482481843996048, "combined_rank": 4}, "E5": {"topo": 0.14529868960380554, "topo_rank": 9, "semantic": 0.834144, "semantic_rank": 2, "semantic_rich": 0.750476, "semantic_rare": 0.993057, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.48972134480190277, "combined_rank": 3}, "E6": {"topo": 0.14529868960380554, "topo_rank": 9, "semantic": 0.388663, "semantic_rank": 5, "semantic_rich": 0.40171, "semantic_rare": 0.394659, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.26698084480190276, "combined_rank": 6}, "E7": {"topo": 0.18475258350372314, "topo_rank": 4, "semantic": 0.353388, "semantic_rank": 6, "semantic_rich": 0.410217, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2690702917518616, "combined_rank": 5}, "E8": {"topo": 0.18475258350372314, "topo_rank": 4, "semantic": 0.022098, "semantic_rank": 9, "semantic_rich": 0.085409, "semantic_rare": 0.184128, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.10342529175186158, "combined_rank": 9}, "E9": {"topo": 0.18475258350372314, "topo_rank": 4, "semantic": 0.343698, "semantic_rank": 7, "semantic_rich": 0.297258, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2642252917518616, "combined_rank": 7}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">I024 联大2758号决议的历史与基本内容（1971.10.25）</div><div>因果边：<b>4</b> 条&emsp;时序边：<b>7</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.14 / T- 0.25</div><div>C+ 0.29 / C- 0.32</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="联合国大会第26届会议第1976次全体会议以压倒多数票通过了第2758号决议，决定恢复中华人民共和国在联合国组织中的一切合法权利，并立即将台湾当局的代表从联合国及其所属一切机构中驱逐出去。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">联合国大会第26届会议第1976…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.07</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.037 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="联合国大会通过决议，恢复中华人民共和国在联合国的一切合法权利，并承认中华人民共和国政府的代表为中国在联合国组织的唯一合法代表。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">联合国大会通过决议，恢复中华人民…</td><td style="padding:4px 6px;text-align:center;">0.296 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.694 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.66 / 稀 0.59</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.495 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="联合国系统各机构根据相关决议，采取行动，将台湾当局的代表从各机构中驱逐出去。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">联合国系统各机构根据相关决议，采…</td><td style="padding:4px 6px;text-align:center;">0.145 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.834 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.75 / 稀 0.99</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.490 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="联合国大会通过决议，立即将台湾当局（蒋介石）的代表从其在联合国组织及其所属一切机构中非法占据的席位上驱逐出去。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">联合国大会通过决议，立即将台湾当…</td><td style="padding:4px 6px;text-align:center;">0.296 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.669 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.61 / 稀 0.87</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.482 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="联合国秘书处通过出具法律意见，对台湾地位进行官方定性，强调台湾作为中国的一个省，不具备独立地位。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">联合国秘书处通过出具法律意见，对…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.353 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.41 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.269 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="联合国系统各机构根据相关决议，采取行动，恢复了中华人民共和国在各机构中应享有的合法席位。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">联合国系统各机构根据相关决议，采…</td><td style="padding:4px 6px;text-align:center;">0.145 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.389 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.40 / 稀 0.39</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.267 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="183个国家在一个中国原则基础上与中国建立了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">183个国家在一个中国原则基础上…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.344 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.30 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.264 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="中国外交部通过发布立场文件，重申联合国大会第2758号决议郑重确认并充分体现了一个中国原则。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国外交部通过发布立场文件，重申…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.245 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.23 / 稀 0.79</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.215 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="联合国官方文件对台湾唯一称谓就是“中国台湾省”。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">联合国官方文件对台湾唯一称谓就是…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.022 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.09 / 稀 0.18</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.103 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="个别国家在联合国大会审议第2758号决议过程中，提出了所谓的“双重代表权”提案，其意图是制造“两个中国”或“一中一台”的局面，但该提案未能获得通过，最终沦为废案。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">个别国家在联合国大会审议第275…</td><td style="padding:4px 6px;text-align:center;">0.185 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.81</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.092 <span style="color:#888;font-size:10px">(#10)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

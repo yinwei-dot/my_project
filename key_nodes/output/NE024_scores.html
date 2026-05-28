@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d8777f", "border": "#3a7bd5", "highlight": {"background": "#d8777f", "border": "#1a1a1a"}, "hover": {"background": "#d8777f", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: 2019\u5e74\uff0c\u82f1\u56fd\u6d3e\u9063\n\u519b\u8230\u7a7f\u8d8a\u53f0\u6e7e\u6d77\u5ce1\uff0c\u8fd9\u662f\u4e00\u6b21\u7531\n\u82f1\u56fd\u5b9e\u65bd\u7684\u519b\u4e8b\u822a\u884c\u884c\u52a8\uff0c\u5176\u884c\n\u4e3a\u5ba2\u4f53\u6307\u5411\u4e2d\u56fd\u3002\n\u25b2 0.59 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.113 (#13)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.146 + 0.30\u00d7\u7a00\u7f3a\u6027 0.186\n\u7efc\u5408\u5206: 0.593 (#5)"}, {"color": {"background": "#d9a2ad", "border": "#3a7bd5", "highlight": {"background": "#d9a2ad", "border": "#1a1a1a"}, "hover": {"background": "#d9a2ad", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u8377\u5170\u7687\u5bb6\u6d77\u519b\u7684\u4e00\u8258\u4e03\n\u7701\u7ea7\u62a4\u536b\u8230\uff0c\u5728\u672a\u83b7\u5f97\u4e2d\u56fd\u653f\u5e9c\n\u5141\u8bb8\u7684\u60c5\u51b5\u4e0b\uff0c\u64c5\u81ea\u7a7f\u8d8a\u4e86\u53f0\u6e7e\n\u6d77\u5ce1\u3002\u8fd9\u4e00\u519b\u4e8b\u884c\u52a8\u7684\u4e3b\u4f53\u662f\u8377\n\u5170\u7687\u5bb6\u6d77\u519b\uff0c\u5ba2\u4f53\u6307\u5411\u4e2d\u56fd\uff0c\u6d89\n\u53ca\u5bf9\u4e2d\u56fd\u4e3b\u6743\u548c\u9886\u571f\u5b8c\u6574\u7684\u6f5c\u5728\n\u6311\u6218\u3002\n\u25b2 0.38 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#10)\n\u8bed\u4e49\u5206: 0.353 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.301 + 0.30\u00d7\u7a00\u7f3a\u6027 0.715\n\u7efc\u5408\u5206: 0.380 (#10)"}, {"color": {"background": "#d6474a", "border": "#e07b20", "highlight": {"background": "#d6474a", "border": "#1a1a1a"}, "hover": {"background": "#d6474a", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u82f1\u56fd\u4e8e2024\u5e74\u6d3e\u9063\n\u519b\u8230\u201c\u65af\u4f69\u201d\u53f7\u518d\u6b21\u7a7f\u8d8a\u53f0\u6e7e\u6d77\n\u5ce1\uff0c\u8fd9\u4e00\u519b\u4e8b\u884c\u52a8\u672a\u7ecf\u4e2d\u65b9\u8bb8\u53ef\n\uff0c\u88ab\u89c6\u4e3a\u5bf9\u4e2d\u56fd\u4e3b\u6743\u548c\u9886\u571f\u5b8c\u6574\n\u7684\u6311\u8845\u3002\n\u25b2 0.84 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.604 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.607 + 0.30\u00d7\u7a00\u7f3a\u6027 0.256\n\u7efc\u5408\u5206: 0.839 (#3)"}, {"color": {"background": "#d9b1bd", "border": "#3a7bd5", "highlight": {"background": "#d9b1bd", "border": "#1a1a1a"}, "hover": {"background": "#d9b1bd", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u4e1c\u90e8\u6218\u533a\u6d77\u7a7a\u5175\u529b\u5bf9\u82f1\n\u56fd\u519b\u8230\u2018\u65af\u4f69\u2019\u53f7\u5b9e\u65bd\u5168\u7a0b\u8ddf\u76d1\n\u8b66\u6212\uff0c\u4e25\u5bc6\u638c\u63a7\u5176\u822a\u884c\u52a8\u5411\uff0c\u5e76\n\u4f9d\u6cd5\u4f9d\u89c4\u91c7\u53d6\u5fc5\u8981\u63aa\u65bd\u3002\n\u25b2 0.30 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#10)\n\u8bed\u4e49\u5206: 0.199 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.226 + 0.30\u00d7\u7a00\u7f3a\u6027 0.201\n\u7efc\u5408\u5206: 0.303 (#12)"}, {"color": {"background": "#d8838b", "border": "#3a7bd5", "highlight": {"background": "#d8838b", "border": "#1a1a1a"}, "hover": {"background": "#d8838b", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u8d56\u6e05\u5fb7\n\u4e8e2024\u5e7410\u6708\u79bb\u5f00\u53f0\u5317\uff0c\n\u5bf9\u5357\u592a\u5e73\u6d0b\u4e09\u4e2a\u5c0f\u5c9b\u56fd\u8fdb\u884c\u653f\u6cbb\n\u8bbf\u95ee\u3002\n\u25b2 0.54 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#6)\n\u8bed\u4e49\u5206: 0.335 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.244 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.538 (#7)"}, {"color": {"background": "#d88c95", "border": "#3a7bd5", "highlight": {"background": "#d88c95", "border": "#1a1a1a"}, "hover": {"background": "#d88c95", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u8d56\u6e05\u5fb7\u8ba1\u5212\u5728\u884c\u7a0b\u4e2d\uff0c\n\u4ee5\u201c\u8fc7\u5883\u201d\u540d\u4e49\u5728\u7f8e\u56fd\u9886\u571f\u590f\u5a01\n\u5937\u548c\u5173\u5c9b\u8fdb\u884c\u653f\u6cbb\u6d3b\u52a8\u3002\n\u25b2 0.49 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#6)\n\u8bed\u4e49\u5206: 0.242 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.253 + 0.30\u00d7\u7a00\u7f3a\u6027 0.306\n\u7efc\u5408\u5206: 0.491 (#8)"}, {"color": {"background": "#dacad8", "border": "#3a7bd5", "highlight": {"background": "#dacad8", "border": "#1a1a1a"}, "hover": {"background": "#dacad8", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: 2024\u5e74\uff0c\u89e3\u653e\u519b\u53cc\n\u822a\u6bcd\u5728\u897f\u592a\u5e73\u6d0b\u5b9e\u65bd\u4e86\u9488\u5bf9\u6240\u8c13\n\u201c\u4e24\u5927\u5c9b\u94fe\u201d\u7684\u65ad\u94fe\u5f0f\u5927\u89c4\u6a21\u519b\n\u4e8b\u6f14\u7ec3\u3002\n\u25b2 0.18 (#14)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.355 (#13)\n\u8bed\u4e49\u5206: 0.000 (#14)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.453\n\u7efc\u5408\u5206: 0.178 (#14)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u7f8e\u56fd\u6d77\u519b\u5728\u4e2d\u56fd\u5468\u8fb9\u6d77\n\u57df\u5b9e\u65bd\u822a\u6bcd\u96c6\u7ed3\u7684\u519b\u4e8b\u90e8\u7f72\u884c\u52a8\n\u3002\n\u25b2 1.04 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.168\n\u7efc\u5408\u5206: 1.037 (#1)"}, {"color": {"background": "#d9b1bd", "border": "#3a7bd5", "highlight": {"background": "#d9b1bd", "border": "#1a1a1a"}, "hover": {"background": "#d9b1bd", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u89e3\u653e\u519b\u6d3e\u51fa795\u53f7\u7535\n\u5b50\u4fa6\u5bdf\u8239\uff0c\u5bf9\u7f8e\u519b\u822a\u6bcd\u96c6\u7ed3\u8fdb\u884c\n\u4fa6\u5bdf\u76d1\u89c6\u884c\u52a8\u3002\n\u25b2 0.30 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#10)\n\u8bed\u4e49\u5206: 0.201 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.224 + 0.30\u00d7\u7a00\u7f3a\u6027 0.231\n\u7efc\u5408\u5206: 0.304 (#11)"}, {"color": {"background": "#d63234", "border": "#e07b20", "highlight": {"background": "#d63234", "border": "#1a1a1a"}, "hover": {"background": "#d63234", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u89e3\u653e\u519b\u6d3e\u51fa071\u578b\n\u4e24\u6816\u767b\u9646\u8230\u9f99\u864e\u5c71\u53f7\uff0c\u5bf9\u7f8e\u519b\u822a\n\u6bcd\u96c6\u7ed3\u8fdb\u884c\u519b\u4e8b\u90e8\u7f72\u6216\u5a01\u6151\u884c\u52a8\n\u3002\n\u25b2 0.94 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.811 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.833 + 0.30\u00d7\u7a00\u7f3a\u6027 0.066\n\u7efc\u5408\u5206: 0.942 (#2)"}, {"color": {"background": "#d8919a", "border": "#3a7bd5", "highlight": {"background": "#d8919a", "border": "#1a1a1a"}, "hover": {"background": "#d8919a", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u65e5\u672c\u81ea\u536b\u961f\u5bf9\u89e3\u653e\u519b\n071\u578b\u8239\u575e\u767b\u9646\u8230\u5b9e\u65bd\u7684\u519b\u4e8b\n\u8ddf\u8e2a\u76d1\u89c6\u884c\u52a8\u3002\n\u25b2 0.47 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.698 (#8)\n\u8bed\u4e49\u5206: 0.232 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.265 + 0.30\u00d7\u7a00\u7f3a\u6027 0.154\n\u7efc\u5408\u5206: 0.465 (#9)"}, {"color": {"background": "#d7737a", "border": "#3a7bd5", "highlight": {"background": "#d7737a", "border": "#1a1a1a"}, "hover": {"background": "#d7737a", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: \u89e3\u653e\u519b071\u578b\u8239\u575e\n\u767b\u9646\u8230\u5728\u53f0\u5c9b\u4ee5\u4e1c\u6d77\u57df\u5b9e\u65bd\u9ad8\u901f\n\u5357\u4e0b\u673a\u52a8\u3002\n\u25b2 0.61 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.698 (#8)\n\u8bed\u4e49\u5206: 0.531 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.574 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.614 (#4)"}, {"color": {"background": "#d87981", "border": "#3a7bd5", "highlight": {"background": "#d87981", "border": "#1a1a1a"}, "hover": {"background": "#d87981", "border": "#1a1a1a"}}, "id": "E13", "label": "E13: \u89e3\u653e\u519b071\u578b\u8239\u575e\n\u767b\u9646\u8230\u4e0e\u7f8e\u519b3\u8258\u822a\u6bcd\u5f62\u6210\u519b\u4e8b\n\u5bf9\u5cd9\u6001\u52bf\u3002\n\u25b2 0.58 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.929 (#5)\n\u8bed\u4e49\u5206: 0.238 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.287 + 0.30\u00d7\u7a00\u7f3a\u6027 0.037\n\u7efc\u5408\u5206: 0.583 (#6)"}, {"color": {"background": "#d9b7c3", "border": "#3a7bd5", "highlight": {"background": "#d9b7c3", "border": "#1a1a1a"}, "hover": {"background": "#d9b7c3", "border": "#1a1a1a"}}, "id": "E14", "label": "E14: \u89e3\u653e\u519b\u8230\u673a\u5728\u53f0\u6d77\u5468\n\u8fb9\u5b9e\u65bd\u9891\u7e41\u4e14\u6301\u7eed\u7684\u519b\u4e8b\u6d3b\u52a8\u3002\n\u25b2 0.28 (#13)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.170 (#14)\n\u8bed\u4e49\u5206: 0.383 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.401 + 0.30\u00d7\u7a00\u7f3a\u6027 0.217\n\u7efc\u5408\u5206: 0.276 (#13)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E3", "id": "c0", "title": "\u82f1\u56fd\u6311\u8845\u5f15\u53d1\u89e3\u653e\u519b\u76d1\u63a7\u54cd\u5e94", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E8", "id": "c1", "title": "\u7f8e\u519b\u96c6\u7ed3\u5f15\u53d1\u89e3\u653e\u519b\u4fa6\u5bdf", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E8", "id": "c2", "title": "\u7f8e\u519b\u96c6\u7ed3\u4fc3\u4f7f\u89e3\u653e\u519b\u90e8\u7f72\u5a01\u6151", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E10", "id": "c3", "title": "\u89e3\u653e\u519b\u8230\u8247\u6d3b\u52a8\u5f15\u53d1\u65e5\u672c\u76d1\u89c6", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E12", "id": "c4", "title": "\u8230\u8247\u673a\u52a8\u5bfc\u81f4\u4e0e\u7f8e\u519b\u5bf9\u5cd9", "to": "E13", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t0", "title": "\u539f\u6587\u65e0\u8bc1\u636e\u8868\u660e2019\u5e74\u82f1\u8230\u884c\u52a8\u76f4\u63a5\u4fc3\u53d12024\u5e74\u884c\u52a8\uff0c\u5c5e\u65f6\u95f4\u5e76\u5217\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t1", "title": "\u539f\u6587\u672a\u63d0\u53ca\uff0c\u5c5e\u5019\u9009\u8fb9\u96c6\u5916\u4e8b\u4ef6\uff0c\u65e0\u56e0\u679c\u8bc1\u636e\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.709\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E11 \u5728 E13 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t3", "title": "\u539f\u6587\u672a\u63d0\u53ca\uff0c\u5c5e\u5019\u9009\u8fb9\u96c6\u5916\u4e8b\u4ef6\uff0c\u65e0\u56e0\u679c\u8bc1\u636e\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.720\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E3 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t5", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE7 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E6 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t6", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE14 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E13 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t7", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E5 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t8", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E8 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E8", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "2019年，英国派遣军舰穿越台湾海峡，这是一次由英国实施的军事航行行动，其行为客体指向中国。"}, {"id": "E2", "text": "荷兰皇家海军的一艘七省级护卫舰，在未获得中国政府允许的情况下，擅自穿越了台湾海峡。这一军事行动的主体是荷兰皇家海军，客体指向中国，涉及对中国主权和领土完整的潜在挑战。"}, {"id": "E3", "text": "英国于2024年派遣军舰“斯佩”号再次穿越台湾海峡，这一军事行动未经中方许可，被视为对中国主权和领土完整的挑衅。"}, {"id": "E4", "text": "东部战区海空兵力对英国军舰‘斯佩’号实施全程跟监警戒，严密掌控其航行动向，并依法依规采取必要措施。"}, {"id": "E5", "text": "台湾地区领导人赖清德于2024年10月离开台北，对南太平洋三个小岛国进行政治访问。"}, {"id": "E6", "text": "赖清德计划在行程中，以“过境”名义在美国领土夏威夷和关岛进行政治活动。"}, {"id": "E7", "text": "2024年，解放军双航母在西太平洋实施了针对所谓“两大岛链”的断链式大规模军事演练。"}, {"id": "E8", "text": "美国海军在中国周边海域实施航母集结的军事部署行动。"}, {"id": "E9", "text": "解放军派出795号电子侦察船，对美军航母集结进行侦察监视行动。"}, {"id": "E10", "text": "解放军派出071型两栖登陆舰龙虎山号，对美军航母集结进行军事部署或威慑行动。"}, {"id": "E11", "text": "日本自卫队对解放军071型船坞登陆舰实施的军事跟踪监视行动。"}, {"id": "E12", "text": "解放军071型船坞登陆舰在台岛以东海域实施高速南下机动。"}, {"id": "E13", "text": "解放军071型船坞登陆舰与美军3艘航母形成军事对峙态势。"}, {"id": "E14", "text": "解放军舰机在台海周边实施频繁且持续的军事活动。"}];var _pyCausal=[{"from": "E3", "to": "E4", "reason": "英国挑衅引发解放军监控响应"}, {"from": "E8", "to": "E9", "reason": "美军集结引发解放军侦察"}, {"from": "E8", "to": "E10", "reason": "美军集结促使解放军部署威慑"}, {"from": "E10", "to": "E11", "reason": "解放军舰艇活动引发日本监视"}, {"from": "E12", "to": "E13", "reason": "舰艇机动导致与美军对峙"}];var _pyTemporal=[{"from": "E1", "to": "E3", "reason": "原文无证据表明2019年英舰行动直接促发2024年行动，属时间并列。"}, {"from": "E10", "to": "E12", "reason": "原文未提及，属候选边集外事件，无因果证据。"}, {"from": "E11", "to": "E13", "reason": "语义嵌入相似度 0.709，按事件编号 E11 在 E13 之前，补一条仅表达时序的边。"}, {"from": "E5", "to": "E6", "reason": "原文未提及，属候选边集外事件，无因果证据。"}, {"from": "E2", "to": "E3", "reason": "语义嵌入相似度 0.720，按事件编号 E2 在 E3 之前，补一条仅表达时序的边。"}, {"from": "E6", "to": "E7", "reason": "孤立点消除：E7 与前一事件 E6 构成时序关系，仅表达时序，不表达因果。"}, {"from": "E13", "to": "E14", "reason": "孤立点消除：E14 与前一事件 E13 构成时序关系，仅表达时序，不表达因果。"}, {"from": "E1", "to": "E5", "reason": "子图桥接：E1 → E5 为跨连通分量最小跨度对，仅表达时序，不表达因果。"}, {"from": "E1", "to": "E8", "reason": "子图桥接：E1 → E8 为跨连通分量最小跨度对，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.11268, "semantic_rank": 13, "semantic_rich": 0.14593, "semantic_rare": 0.186262, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5931605904960633, "combined_rank": 5}, "E10": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.811013, "semantic_rank": 2, "semantic_rich": 0.833093, "semantic_rare": 0.066188, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.9423270904960632, "combined_rank": 2}, "E11": {"topo": 0.6980197429656982, "topo_rank": 8, "semantic": 0.232352, "semantic_rank": 10, "semantic_rich": 0.265316, "semantic_rare": 0.15421, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4651858714828491, "combined_rank": 9}, "E12": {"topo": 0.6980197429656982, "topo_rank": 8, "semantic": 0.530907, "semantic_rank": 4, "semantic_rich": 0.5737, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6144633714828491, "combined_rank": 4}, "E13": {"topo": 0.9285296201705933, "topo_rank": 5, "semantic": 0.23808, "semantic_rank": 9, "semantic_rich": 0.287403, "semantic_rare": 0.037352, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5833048100852967, "combined_rank": 6}, "E14": {"topo": 0.16972118616104126, "topo_rank": 14, "semantic": 0.382748, "semantic_rank": 5, "semantic_rich": 0.40078, "semantic_rare": 0.216597, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2762345930805206, "combined_rank": 13}, "E2": {"topo": 0.4069747030735016, "topo_rank": 10, "semantic": 0.352664, "semantic_rank": 6, "semantic_rich": 0.301141, "semantic_rare": 0.715121, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3798193515367508, "combined_rank": 10}, "E3": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.603935, "semantic_rank": 3, "semantic_rich": 0.6074, "semantic_rare": 0.256253, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8387880904960632, "combined_rank": 3}, "E4": {"topo": 0.4069747030735016, "topo_rank": 10, "semantic": 0.198731, "semantic_rank": 12, "semantic_rich": 0.226471, "semantic_rare": 0.200586, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3028528515367508, "combined_rank": 12}, "E5": {"topo": 0.7403079271316528, "topo_rank": 6, "semantic": 0.334851, "semantic_rank": 7, "semantic_rich": 0.243606, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5375794635658264, "combined_rank": 7}, "E6": {"topo": 0.7403079271316528, "topo_rank": 6, "semantic": 0.242145, "semantic_rank": 8, "semantic_rich": 0.253127, "semantic_rare": 0.306269, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.49122646356582644, "combined_rank": 8}, "E7": {"topo": 0.3551824688911438, "topo_rank": 13, "semantic": 0.0, "semantic_rank": 14, "semantic_rich": 0.0, "semantic_rare": 0.452554, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.1775912344455719, "combined_rank": 14}, "E8": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.167938, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.0368205904960632, "combined_rank": 1}, "E9": {"topo": 0.4069747030735016, "topo_rank": 10, "semantic": 0.200754, "semantic_rank": 11, "semantic_rich": 0.224141, "semantic_rare": 0.230674, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3038643515367508, "combined_rank": 11}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">NE024 欧盟各国军舰穿越台海加速＂标准化＂（2021-2025）</div><div>因果边：<b>5</b> 条&emsp;时序边：<b>9</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.15 / T- 0.18</div><div>C+ 0.32 / C- 0.35</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="美国海军在中国周边海域实施航母集结的军事部署行动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国海军在中国周边海域实施航母集…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.17</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.037 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="解放军派出071型两栖登陆舰龙虎山号，对美军航母集结进行军事部署或威慑行动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">解放军派出071型两栖登陆舰龙虎…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.811 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.83 / 稀 0.07</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.942 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="英国于2024年派遣军舰“斯佩”号再次穿越台湾海峡，这一军事行动未经中方许可，被视为对中国主权和领土完整的挑衅。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">英国于2024年派遣军舰“斯佩”…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.604 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.61 / 稀 0.26</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.839 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="解放军071型船坞登陆舰在台岛以东海域实施高速南下机动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">解放军071型船坞登陆舰在台岛以…</td><td style="padding:4px 6px;text-align:center;">0.698 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.531 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.57 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.614 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="2019年，英国派遣军舰穿越台湾海峡，这是一次由英国实施的军事航行行动，其行为客体指向中国。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2019年，英国派遣军舰穿越台湾…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.113 <span style="color:#888;font-size:10px">(#13)</span><div style="color:#888;font-size:10px">丰 0.15 / 稀 0.19</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.593 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="解放军071型船坞登陆舰与美军3艘航母形成军事对峙态势。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E13</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">解放军071型船坞登陆舰与美军3…</td><td style="padding:4px 6px;text-align:center;">0.929 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.238 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.29 / 稀 0.04</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.583 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="台湾地区领导人赖清德于2024年10月离开台北，对南太平洋三个小岛国进行政治访问。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区领导人赖清德于2024年…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.335 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.24 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.538 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="赖清德计划在行程中，以“过境”名义在美国领土夏威夷和关岛进行政治活动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">赖清德计划在行程中，以“过境”名…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.242 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.25 / 稀 0.31</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.491 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="日本自卫队对解放军071型船坞登陆舰实施的军事跟踪监视行动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">日本自卫队对解放军071型船坞登…</td><td style="padding:4px 6px;text-align:center;">0.698 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.232 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.27 / 稀 0.15</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.465 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="荷兰皇家海军的一艘七省级护卫舰，在未获得中国政府允许的情况下，擅自穿越了台湾海峡。这一军事行动的主体是荷兰皇家海军，客体指向中国，涉及对中国主权和领土完整的潜在挑战。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">荷兰皇家海军的一艘七省级护卫舰，…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.353 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.30 / 稀 0.72</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.380 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="解放军派出795号电子侦察船，对美军航母集结进行侦察监视行动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">解放军派出795号电子侦察船，对…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.201 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.22 / 稀 0.23</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.304 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="东部战区海空兵力对英国军舰‘斯佩’号实施全程跟监警戒，严密掌控其航行动向，并依法依规采取必要措施。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">东部战区海空兵力对英国军舰‘斯佩…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.199 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.23 / 稀 0.20</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.303 <span style="color:#888;font-size:10px">(#12)</span></td></tr><tr title="解放军舰机在台海周边实施频繁且持续的军事活动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E14</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">解放军舰机在台海周边实施频繁且持…</td><td style="padding:4px 6px;text-align:center;">0.170 <span style="color:#888;font-size:10px">(#14)</span></td><td style="padding:4px 6px;text-align:center;">0.383 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.40 / 稀 0.22</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.276 <span style="color:#888;font-size:10px">(#13)</span></td></tr><tr title="2024年，解放军双航母在西太平洋实施了针对所谓“两大岛链”的断链式大规模军事演练。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2024年，解放军双航母在西太平…</td><td style="padding:4px 6px;text-align:center;">0.355 <span style="color:#888;font-size:10px">(#13)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#14)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.45</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.178 <span style="color:#888;font-size:10px">(#14)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

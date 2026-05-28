@@ -1,0 +1,747 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "E1", "label": "E1: 2022\u5e74\uff0c\u5317\u7ea6\u5b9e\u65bd\n\u4e86\u5176\u5386\u53f2\u4e0a\u7684\u7b2c\u516d\u8f6e\u4e1c\u6269\uff0c\u6b63\u5f0f\n\u5438\u7eb3\u82ac\u5170\u548c\u745e\u5178\u6210\u4e3a\u8be5\u519b\u4e8b\u8054\u76df\n\u7684\u6210\u5458\u56fd\uff0c\u8fd9\u662f\u4e00\u6b21\u91cd\u8981\u7684\u653f\u6cbb\n\u519b\u4e8b\u6269\u5f20\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E2", "label": "E2: \u4e2d\u56fd\u5916\u4ea4\u90e8\u9488\u5bf9\u5317\u7ea6\u6218\n\u7565\u6587\u4ef6\u4e2d\u7684\u6d89\u534e\u5185\u5bb9\u8fdb\u884c\u9a73\u65a5\uff0c\n\u6307\u51fa\u5176\u5145\u6ee1\u51b7\u6218\u601d\u7ef4\uff0c\u5e76\u660e\u786e\u8868\n\u793a\u53cd\u5bf9\u5317\u7ea6\u4ecb\u5165\u4e9a\u592a\u5730\u533a\u4e8b\u52a1\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E3", "label": "E3: \u4fc4\u7f57\u65af\u5916\u4ea4\u90e8\u9488\u5bf9\u5317\u7ea6\n\u6218\u7565\u6587\u4ef6\u53ca\u4e1c\u6269\u653f\u7b56\u53d1\u8868\u5b98\u65b9\u8c34\n\u8d23\uff0c\u6307\u51fa\u8be5\u6587\u4ef6\u7834\u574f\u4e86\u6b27\u6d32\u5b89\u5168\n\u67b6\u6784\uff0c\u5e76\u5b9a\u6027\u5317\u7ea6\u4e1c\u6269\u662f\u5a01\u80c1\u7684\n\u6e90\u5934\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E4", "label": "E4: 2022\u5e746\u670829\u65e5\n\uff0c\u6b63\u5728\u897f\u73ed\u7259\u9996\u90fd\u9a6c\u5fb7\u91cc\u4e3e\u884c\u5cf0\n\u4f1a\u7684\u5317\u5927\u897f\u6d0b\u516c\u7ea6\u7ec4\u7ec7\uff08\u5317\u7ea6\uff09\n\u6210\u5458\u56fd\u9996\u8111\u4eec\u901a\u8fc7\u4e86\u8be5\u7ec4\u7ec7\u7684\u6700\n\u65b0\u6218\u7565\u6587\u4ef6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E5", "label": "E5: \u5317\u7ea6\u901a\u8fc7\u5176\u6218\u7565\u6587\u4ef6\uff0c\n\u5c06\u4fc4\u7f57\u65af\u5b9a\u6027\u4e3a\u0027\u6700\u91cd\u8981\u548c\u76f4\u63a5\n\u7684\u5a01\u80c1\u0027\uff0c\u8fd9\u662f\u4e00\u9879\u660e\u786e\u7684\u653f\u6cbb\n\u8868\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E6", "label": "E6: \u5317\u7ea6\u901a\u8fc7\u5176\u6218\u7565\u6587\u4ef6\uff0c\n\u9996\u6b21\u5c06\u4e2d\u56fd\u5b9a\u6027\u4e3a\u0027\u6311\u6218\u5317\u7ea6\u7684\n\u5b89\u5168\u3001\u5229\u76ca\u548c\u4ef7\u503c\u89c2\u0027\u5e76\u5bf9\u0027\u6b27\n\u6d32-\u5927\u897f\u6d0b\u6784\u6210\u7cfb\u7edf\u6027\u6311\u6218\u0027\uff0c\n\u8fd9\u662f\u4e00\u9879\u65b0\u7684\u653f\u6cbb\u8868\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E7", "label": "E7: \u5317\u7ea6\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u5bf9\u4e2d\n\u56fd\u8fdb\u884c\u7cfb\u7edf\u6027\u8d1f\u9762\u5b9a\u6027\u548c\u6307\u63a7\uff0c\n\u6307\u8d23\u4e2d\u56fd\u4f7f\u7528\u6076\u610f\u7f51\u7edc\u884c\u52a8\u3001\u5bf9\n\u6297\u6027\u8a00\u8bba\u548c\u865a\u5047\u4fe1\u606f\u635f\u5bb3\u8054\u76df\u5b89\n\u5168\uff0c\u5229\u7528\u653f\u6cbb\u3001\u7ecf\u6d4e\u548c\u519b\u4e8b\u624b\u6bb5\n\u5168\u7403\u6295\u5c04\u529b\u91cf\uff0c\u5bfb\u6c42\u63a7\u5236\u5173\u952e\u6280\n\u672f\u548c\u5de5\u4e1a\u90e8\u95e8\u3001\u57fa\u7840\u8bbe\u65bd\u53ca\u4f9b\u5e94\n\u94fe\uff0c\u5229\u7528\u7ecf\u6d4e\u5f71\u54cd\u529b\u5efa\u7acb\u6218\u7565\u4f9d\n\u8d56\u4ee5\u589e\u5f3a\u81ea\u8eab\u5f71\u54cd\u529b\uff0c\u5e76\u5bf9\u672c\u56fd\n\u6218\u7565\u3001\u610f\u56fe\u548c\u519b\u4e8b\u5efa\u8bbe\u4fdd\u6301\u4e0d\u900f\n\u660e\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E8", "label": "E8: \u5317\u7ea6\u901a\u8fc7\u5176\u6218\u7565\u6587\u4ef6\uff0c\n\u5ba3\u79f0\u4e2d\u56fd\u6b63\u5728\u8fc5\u901f\u6269\u5927\u6838\u6b66\u5e93\u5e76\n\u53d1\u5c55\u65e5\u76ca\u590d\u6742\u7684\u8fd0\u8f7d\u7cfb\u7edf\uff0c\u540c\u65f6\n\u6c61\u8511\u4e2d\u56fd\u7f3a\u4e4f\u53c2\u4e0e\u519b\u5907\u63a7\u5236\u6216\u51cf\n\u5c11\u98ce\u9669\u7684\u8bda\u610f\uff0c\u8fd9\u662f\u5bf9\u4e2d\u56fd\u8fdb\u884c\n\u7684\u653f\u6cbb\u6c61\u8511\u548c\u8d1f\u9762\u5b9a\u6027\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E9", "label": "E9: \u5317\u7ea6\u901a\u8fc7\u4e00\u4efd\u6218\u7565\u6587\u4ef6\n\uff0c\u6307\u63a7\u4e2d\u56fd\u4f01\u56fe\u5728\u592a\u7a7a\u3001\u7f51\u7edc\u548c\n\u6d77\u6d0b\u9886\u57df\u98a0\u8986\u4ee5\u89c4\u5219\u4e3a\u57fa\u7840\u7684\u56fd\n\u9645\u79e9\u5e8f\uff0c\u4ee5\u6b64\u5bf9\u4e2d\u56fd\u7684\u6218\u7565\u610f\u56fe\n\u8fdb\u884c\u5b9a\u6027\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E10", "label": "E10: \u5317\u7ea6\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u5bf9\n\u4e2d\u56fd\u4e0e\u4fc4\u7f57\u65af\u4e0d\u65ad\u6df1\u5316\u7684\u6218\u7565\u4f19\n\u4f34\u5173\u7cfb\u8fdb\u884c\u8d1f\u9762\u5b9a\u6027\u548c\u6307\u8d23\uff0c\u79f0\n\u5176\u4e0e\u5317\u7ea6\u7684\u4ef7\u503c\u89c2\u548c\u5229\u76ca\u80cc\u9053\u800c\n\u9a70\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E11", "label": "E11: \u5317\u7ea6\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u5ba3\n\u79f0\u201c\u5370\u5ea6-\u592a\u5e73\u6d0b\u201d\u5730\u533a\u5bf9\u5176\u5177\n\u6709\u91cd\u8981\u6027\uff0c\u8fd9\u662f\u5bf9\u5370\u592a\u5730\u533a\u8fdb\u884c\n\u7684\u6218\u7565\u5b9a\u4f4d\u548c\u91cd\u8981\u6027\u5ba3\u793a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E12", "label": "E12: \u5317\u7ea6\u8ba1\u5212\u52a0\u5f3a\u540c\u5370\u592a\n\u5730\u533a\u65b0\u4f19\u4f34\u548c\u73b0\u6709\u4f19\u4f34\u7684\u5bf9\u8bdd\u4e0e\n\u5408\u4f5c\uff0c\u8fd9\u4f53\u73b0\u4e86\u5176\u65e8\u5728\u52a0\u5f3a\u4e0e\u8be5\n\u5730\u533a\u56fd\u5bb6\u7684\u5916\u4ea4\u4e92\u52a8\u4e0e\u5408\u4f5c\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E13", "label": "E13: 2022\u5e74\u5cf0\u4f1a\u9996\u6b21\n\u9080\u8bf7\u65e5\u672c\u3001\u97e9\u56fd\u3001\u6fb3\u5927\u5229\u4e9a\u548c\u65b0\n\u897f\u5170\u56db\u56fd\u53c2\u4e0e\u3002", "shape": "box"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u5317\u7ea6\u4e1c\u6269\u4fc3\u4f7f\u4fc4\u7f57\u65af\u8c34\u8d23\u5176\u7834\u574f\u5b89\u5168\u67b6\u6784", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c1", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4fc4\u7f57\u65af\u7684\u5a01\u80c1\u5b9a\u6027", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c2", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4e2d\u56fd\u7684\u9996\u6b21\u5b9a\u6027", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c3", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4e2d\u56fd\u7684\u7cfb\u7edf\u6027\u6307\u63a7", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c4", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5305\u542b\u5bf9\u4e2d\u56fd\u6838\u5a01\u80c1\u7684\u6c61\u8511", "to": "E8", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c5", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u6307\u63a7\u4e2d\u56fd\u98a0\u8986\u56fd\u9645\u79e9\u5e8f", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c6", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u6307\u8d23\u4e2d\u4fc4\u6218\u7565\u4f19\u4f34\u5173\u7cfb", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c7", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u76f4\u63a5\u5ba3\u79f0\u5370\u592a\u5730\u533a\u91cd\u8981\u6027", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c8", "title": "\u6218\u7565\u6587\u4ef6\u901a\u8fc7\u540e\u8ba1\u5212\u52a0\u5f3a\u5370\u592a\u5bf9\u8bdd\u5408\u4f5c", "to": "E12", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c9", "title": "\u5cf0\u4f1a\u901a\u8fc7\u6218\u7565\u6587\u4ef6\u540e\u9996\u6b21\u9080\u8bf7\u5370\u592a\u56db\u56fd\u53c2\u4e0e", "to": "E13", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.720\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.700\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.781\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E8 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.770\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E6 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.724\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t5", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.715\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t6", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.712\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E3 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t7", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.704\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E11 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "color": {"background": "#dbeeff", "border": "#3a7bd5", "highlight": {"background": "#b8d9f8", "border": "#1a4fa0"}, "hover": {"background": "#c9e8ff", "border": "#2a5ec0"}}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyCausal=[{"from": "E1", "to": "E3", "reason": "北约东扩促使俄罗斯谴责其破坏安全架构", "manual_review": false}, {"from": "E4", "to": "E5", "reason": "战略文件通过直接包含对俄罗斯的威胁定性", "manual_review": false}, {"from": "E4", "to": "E6", "reason": "战略文件通过直接包含对中国的首次定性", "manual_review": false}, {"from": "E4", "to": "E7", "reason": "战略文件通过直接包含对中国的系统性指控", "manual_review": false}, {"from": "E4", "to": "E8", "reason": "战略文件通过直接包含对中国核威胁的污蔑", "manual_review": false}, {"from": "E4", "to": "E9", "reason": "战略文件通过直接指控中国颠覆国际秩序", "manual_review": false}, {"from": "E4", "to": "E10", "reason": "战略文件通过直接指责中俄战略伙伴关系", "manual_review": false}, {"from": "E4", "to": "E11", "reason": "战略文件通过直接宣称印太地区重要性", "manual_review": false}, {"from": "E4", "to": "E12", "reason": "战略文件通过后计划加强印太对话合作", "manual_review": false}, {"from": "E4", "to": "E13", "reason": "峰会通过战略文件后首次邀请印太四国参与", "manual_review": false}];var _pyTemporal=[{"from": "E3", "to": "E10", "reason": "语义嵌入相似度 0.720，按事件编号 E3 在 E10 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E2", "to": "E7", "reason": "语义嵌入相似度 0.700，按事件编号 E2 在 E7 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E7", "to": "E8", "reason": "语义嵌入相似度 0.781，按事件编号 E7 在 E8 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E6", "to": "E7", "reason": "语义嵌入相似度 0.770，按事件编号 E6 在 E7 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E9", "to": "E10", "reason": "语义嵌入相似度 0.724，按事件编号 E9 在 E10 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E8", "to": "E9", "reason": "语义嵌入相似度 0.715，按事件编号 E8 在 E9 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E2", "to": "E3", "reason": "语义嵌入相似度 0.712，按事件编号 E2 在 E3 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E11", "to": "E12", "reason": "语义嵌入相似度 0.704，按事件编号 E11 在 E12 之前，补一条仅表达时序的边。", "manual_review": false}];var _pyEvents=[{"id": "E1", "text": "2022年，北约实施了其历史上的第六轮东扩，正式吸纳芬兰和瑞典成为该军事联盟的成员国，这是一次重要的政治军事扩张行动。"}, {"id": "E2", "text": "中国外交部针对北约战略文件中的涉华内容进行驳斥，指出其充满冷战思维，并明确表示反对北约介入亚太地区事务。"}, {"id": "E3", "text": "俄罗斯外交部针对北约战略文件及东扩政策发表官方谴责，指出该文件破坏了欧洲安全架构，并定性北约东扩是威胁的源头。"}, {"id": "E4", "text": "2022年6月29日，正在西班牙首都马德里举行峰会的北大西洋公约组织（北约）成员国首脑们通过了该组织的最新战略文件。"}, {"id": "E5", "text": "北约通过其战略文件，将俄罗斯定性为'最重要和直接的威胁'，这是一项明确的政治表态。"}, {"id": "E6", "text": "北约通过其战略文件，首次将中国定性为'挑战北约的安全、利益和价值观'并对'欧洲-大西洋构成系统性挑战'，这是一项新的政治表态。"}, {"id": "E7", "text": "北约通过战略文件对中国进行系统性负面定性和指控，指责中国使用恶意网络行动、对抗性言论和虚假信息损害联盟安全，利用政治、经济和军事手段全球投射力量，寻求控制关键技术和工业部门、基础设施及供应链，利用经济影响力建立战略依赖以增强自身影响力，并对本国战略、意图和军事建设保持不透明。"}, {"id": "E8", "text": "北约通过其战略文件，宣称中国正在迅速扩大核武库并发展日益复杂的运载系统，同时污蔑中国缺乏参与军备控制或减少风险的诚意，这是对中国进行的政治污蔑和负面定性。"}, {"id": "E9", "text": "北约通过一份战略文件，指控中国企图在太空、网络和海洋领域颠覆以规则为基础的国际秩序，以此对中国的战略意图进行定性。"}, {"id": "E10", "text": "北约通过战略文件对中国与俄罗斯不断深化的战略伙伴关系进行负面定性和指责，称其与北约的价值观和利益背道而驰。"}, {"id": "E11", "text": "北约通过战略文件宣称“印度-太平洋”地区对其具有重要性，这是对印太地区进行的战略定位和重要性宣示。"}, {"id": "E12", "text": "北约计划加强同印太地区新伙伴和现有伙伴的对话与合作，这体现了其旨在加强与该地区国家的外交互动与合作。"}, {"id": "E13", "text": "2022年峰会首次邀请日本、韩国、澳大利亚和新西兰四国参与。"}];var _origGraphMeta={"doc_id": "D014", "doc_name": "D014 北约战略概念文件首次点名中国——台海涉及（2022.6）.txt"};var _graphJsonPath="D:\\code\\PycharmProjects\\pytorch\\causal_inference\\output\\doc_results\\D014\\graph.json";var _savePort=7760;var _pyDocText="2022年06月29日，正在西班牙首都马德里举行峰会的北大西洋公约组织（简称北约）成员国首脑们通过了该组织的最新战略文件。这份充斥着冷战思维的战略文件不出意外地重点“针对”了俄罗斯和中国：在对北约“战略环境”的19条描述中，有5条提到俄罗斯，3条提到中国，还有一条提及了叙利亚、伊朗和朝鲜。其中，俄罗斯被列为“最重要和直接的威胁”，中国则是首次被认为“挑战北约的安全、利益和价值观”，“对欧洲-大西洋构成系统性挑战”。“中俄间不断深化的合作”则被描述成企图“破坏以规则为基础的国际秩序，与我们的价值观和利益背道而驰。”对中俄的描述基本验证了外交部发言人赵立坚在28日发言，即“作为冷战产物和全球最大军事联盟，北约长期固守陈旧的安全观念，早已沦为个别国家维持霸权的工具。”他奉劝北约：“应该做的是放弃冷战思维、零和博弈、制造敌人的做法，不要在搞乱欧洲之后，企图再搞乱亚洲，搞乱全世界。”\n根据北约29日发布的新闻稿，战略文件将确定该组织未来十年的优先事项、核心任务和具体方法。它还会描述该组织面临的安全环境，重申该组织的价值观，并指导联盟的政治和军事活动。它大约每十年更新一次，是该组织第二重要的文件。上一版是在2010年的里斯本峰会上发布的。马德里峰会版战略文件首次用“挑战着我们的利益、安全和价值观”这顶大帽子来描述中国。这份文件声称中国“用恶意网络行动、对抗性言论和虚假信息针对联盟并损害联盟安全”、“利用广泛的政治、经济和军事手段来向全球投射力量”、“寻求控制关键的技术和工业部门、关键的基础设施、战略物资和供应链”、“利用自己的经济影响力来建立战略上的依赖关系，并增强自己的影响力”、“对本国战略、意图和军事建设保持不透明”。除了这些“中国威胁论”的“经典内容”，新战略还补上了美国近期开始热炒的“中国核威胁”。其中宣称中国在“迅速扩大其核武库，并正在发展日益复杂的运载系统”，然后不顾北约有着美国这一全球最大核威胁的现实，反而污蔑中国“没有诚意参与军备控制或减少风险”。另外，文件还注意到了中国近期在太空和海军建设上的成就，宣称“中国企图在太空、网络和海洋领域颠覆以规则为基础的国际秩序”。在这种“双标”下，中国与俄罗斯的互动也不出意外地成了“威胁”。文件称，“中国与俄罗斯之间不断深化的战略伙伴关系……与我们的价值观和利益背道而驰”。在这之后，北约稍微降调，宣称该组织“对与中国进行建设性接触持开放态度，包括建立对等的透明度，以维护联盟的安全利益”。\n值得注意的是，新战略还宣称“印度-太平洋”地区对北约很重要，北约将加强同印太地区新伙伴和现有伙伴的对话与合作，理由是该地区的发展会直接影响到欧洲—大西洋地区的安全。2022年北约启动第六轮东扩，正式吸纳芬兰、瑞典为成员国。文件为北约介入亚太提供依据，2022年峰会首次邀请日本、韩国、澳大利亚和新西兰四国参与。分析认为此举标志北约从区域性防御组织向\"全球干预同盟\"转型，通过联合全域作战等新概念研发强化进攻能力。中国外交部驳斥相关涉华内容\"充斥冷战思维\"，强调反对北约\"染指亚太地区事务\"。俄罗斯外交部谴责该文件破坏欧洲安全架构，指出北约东扩才是威胁源头。此后欧洲国家在涉台问题上的介入明显增加。";var _pyManualReviewEdges=[];</script><script>
+var _edgeLookup = {};      // edgeId -> {type, from, to, reason, manualReview, isNew}
+var _deletedEdges = {};    // edgeId -> true
+var _manualEdits = {};     // edgeId -> {originalType, newType, reason}
+var _simpActive = false;
+var _simpOrig = {};
+var _editMode = false;
+var _evtMode = 'list';     // 'list' | 'doc'
+var _addEdge = null;       // null | {role: 'source'|'target', anchorId: string}
+var _newEdgePair = null;   // null | {source: string, target: string}
+var _hasUnsaved = false;
+var _pyManualReviewEdges = _pyManualReviewEdges || [];
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _edgeTitle(reason, manualReview) {
+    var title = _esc(reason || '');
+    if (manualReview) return title ? (title + ' [人工审核]') : '[人工审核]';
+    return title;
+}
+function _edgeColor(edgeType, manualReview) {
+    if (manualReview) return '#f5a623';
+    return edgeType === 'causal' ? '#d62728' : '#1f77b4';
+}
+function _edgeWidth(edgeType) {
+    return edgeType === 'causal' ? 3 : 1.6;
+}
+function _edgeDashes(edgeType, manualReview) {
+    if (edgeType !== 'temporal') return false;
+    return manualReview ? [10, 6] : true;
+}
+function _edgeStyle(edgeType, manualReview) {
+    var color = _edgeColor(edgeType, manualReview);
+    return {
+        color: {color: color, hover: color, highlight: color},
+        width: _edgeWidth(edgeType),
+        dashes: _edgeDashes(edgeType, manualReview),
+    };
+}
+function _wait(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+/* ── 图遍历辅助 ─────────────────────────────────────────────── */
+function _liveEdges() {
+    return network.body.data.edges.get().filter(function(e) { return !_deletedEdges[e.id]; });
+}
+function getDescendants(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (f === cur && !visited[t]) queue.push(t);
+        });
+    }
+    return visited;
+}
+function getAncestors(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (t === cur && !visited[f]) queue.push(f);
+        });
+    }
+    return visited;
+}
+function hasEdge(fromId, toId) {
+    var f = String(fromId), t = String(toId);
+    return _liveEdges().some(function(e) { return String(e.from) === f && String(e.to) === t; });
+}
+
+/* ── 模式切换 ──────────────────────────────────────────────── */
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+            upd.push({id: id, label: String(id), title: ev ? (_esc(id) + ': ' + _esc(ev.text)) : ''});
+        });
+        if (btn) btn.textContent = '简洁模式';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label, title: o.title});
+        });
+        if (btn) btn.textContent = '详细模式';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+/* ── 编辑模式 ──────────────────────────────────────────────── */
+function toggleEditMode() {
+    var btn = document.getElementById('btn-edit');
+    if (_editMode) {
+        if (_hasUnsaved && !confirm('有未保存的修改，退出修改模式后将丢失，确定退出？')) return;
+        _editMode = false;
+        btn.textContent = '修改';
+        btn.style.background = '#f5f5f5';
+        btn.style.borderColor = '#aaa';
+        closeAllMenus();
+    } else {
+        _editMode = true;
+        btn.textContent = '退出修改';
+        btn.style.background = '#fff3cd';
+        btn.style.borderColor = '#f5a623';
+    }
+}
+function closeAllMenus() {
+    closeEdgeMenu();
+    closeNodeMenu();
+    closeCandidatePanel();
+}
+
+/* ── 边右键菜单 ─────────────────────────────────────────────── */
+function showEdgeMenu(edgeId, x, y) {
+    var menu = document.getElementById('edge-ctx-menu');
+    menu.setAttribute('data-eid', edgeId);
+    var e = _edgeLookup[edgeId] || {};
+    var typeLabel = e.type === 'causal' ? '因果边' : '时序边';
+    document.getElementById('ctx-type-label').textContent = '当前: ' + typeLabel;
+    // 预计算「修改方向」是否可用（会产生环或反向边已存在则禁用）
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && e.from && e.to) {
+        var fId = String(e.from), tId = String(e.to);
+        _deletedEdges[edgeId] = true;
+        var desc = getDescendants(tId);
+        delete _deletedEdges[edgeId];
+        var disabled = !!(desc[fId] || hasEdge(tId, fId));
+        reverseBtn.style.color = disabled ? '#bbb' : '';
+        reverseBtn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+        reverseBtn.setAttribute('data-disabled', disabled ? '1' : '0');
+    }
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeEdgeMenu() {
+    var menu = document.getElementById('edge-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function menuDelete() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    closeEdgeMenu();
+    _setUnsaved();
+}
+function menuModify() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId] || {};
+    var other = e.type === 'causal' ? '时序边' : '因果边';
+    document.getElementById('dlg-title').textContent = '修改为' + other;
+    document.getElementById('dlg-reason').value = e.reason || '';
+    var dlg = document.getElementById('modify-dlg');
+    dlg.setAttribute('data-eid', edgeId);
+    dlg.style.display = 'flex';
+    document.getElementById('dlg-reason').focus();
+}
+
+function menuReverse() {
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && reverseBtn.getAttribute('data-disabled') === '1') return;
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId];
+    if (!e) return;
+    var fromId = String(e.from), toId = String(e.to);
+    // 再次验证（防止菜单开启期间图结构变化）
+    _deletedEdges[edgeId] = true;
+    var desc = getDescendants(toId);
+    delete _deletedEdges[edgeId];
+    if (desc[fromId]) { showToast('修改方向会产生环路，无法执行', 2500, '#c0392b'); return; }
+    if (hasEdge(toId, fromId)) { showToast('反向边已存在', 2500, '#c0392b'); return; }
+    // 删除原边，添加反向边
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    var isCausal = (e.type === 'causal');
+    var newEid = 'rev_' + Date.now();
+    var style = _edgeStyle(e.type, true);
+    network.body.data.edges.add([{
+        id: newEid, from: toId, to: fromId, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(e.reason || '') + ' [方向已反转]',
+    }]);
+    _edgeLookup[newEid] = {type: e.type, from: toId, to: fromId, reason: e.reason, manualReview: true, isNew: true};
+    showToast('已反转方向: ' + toId + ' → ' + fromId, 2200, '#27ae60');
+    _setUnsaved();
+}
+/* ── 节点点击菜单 ───────────────────────────────────────────── */
+function showNodeMenu(nodeId, x, y) {
+    var menu = document.getElementById('node-ctx-menu');
+    menu.setAttribute('data-nid', String(nodeId));
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeNodeMenu() {
+    var menu = document.getElementById('node-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function startAddEdge(role) {
+    var nodeId = document.getElementById('node-ctx-menu').getAttribute('data-nid');
+    closeNodeMenu();
+    _addEdge = {role: role, anchorId: nodeId};
+    _showCandidatePanel(nodeId, role);
+}
+
+/* ── 候选节点面板 ───────────────────────────────────────────── */
+function _showCandidatePanel(anchorId, role) {
+    var allIds = network.body.data.nodes.getIds().map(String);
+    var excluded = {};
+    excluded[String(anchorId)] = true;
+    if (role === 'source') {
+        // anchor 是起点，选终点 B：B 不能是 anchor 的祖先（防环）且不能有 anchor→B（防重复）
+        var anc = getAncestors(anchorId);
+        Object.keys(anc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.from) === String(anchorId)) excluded[String(e.to)] = true;
+        });
+    } else {
+        // anchor 是终点，选起点 A：A 不能是 anchor 的后代（防环）且不能有 A→anchor（防重复）
+        var desc = getDescendants(anchorId);
+        Object.keys(desc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.to) === String(anchorId)) excluded[String(e.from)] = true;
+        });
+    }
+    var candidates = allIds.filter(function(id) { return !excluded[id]; });
+    if (candidates.length === 0) {
+        showToast('没有可新增的候选节点', 2000, '#555');
+        _addEdge = null;
+        return;
+    }
+    var title = role === 'source' ? '以该节点为起点，选择终点：' : '以该节点为终点，选择起点：';
+    document.getElementById('candidate-title').textContent = title;
+    var html = '';
+    candidates.forEach(function(id) {
+        var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+        var label = ev ? (id + ': ' + ev.text) : id;
+        html += '<div onclick="selectCandidate(\'' + id + '\')" '
+              + 'style="padding:6px 10px;cursor:pointer;border-radius:4px;margin-bottom:3px;'
+              + 'font-size:12px;background:#f0f7ff;border:1px solid #c5d8f0;" '
+              + 'onmouseover="this.style.background=\'#dbeeff\'" '
+              + 'onmouseout="this.style.background=\'#f0f7ff\'">'
+              + _esc(label) + '</div>';
+    });
+    document.getElementById('candidate-body').innerHTML = html;
+    document.getElementById('candidate-panel').style.display = 'flex';
+}
+function closeCandidatePanel() {
+    var p = document.getElementById('candidate-panel');
+    if (p) p.style.display = 'none';
+    _addEdge = null;
+}
+function selectCandidate(candidateId) {
+    if (!_addEdge) { closeCandidatePanel(); return; }
+    var src = _addEdge.role === 'source' ? _addEdge.anchorId : candidateId;
+    var tgt = _addEdge.role === 'target' ? _addEdge.anchorId : candidateId;
+    closeCandidatePanel();
+    _newEdgePair = {source: src, target: tgt};
+    _showNewEdgeDlg(src, tgt);
+}
+
+/* ── 新建边对话框 ───────────────────────────────────────────── */
+function _showNewEdgeDlg(src, tgt) {
+    document.getElementById('new-edge-subtitle').textContent = src + ' → ' + tgt;
+    document.getElementById('new-edge-reason').value = '';
+    document.getElementById('new-edge-type').value = 'causal';
+    document.getElementById('new-edge-dlg').style.display = 'flex';
+    document.getElementById('new-edge-reason').focus();
+}
+function closeNewEdgeDlg() {
+    document.getElementById('new-edge-dlg').style.display = 'none';
+    _newEdgePair = null;
+}
+function applyNewEdge() {
+    if (!_newEdgePair) { closeNewEdgeDlg(); return; }
+    var reason = document.getElementById('new-edge-reason').value.trim();
+    if (!reason) { alert('请填写原因。'); return; }
+    var edgeType = document.getElementById('new-edge-type').value;
+    var src = _newEdgePair.source, tgt = _newEdgePair.target;
+    var eid = 'new_' + Date.now();
+    var style = _edgeStyle(edgeType, true);
+    network.body.data.edges.add([{
+        id: eid, from: src, to: tgt, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(reason) + ' [人工新增]',
+    }]);
+    _edgeLookup[eid] = {type: edgeType, from: src, to: tgt, reason: reason, manualReview: true, isNew: true};
+    closeNewEdgeDlg();
+    showToast('已新增边 ' + src + ' → ' + tgt, 2000, '#27ae60');
+    _setUnsaved();
+}
+
+/* ── 修改对话框 ────────────────────────────────────────────── */
+function closeModifyDlg() {
+    document.getElementById('modify-dlg').style.display = 'none';
+}
+function applyModify() {
+    var dlg = document.getElementById('modify-dlg');
+    var edgeId = dlg.getAttribute('data-eid');
+    var reason = document.getElementById('dlg-reason').value.trim();
+    if (!reason) { alert('请填写修改原因。'); return; }
+    var e = _edgeLookup[edgeId];
+    if (!e) { closeModifyDlg(); return; }
+    var newType = e.type === 'causal' ? 'temporal' : 'causal';
+    var style = _edgeStyle(newType, true);
+    network.body.data.edges.update([{
+        id: edgeId,
+        color: style.color,
+        dashes: style.dashes, width: style.width,
+        title: _esc(reason) + ' [人工审核]',
+    }]);
+    _manualEdits[edgeId] = {originalType: e.type, newType: newType, reason: reason};
+    e.reason = reason; e.type = newType; e.manualReview = true;
+    closeModifyDlg();
+    _setUnsaved();
+}
+
+/* ── 保存/下载 ─────────────────────────────────────────────── */
+function _setUnsaved() {
+    _hasUnsaved = true;
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '有未保存的修改'; el.style.opacity = '1'; }
+}
+function _updateGraphInfo(data) {
+    var causalCount = document.getElementById('causal-count');
+    var temporalCount = document.getElementById('temporal-count');
+    var titleEl = document.getElementById('doc-title');
+    if (causalCount) causalCount.textContent = String((data.causal_edges || []).length);
+    if (temporalCount) temporalCount.textContent = String((data.temporal_edges || []).length);
+    if (titleEl && data.doc_name) {
+        titleEl.textContent = String(data.doc_name).replace(/\.txt$/i, '');
+    }
+}
+function _loadLatestGraph() {
+    if (!_graphJsonPath) return Promise.resolve(false);
+    var url = 'http://localhost:' + _savePort + '/load_graph?path=' + encodeURIComponent(_graphJsonPath) + '&_ts=' + Date.now();
+    return fetch(url, {cache: 'no-store'}).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    }).then(function(res) {
+        if (!res.ok || !res.body || !res.body.data) return false;
+        _applyLoadedData(res.body.data);
+        return true;
+    }).catch(function() {
+        return false;
+    });
+}
+function _saveRequest(data) {
+    return fetch('http://localhost:' + _savePort + '/save_graph', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({path: _graphJsonPath, data: data}),
+    }).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    });
+}
+function _waitForSaveServer(maxAttempts) {
+    var attempts = 0;
+    function probe() {
+        attempts += 1;
+        return _loadLatestGraph().then(function(ok) {
+            if (ok || attempts >= maxAttempts) return ok;
+            return _wait(500).then(probe);
+        }).catch(function() {
+            if (attempts >= maxAttempts) return false;
+            return _wait(500).then(probe);
+        });
+    }
+    return probe();
+}
+function _saveFallback(data, msg) {
+    showToast(msg, 6000, '#c0392b');
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '保存失败，修改尚未写入 graph.json'; el.style.opacity = '1'; }
+}
+function _handleSaveResponse(res, data) {
+    if (res.ok && (!res.body || res.body.ok !== false)) {
+        showToast('已保存并重载 ✓', 3000, '#27ae60');
+        var el = document.getElementById('save-status');
+        if (el) { el.textContent = ''; el.style.opacity = '0'; }
+        _applyLoadedData(res.body.data || data);
+        return true;
+    }
+    var err = (res.body && res.body.error) ? ('保存失败：' + res.body.error) : '保存失败';
+    _saveFallback(data, err);
+    return false;
+}
+function buildSaveData() {
+    var causal = [], temporal = [];
+    for (var eid in _edgeLookup) {
+        if (_deletedEdges[eid]) continue;
+        var e = _edgeLookup[eid];
+        if (e.type === 'causal') {
+            var d = {cause: e.from, effect: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            causal.push(d);
+        } else {
+            var d = {source: e.from, target: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            temporal.push(d);
+        }
+    }
+    var evts = (_pyEvents || []).map(function(e) { return {event_id: e.id, text: e.text}; });
+    return {
+        doc_id: (_origGraphMeta || {}).doc_id || '',
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        doc_text: _pyDocText || '',
+        events: evts, causal_edges: causal, temporal_edges: temporal,
+        manual_review_edges: _pyManualReviewEdges || [],
+    };
+}
+function saveGraph() {
+    var data = buildSaveData();
+    showToast('保存中…', 30000, '#555');
+    _saveRequest(data).then(function(res) {
+        _handleSaveResponse(res, data);
+    }).catch(function() {
+        showToast('本地保存服务暂未就绪，正在自动重试…', 4000, '#e67e22');
+        _waitForSaveServer(6).then(function(ok) {
+            if (!ok) {
+                _saveFallback(data, '自动保存服务仍未就绪，未写入 graph.json');
+                return;
+            }
+            showToast('本地保存服务已就绪，正在重试保存…', 4000, '#e67e22');
+            _saveRequest(data).then(function(res) {
+                _handleSaveResponse(res, data);
+            }).catch(function() {
+                _saveFallback(data, '自动重试保存失败，未写入 graph.json');
+            });
+        });
+    });
+}
+function _applyLoadedData(data) {
+    /* 用服务器返回的 graph.json 内容就地重建可视化，边恢复红/蓝色，状态全清零 */
+    if (!data || typeof network === 'undefined') return;
+    network.body.data.edges.clear();
+    _edgeLookup = {};
+    _deletedEdges = {};
+    _manualEdits = {};
+    _hasUnsaved = false;
+    _pyCausal = (data.causal_edges || []).map(function(e) {
+        return {from: e.cause, to: e.effect, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    _pyTemporal = (data.temporal_edges || []).map(function(e) {
+        return {from: e.source, to: e.target, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    if (Array.isArray(data.events)) {
+        _pyEvents = data.events.map(function(ev) { return {id: ev.event_id, text: ev.text || ''}; });
+    }
+    if (typeof data.doc_text === 'string') {
+        _pyDocText = data.doc_text;
+    }
+    if (data.doc_id || data.doc_name) {
+        _origGraphMeta = {
+            doc_id: data.doc_id || ((_origGraphMeta || {}).doc_id || ''),
+            doc_name: data.doc_name || ((_origGraphMeta || {}).doc_name || ''),
+        };
+    }
+    _pyManualReviewEdges = Array.isArray(data.manual_review_edges) ? data.manual_review_edges : [];
+    _pyCausal.forEach(function(e, i) {
+        var eid = 'c' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('causal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'causal', from:String(e.from), to:String(e.to), reason:e.reason, manualReview:manualReview};
+    });
+    _pyTemporal.forEach(function(e, i) {
+        var eid = 't' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('temporal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'temporal', from:String(e.from), to:String(e.to), reason:e.reason||'', manualReview:manualReview};
+    });
+    _updateGraphInfo(data);
+    _renderEventPanel();
+}
+function downloadGraph(data) {
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'graph.json';
+    a.click();
+}
+function showToast(msg, duration, bg) {
+    var toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.style.background = bg || '#333';
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    if (toast._timer) clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() {
+        toast.style.opacity = '0';
+        setTimeout(function() { toast.style.display = 'none'; }, 400);
+    }, duration || 2500);
+}
+
+/* ── 事件面板（列表/全文切换） ─────────────────────────────── */
+function toggleEventList() {
+    _evtMode = (_evtMode === 'list') ? 'doc' : 'list';
+    _renderEventPanel();
+}
+function _renderEventPanel() {
+    var body = document.getElementById('evt-list-body');
+    var btn  = document.getElementById('btn-evtlist');
+    if (!body) return;
+    if (_evtMode === 'doc') {
+        body.innerHTML = '<pre style="white-space:pre-wrap;margin:0;font-size:12px;font-family:sans-serif;'
+            + 'color:#333;word-break:break-all;">' + _esc(_pyDocText || '（无全文）') + '</pre>';
+        if (btn) btn.textContent = '正在显示全文 ▲（点击返回事件列表）';
+    } else {
+        var html = '';
+        (_pyEvents || []).forEach(function(e) {
+            html += '<div style="margin-bottom:6px;">'
+                  + '<span style="font-weight:700;color:#1f77b4;">' + _esc(e.id) + '</span>'
+                  + '<span style="color:#555;">: ' + _esc(e.text) + '</span></div>';
+        });
+        body.innerHTML = html;
+        if (btn) btn.textContent = '事件列表 ▼（点击查看全文）';
+    }
+}
+/* ── 候选面板拖动 ───────────────────────────────────────── */
+var _candDrag = null;
+document.addEventListener('mousedown', function(e) {
+    var handle = document.getElementById('candidate-drag-handle');
+    if (!handle || !handle.contains(e.target)) return;
+    if (e.button !== 0) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    var rect = panel.getBoundingClientRect();
+    // 如果还在用百分比定位，先转换为具体像素坐标
+    panel.style.top  = rect.top  + 'px';
+    panel.style.left = rect.left + 'px';
+    panel.style.marginLeft = '0';
+    _candDrag = { startX: e.clientX, startY: e.clientY,
+                  initLeft: rect.left, initTop: rect.top };
+    e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+    if (!_candDrag) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    panel.style.left = (_candDrag.initLeft + e.clientX - _candDrag.startX) + 'px';
+    panel.style.top  = (_candDrag.initTop  + e.clientY - _candDrag.startY) + 'px';
+});
+document.addEventListener('mouseup', function(e) {
+    if (e.button === 0) _candDrag = null;
+});
+/* ── 初始化 ────────────────────────────────────────────────── */
+window.addEventListener('load', function() {
+    (_pyCausal || []).forEach(function(e, i) {
+        _edgeLookup['c' + i] = {type:'causal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    (_pyTemporal || []).forEach(function(e, i) {
+        _edgeLookup['t' + i] = {type:'temporal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    if (typeof network !== 'undefined') {
+        network.on('click', function(params) {
+            if (!_editMode) { closeAllMenus(); return; }
+            closeEdgeMenu();
+            closeNodeMenu();
+            // 如果处于候选选择状态，任意点击画布空白处取消
+            if (_addEdge && params.nodes.length === 0 && params.edges.length === 0) {
+                closeCandidatePanel();
+                return;
+            }
+            if (params.nodes.length > 0) {
+                // 如果候选面板已展开，直接调 selectCandidate
+                var panel = document.getElementById('candidate-panel');
+                if (panel && panel.style.display !== 'none') {
+                    selectCandidate(String(params.nodes[0]));
+                } else {
+                    showNodeMenu(params.nodes[0], params.pointer.DOM.x, params.pointer.DOM.y);
+                }
+            } else if (params.edges.length > 0) {
+                if (document.getElementById('candidate-panel').style.display !== 'none') return;
+                showEdgeMenu(params.edges[0], params.pointer.DOM.x, params.pointer.DOM.y);
+            }
+        });
+    }
+    _updateGraphInfo({
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        causal_edges: _pyCausal || [],
+        temporal_edges: _pyTemporal || [],
+    });
+    _renderEventPanel();
+    _loadLatestGraph();
+});
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:340px;"><div id="doc-title" style="font-weight:600;font-size:14px;margin-bottom:4px;">D014 北约战略概念文件首次点名中国——台海涉及（2022.6）</div><div>因果边：<b id="causal-count">10</b> 条&emsp;时序边：<b id="temporal-count">8</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button><button id="btn-edit" onclick="toggleEditMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">修改</button><button id="btn-save" onclick="saveGraph()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">保存</button></div><div id="save-status" style="font-size:11px;color:#e67e22;margin-top:4px;min-height:14px;"></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:300px;z-index:9999;display:flex;flex-direction:column;gap:8px;"><div id="events-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:12px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1 1 0;min-height:0;"><button id="btn-evtlist" onclick="toggleEventList()" style="width:100%;text-align:left;font-weight:700;font-size:13px;border:none;background:none;cursor:pointer;padding:0 0 6px 0;color:#333;border-bottom:1px solid #e0e0e0;margin-bottom:8px;">事件列表 ▼</button><div id="evt-list-body"></div></div><div id="doc-links-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:8px 14px;font-family:sans-serif;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:0 0 auto;max-height:40%;min-height:36px;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:5px;">文档网络</div><a href="../D001/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">1 D001 特朗普当选后蔡英文通话——打破37年惯例（2016.12）</a><a href="../D002/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">2 D002 蔡英文首次过境美国——访问洛杉矶和休斯敦（2019.7）</a><a href="../D003/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">3 D003 美国副国务卿克拉奇访台——1979年来最高级别国务院官员（2020.9）</a><a href="../D004/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">4 D004 美国卫生部长阿扎访台（2020.8）</a><a href="../D005/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">5 D005 美国驻联合国大使克拉夫特访台计划受阻（2021.1）</a><a href="../D006/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">6 D006 佩洛西访台（2022.8）</a><a href="../D007/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">7 D007 蔡英文过境纽约：在哥伦比亚大学领奖（2023.3.29-31）</a><a href="../D008/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">8 D008 蔡英文会晤众议长麦卡锡——首次台湾领导人在美国本土会见众议长（2023.4.5）</a><a href="../D009/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">9 D009 赖清德过境夏威夷引发＂海空联合战备警巡演练＂（2023.8）</a><a href="../D010/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">10 D010 赖清德就职后首次过境美国计划被特朗普政府拒绝（2025.8）</a><a href="../D011/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">11 D011 美国国务卿访华涉台交锋系列（多次，2023-2025）</a><a href="../D012/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">12 D012 拜登四次＂口误＂宣称协防台湾（2021-2023）</a><a href="../D013/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">13 D013 G7首次在联合声明中提及台海问题（2021.6）</a><div style="padding:3px 0;font-size:12px;color:#1f77b4;font-weight:700;">14 D014 北约战略概念文件首次点名中国——台海涉及（2022.6）</div></div></div><div id="save-toast" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10010;color:#fff;font-family:sans-serif;font-size:14px;font-weight:600;padding:10px 22px;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,0.25);transition:opacity 0.4s;pointer-events:none;"></div><div id="edge-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:140px;"><div id="ctx-type-label" style="padding:4px 14px;color:#666;font-size:11px;border-bottom:1px solid #eee;margin-bottom:4px;"></div><div onclick="menuDelete()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background=''">删除</div><div onclick="menuModify()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background=''">修改类型</div><div id="ctx-reverse-btn" onclick="menuReverse()" style="padding:6px 14px;cursor:pointer;" onmouseover="if(this.getAttribute('data-disabled')!=='1')this.style.background='#e8f5e9'" onmouseout="this.style.background=''">修改方向</div><div onclick="closeEdgeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="node-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:220px;"><div onclick="startAddEdge('target')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为终点，选择起点：</div><div onclick="startAddEdge('source')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为起点，选择终点：</div><div onclick="closeNodeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="candidate-panel" style="display:none;position:fixed;top:20%;left:50%;margin-left:-150px;z-index:10001;background:#fff;border:1px solid #c0c0c0;border-radius:10px;font-family:sans-serif;min-width:300px;max-width:420px;max-height:65vh;overflow:hidden;flex-direction:column;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="candidate-drag-handle" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px 14px;cursor:grab;background:#f5f5f5;border-bottom:1px solid #e0e0e0;border-radius:10px 10px 0 0;flex-shrink:0;"><div id="candidate-title" style="font-weight:700;font-size:14px;user-select:none;"></div><button onclick="closeCandidatePanel()" style="border:none;background:none;cursor:pointer;font-size:16px;color:#999;padding:0;">✕</button></div><div id="candidate-body" style="padding:10px 14px;overflow-y:auto;max-height:55vh;"></div></div><div id="new-edge-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div style="font-weight:700;font-size:15px;margin-bottom:4px;">新增边</div><div id="new-edge-subtitle" style="font-size:13px;color:#555;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:4px;">类型</label><select id="new-edge-type" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:5px;margin-bottom:10px;"><option value="causal">因果边</option><option value="temporal">时序边</option></select><label style="display:block;font-size:13px;margin-bottom:6px;">原因（必填）</label><textarea id="new-edge-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeNewEdgeDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyNewEdge()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#27ae60;color:#fff;font-weight:600;">新增</button></div></div></div><div id="modify-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="dlg-title" style="font-weight:700;font-size:15px;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:6px;">修改原因（必填）</label><textarea id="dlg-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeModifyDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyModify()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#f5a623;color:#fff;font-weight:600;">确认修改</button></div></div></div></body>
+</html>

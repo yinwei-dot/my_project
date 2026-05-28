@@ -1,0 +1,747 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "E1", "label": "E1: \u6377\u514b\uff08\u6377\u514b\u65af\u6d1b\u4f10\u514b\uff09\n\u662f\u6700\u65e9\u627f\u8ba4\u5e76\u540c\u65b0\u4e2d\u56fd\u5efa\u4ea4\u7684\u56fd\n\u5bb6\uff0c\u5efa\u4ea470\u591a\u5e74\u6765\uff0c\u6377\u514b\u653f\u5e9c\n\u957f\u671f\u575a\u6301\u4e00\u4e2a\u4e2d\u56fd\u7684\u653f\u7b56\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E2", "label": "E2: \u7f8e\u56fd\u56fd\u52a1\u537f\u84ec\u4f69\u5965\u5bf9\u6377\n\u514b\u8fdb\u884c\u4e86\u5916\u4ea4\u8bbf\u95ee\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E3", "label": "E3: \u7f8e\u56fd\u56fd\u52a1\u537f\u84ec\u4f69\u5965\u5728\u6377\n\u514b\u53c2\u8bae\u9662\u53d1\u8868\u6f14\u8bb2\uff0c\u6307\u8d23\u4e2d\u56fd\u5927\n\u9646\u963b\u788d\u6377\u514b\u4e0e\u53f0\u6e7e\u4e4b\u95f4\u7684\u4ea4\u6d41\uff0c\n\u6784\u6210\u5bf9\u4e2d\u56fd\u5185\u653f\u7684\u5e72\u6d89\u6027\u6279\u8bc4\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E4", "label": "E4: \u6377\u514b\u603b\u7edf\u53d1\u8a00\u4eba\u6279\u8bc4\u6377\n\u514b\u53c2\u8bae\u9662\u8bae\u957f\u8bbf\u53f0\u4e4b\u884c\uff0c\u8ba4\u4e3a\u8be5\n\u884c\u4e3a\u662f\u5728\u7cfb\u7edf\u6027\u7834\u574f\u56fd\u5bb6\u5229\u76ca\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E5", "label": "E5: \u6377\u514b\u603b\u7edf\u6cfd\u66fc\u901a\u8fc7\u58f0\u660e\n\u8868\u793a\uff0c\u6377\u514b\u5171\u548c\u56fd\u603b\u7edf\u3001\u8bae\u4f1a\u4f17\n\u8bae\u9662\u8bae\u957f\u3001\u603b\u7406\u4ee5\u53ca\u53f0\u6e7e\u5730\u533a\u5916\n\u4e8b\u90e8\u95e8\u8d1f\u8d23\u4eba\u5747\u4e0d\u5efa\u8bae\u53c2\u8bae\u9662\u8bae\n\u957f\u8bbf\u95ee\u53f0\u6e7e\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E6", "label": "E6: \u4e2d\u56fd\u9a7b\u6377\u514b\u5927\u4f7f\u9986\u53d1\u8a00\n\u4eba\u4ee3\u8868\u4e2d\u65b9\uff0c\u5bf9\u6377\u514b\u53c2\u8bae\u9662\u8bae\u957f\n\u7ef4\u65af\u7279\u5947\u5c14\u51fa\u4e8e\u4e2a\u4eba\u653f\u6cbb\u7b97\u8ba1\u6267\n\u610f\u8bbf\u95ee\u4e2d\u56fd\u53f0\u6e7e\u5730\u533a\u7684\u884c\u4e3a\u8868\u793a\n\u5f3a\u70c8\u8c34\u8d23\u548c\u575a\u51b3\u53cd\u5bf9\u3002\u4e2d\u65b9\u8ba4\u4e3a\n\u6b64\u4e3e\u4e0d\u987e\u4e2d\u6377\u5173\u7cfb\u548c\u4e24\u56fd\u4e92\u5229\u5408\n\u4f5c\uff0c\u65e0\u89c6\u6377\u514b\u4e3b\u6d41\u6c11\u610f\uff0c\u4e25\u91cd\u5e72\n\u6d89\u4e2d\u56fd\u5185\u653f\uff0c\u4fb5\u72af\u4e2d\u56fd\u56fd\u5bb6\u4e3b\u6743\n\u548c\u9886\u571f\u5b8c\u6574\uff0c\u5e76\u8fdd\u53cd\u4e86\u56fd\u9645\u5173\u7cfb\n\u57fa\u672c\u51c6\u5219\u548c\u53cc\u8fb9\u653f\u6cbb\u627f\u8bfa\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E7", "label": "E7: \u6377\u514b\u53c2\u8bae\u9662\u8bae\u957f\u7ef4\u65af\u7279\n\u5947\u5c14\u4e0d\u987e\u8be5\u56fd\u603b\u7edf\u548c\u603b\u7406\u7684\u53cd\u5bf9\n\uff0c\u4e8e2020\u5e748\u670830\u65e5\u81f39\n\u67084\u65e5\u738789\u4eba\u4ee3\u8868\u56e2\u7a9c\u8bbf\u4e2d\u56fd\n\u53f0\u6e7e\u5730\u533a\uff0c\u4ee3\u8868\u56e2\u6210\u5458\u5305\u62ec\u5e03\u62c9\n\u683c\u5e02\u957f\u8d3a\u745e\u535c\uff0c\u6b64\u4e3e\u6784\u6210\u5bf9\u4e2d\u56fd\n\u5185\u653f\u7684\u5e72\u6d89\u548c\u653f\u6cbb\u6311\u8845\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E8", "label": "E8: \u6377\u514b\u53c2\u8bae\u9662\u8bae\u957f\u7ef4\u65af\u7279\n\u5947\u5c14\u7387\u9886\u7684\u8bbf\u95ee\u56e2\u62b5\u8fbe\u53f0\u6e7e\u6843\u56ed\n\u673a\u573a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E9", "label": "E9: \u53f0\u6e7e\u5730\u533a\u5916\u4e8b\u90e8\u95e8\u8d1f\u8d23\n\u4eba\u5434\u948a\u71ee\u5230\u673a\u573a\u8fce\u63a5\u6377\u514b\u8bbf\u95ee\u56e2\n\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E10", "label": "E10: \u89e3\u653e\u519b\u519b\u673a\u5728\u53f0\u6e7e\u5468\n\u8fb9\u6d77\u57df\u6267\u884c\u5de1\u822a\u4efb\u52a1\uff0c\u5176\u98de\u884c\u8f68\n\u8ff9\u636e\u79f0\u4e0e\u6377\u514b\u8bbf\u95ee\u56e2\u4e13\u673a\u7684\u8ddd\u79bb\n\u4e0d\u8db380\u516c\u91cc\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E11", "label": "E11: \u4e2d\u56fd\u5916\u4ea4\u90e8\u526f\u90e8\u957f\u79e6\n\u521a\u7ea6\u89c1\u6377\u514b\u9a7b\u534e\u5927\u4f7f\u4f5f\u798f\u5fb7\uff0c\u8fd9\n\u662f\u4e00\u6b21\u7531\u4e2d\u65b9\u9ad8\u5c42\u5b98\u5458\u53d1\u8d77\u7684\u5916\n\u4ea4\u4ea4\u6d89\u884c\u52a8\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E12", "label": "E12: \u4e2d\u65b9\u5728\u4ea4\u6d89\u4e2d\u660e\u786e\u8868\n\u793a\uff0c\u6377\u514b\u53c2\u8bae\u957f\u7ef4\u65af\u7279\u5947\u5c14\u8bbf\u95ee\n\u53f0\u6e7e\u7684\u884c\u4e3a\u662f\u201c\u5192\u5929\u4e0b\u4e4b\u5927\u4e0d\u97ea\n\u201d\uff0c\u8fd9\u662f\u4e2d\u56fd\u5b98\u65b9\u5bf9\u8be5\u884c\u4e3a\u7684\u5f3a\n\u70c8\u8c34\u8d23\u548c\u5b9a\u6027\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E13", "label": "E13: \u7ef4\u65af\u7279\u5947\u5c14\u5728\u53f0\u6e7e\u53d1\n\u8868\u6f14\u8bf4\u65f6\uff0c\u4f7f\u7528\u4e2d\u6587\u58f0\u79f0\u201c\u6211\u662f\n\u53f0\u6e7e\u4eba\u201d\uff0c\u8fd9\u4e00\u8a00\u8bba\u88ab\u8bc6\u522b\u4e3a\u53d1\n\u8868\u652f\u6301\u201c\u53f0\u72ec\u201d\u5206\u88c2\u52bf\u529b\u7684\u653f\u6cbb\n\u8a00\u8bba\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E14", "label": "E14: \u7ef4\u65af\u7279\u5947\u5c14\u4e0e\u53f0\u6e7e\u5730\n\u533a\u9886\u5bfc\u4eba\u8521\u82f1\u6587\u7b49\u4eba\u8fdb\u884c\u4e86\u4f1a\u9762\n\uff0c\u8fd9\u88ab\u8bc6\u522b\u4e3a\u4e0e\u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\n\u8fdb\u884c\u9ad8\u5c42\u4f1a\u9762\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E15", "label": "E15: \u4e2d\u56fd\u56fd\u52a1\u59d4\u5458\u517c\u5916\u4ea4\n\u90e8\u957f\u738b\u6bc5\u5728\u5fb7\u56fd\u8fdb\u884c\u8bbf\u95ee\uff0c\u8fd9\u662f\n\u4e00\u6b21\u5916\u4ea4\u884c\u7a0b\u4e8b\u4ef6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E16", "label": "E16: \u4e2d\u56fd\u5916\u4ea4\u90e8\u957f\u738b\u6bc5\u8c34\n\u8d23\u6377\u514b\u53c2\u8bae\u957f\u8bbf\u95ee\u4e2d\u56fd\u53f0\u6e7e\u5730\u533a\n\uff0c\u79f0\u5176\u884c\u4e3a\u662f\u516c\u5f00\u6311\u8845\uff0c\u5e76\u6279\u8bc4\n\u5176\u652f\u6301\u0027\u53f0\u72ec\u0027\u52bf\u529b\uff0c\u5c5e\u4e8e\u5b98\u65b9\n\u8c34\u8d23\u548c\u5b9a\u6027\u8868\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E17", "label": "E17: \u4e2d\u56fd\u5916\u4ea4\u90e8\u53d1\u8a00\u4eba\u534e\n\u6625\u83b9\u5bf9\u6377\u514b\u8bae\u4f1a\u53c2\u8bae\u9662\u4e3b\u5e2d\u63d0\u51fa\n\u4e25\u5389\u6279\u8bc4\uff0c\u6307\u51fa\u5176\u4e0d\u987e\u4e2d\u65b9\u575a\u51b3\n\u53cd\u5bf9\u548c\u4e25\u6b63\u4ea4\u6d89\uff0c\u51fa\u4e8e\u4e2a\u4eba\u79c1\u5229\n\uff0c\u5728\u53f0\u6e7e\u5f53\u5c40\u5229\u8bf1\u548c\u53cd\u534e\u52bf\u529b\u9f13\n\u52a8\u4e0b\uff0c\u6267\u610f\u8d74\u53f0\u8fdb\u884c\u6240\u8c13\u201c\u8bbf\u95ee\n\u201d\u3002\u4e2d\u65b9\u8ba4\u4e3a\u6b64\u4e3e\u516c\u7136\u652f\u6301\u201c\u53f0\n\u72ec\u201d\u5206\u88c2\u52bf\u529b\u548c\u5206\u88c2\u6d3b\u52a8\uff0c\u4e25\u91cd\n\u4fb5\u72af\u4e2d\u56fd\u4e3b\u6743\uff0c\u5e72\u6d89\u4e2d\u56fd\u5185\u653f\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E18", "label": "E18: \u6377\u514b\u53c2\u8bae\u9662\u8bae\u957f\u7ef4\u65af\n\u7279\u5947\u5c14\u7ed3\u675f\u4e86\u5bf9\u4e2d\u56fd\u53f0\u6e7e\u5730\u533a\u7684\n\u7a9c\u8bbf\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E19", "label": "E19: \u4e2d\u56fd\u4f01\u4e1a\u5ba3\u5e03\u53d6\u6d88\u4e0e\n\u6377\u514b\u65b9\u9762\u7684\u8ba2\u5355\uff0c\u8fd9\u662f\u9488\u5bf9\u6377\u514b\n\u8bae\u957f\u7a9c\u8bbf\u53f0\u6e7e\u5730\u533a\u91c7\u53d6\u7684\u7ecf\u6d4e\u53cd\n\u5236\u63aa\u65bd\u3002", "shape": "box"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E3", "id": "c0", "title": "\u84ec\u4f69\u5965\u6f14\u8bb2\u9f13\u52a8\u6377\u514b\u4e0e\u53f0\u4ea4\u6d41\uff0c\u4fc3\u53d1\u7ef4\u65af\u7279\u5947\u5c14\u8bbf\u53f0", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c1", "title": "\u7ef4\u65af\u7279\u5947\u5c14\u8bbf\u53f0\u76f4\u63a5\u5f15\u53d1\u89e3\u653e\u519b\u519b\u673a\u8fd1\u8ddd\u79bb\u5de1\u822a\u8b66\u544a", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c2", "title": "\u7ef4\u65af\u7279\u5947\u5c14\u8bbf\u53f0\u5bfc\u81f4\u4e2d\u56fd\u5916\u4ea4\u90e8\u526f\u90e8\u957f\u7ea6\u89c1\u6377\u514b\u5927\u4f7f\u4ea4\u6d89", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c3", "title": "\u7ef4\u65af\u7279\u5947\u5c14\u8bbf\u53f0\u5f15\u53d1\u4e2d\u56fd\u5916\u957f\u738b\u6bc5\u516c\u5f00\u8c34\u8d23\u5176\u4e3a\u6311\u8845", "to": "E16", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c4", "title": "\u7ef4\u65af\u7279\u5947\u5c14\u8bbf\u53f0\u5f15\u53d1\u4e2d\u56fd\u5916\u4ea4\u90e8\u53d1\u8a00\u4eba\u534e\u6625\u83b9\u4e25\u5389\u6279\u8bc4", "to": "E17", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c5", "title": "\u7ef4\u65af\u7279\u5947\u5c14\u8bbf\u53f0\u540e\uff0c\u4e2d\u56fd\u4f01\u4e1a\u5ba3\u5e03\u53d6\u6d88\u8ba2\u5355\u4f5c\u4e3a\u53cd\u5236", "to": "E19", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.765\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E18 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E18", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t1", "title": "E7\u662f\u8bbf\u53f0\u4e8b\u4ef6\uff0cE14\u662f\u8bbf\u53f0\u671f\u95f4\u4f1a\u9762\u5b89\u6392\uff0c\u5c5e\u540c\u4e00\u4e8b\u4ef6\u7ec4\u6210\u90e8\u5206\u3002", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t2", "title": "E7\u662f\u8bbf\u53f0\u4e8b\u4ef6\uff0cE13\u662f\u8bbf\u53f0\u671f\u95f4\u5177\u4f53\u8a00\u8bba\uff0c\u5c5e\u540c\u4e00\u4e8b\u4ef6\u7ec4\u6210\u90e8\u5206\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E12", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.816\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E12 \u5728 E16 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E16", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t4", "title": "E13\u662f\u5177\u4f53\u8a00\u8bba\uff0cE16\u662f\u5bf9\u6574\u4e2a\u8bbf\u53f0\u884c\u4e3a\u7684\u8c34\u8d23\uff0c\u975e\u76f4\u63a5\u9488\u5bf9\u8a00\u8bba\u3002", "to": "E16", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t5", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.716\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t6", "title": "E8\u662f\u62b5\u8fbe\uff0cE9\u662f\u8fce\u63a5\uff0c\u5c5e\u8bbf\u95ee\u6d41\u7a0b\u4e2d\u7684\u8fde\u7eed\u52a8\u4f5c\uff0c\u65e0\u56e0\u679c\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t7", "title": "E7\u662f\u8bbf\u53f0\u51b3\u5b9a\u4e0e\u5b9a\u6027\uff0cE8\u662f\u62b5\u8fbe\u884c\u52a8\uff0c\u5c5e\u540c\u4e00\u4e8b\u4ef6\u8fde\u7eed\u6027\u63cf\u8ff0\u3002", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t8", "title": "E2\u662f\u8bbf\u95ee\u884c\u4e3a\uff0cE3\u662f\u6f14\u8bb2\u5185\u5bb9\uff0c\u5c5e\u540c\u4e00\u4e8b\u4ef6\u63cf\u8ff0\uff0c\u65e0\u56e0\u679c\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t9", "title": "E11\u662f\u7ea6\u89c1\u884c\u52a8\uff0cE12\u662f\u7ea6\u89c1\u4e2d\u8868\u6001\u5185\u5bb9\uff0c\u5c5e\u540c\u4e00\u5916\u4ea4\u4ea4\u6d89\u4e8b\u4ef6\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t10", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.888\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E6 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E16", "id": "t11", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.838\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E16 \u5728 E17 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E17", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t12", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.760\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t13", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.706\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E5 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t14", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE1 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E2 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E14", "id": "t15", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE15 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E14 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E15", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "color": {"background": "#dbeeff", "border": "#3a7bd5", "highlight": {"background": "#b8d9f8", "border": "#1a4fa0"}, "hover": {"background": "#c9e8ff", "border": "#2a5ec0"}}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyCausal=[{"from": "E3", "to": "E7", "reason": "蓬佩奥演讲鼓动捷克与台交流，促发维斯特奇尔访台", "manual_review": false}, {"from": "E7", "to": "E10", "reason": "维斯特奇尔访台直接引发解放军军机近距离巡航警告", "manual_review": false}, {"from": "E7", "to": "E11", "reason": "维斯特奇尔访台导致中国外交部副部长约见捷克大使交涉", "manual_review": false}, {"from": "E7", "to": "E16", "reason": "维斯特奇尔访台引发中国外长王毅公开谴责其为挑衅", "manual_review": false}, {"from": "E7", "to": "E17", "reason": "维斯特奇尔访台引发中国外交部发言人华春莹严厉批评", "manual_review": false}, {"from": "E7", "to": "E19", "reason": "维斯特奇尔访台后，中国企业宣布取消订单作为反制", "manual_review": false}];var _pyTemporal=[{"from": "E8", "to": "E18", "reason": "语义嵌入相似度 0.765，按事件编号 E8 在 E18 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E7", "to": "E14", "reason": "E7是访台事件，E14是访台期间会面安排，属同一事件组成部分。", "manual_review": false}, {"from": "E7", "to": "E13", "reason": "E7是访台事件，E13是访台期间具体言论，属同一事件组成部分。", "manual_review": false}, {"from": "E12", "to": "E16", "reason": "语义嵌入相似度 0.816，按事件编号 E12 在 E16 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E13", "to": "E16", "reason": "E13是具体言论，E16是对整个访台行为的谴责，非直接针对言论。", "manual_review": false}, {"from": "E3", "to": "E6", "reason": "语义嵌入相似度 0.716，按事件编号 E3 在 E6 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E8", "to": "E9", "reason": "E8是抵达，E9是迎接，属访问流程中的连续动作，无因果。", "manual_review": false}, {"from": "E7", "to": "E8", "reason": "E7是访台决定与定性，E8是抵达行动，属同一事件连续性描述。", "manual_review": false}, {"from": "E2", "to": "E3", "reason": "E2是访问行为，E3是演讲内容，属同一事件描述，无因果。", "manual_review": false}, {"from": "E11", "to": "E12", "reason": "E11是约见行动，E12是约见中表态内容，属同一外交交涉事件。", "manual_review": false}, {"from": "E6", "to": "E7", "reason": "语义嵌入相似度 0.888，按事件编号 E6 在 E7 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E16", "to": "E17", "reason": "语义嵌入相似度 0.838，按事件编号 E16 在 E17 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E5", "to": "E6", "reason": "语义嵌入相似度 0.760，按事件编号 E5 在 E6 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E4", "to": "E5", "reason": "语义嵌入相似度 0.706，按事件编号 E4 在 E5 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E1", "to": "E2", "reason": "孤立点消除：E1 与前一事件 E2 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}, {"from": "E14", "to": "E15", "reason": "孤立点消除：E15 与前一事件 E14 构成时序关系，仅表达时序，不表达因果。", "manual_review": false}];var _pyEvents=[{"id": "E1", "text": "捷克（捷克斯洛伐克）是最早承认并同新中国建交的国家，建交70多年来，捷克政府长期坚持一个中国的政策。"}, {"id": "E2", "text": "美国国务卿蓬佩奥对捷克进行了外交访问。"}, {"id": "E3", "text": "美国国务卿蓬佩奥在捷克参议院发表演讲，指责中国大陆阻碍捷克与台湾之间的交流，构成对中国内政的干涉性批评。"}, {"id": "E4", "text": "捷克总统发言人批评捷克参议院议长访台之行，认为该行为是在系统性破坏国家利益。"}, {"id": "E5", "text": "捷克总统泽曼通过声明表示，捷克共和国总统、议会众议院议长、总理以及台湾地区外事部门负责人均不建议参议院议长访问台湾。"}, {"id": "E6", "text": "中国驻捷克大使馆发言人代表中方，对捷克参议院议长维斯特奇尔出于个人政治算计执意访问中国台湾地区的行为表示强烈谴责和坚决反对。中方认为此举不顾中捷关系和两国互利合作，无视捷克主流民意，严重干涉中国内政，侵犯中国国家主权和领土完整，并违反了国际关系基本准则和双边政治承诺。"}, {"id": "E7", "text": "捷克参议院议长维斯特奇尔不顾该国总统和总理的反对，于2020年8月30日至9月4日率89人代表团窜访中国台湾地区，代表团成员包括布拉格市长贺瑞卜，此举构成对中国内政的干涉和政治挑衅。"}, {"id": "E8", "text": "捷克参议院议长维斯特奇尔率领的访问团抵达台湾桃园机场。"}, {"id": "E9", "text": "台湾地区外事部门负责人吴钊燮到机场迎接捷克访问团。"}, {"id": "E10", "text": "解放军军机在台湾周边海域执行巡航任务，其飞行轨迹据称与捷克访问团专机的距离不足80公里。"}, {"id": "E11", "text": "中国外交部副部长秦刚约见捷克驻华大使佟福德，这是一次由中方高层官员发起的外交交涉行动。"}, {"id": "E12", "text": "中方在交涉中明确表示，捷克参议长维斯特奇尔访问台湾的行为是“冒天下之大不韪”，这是中国官方对该行为的强烈谴责和定性。"}, {"id": "E13", "text": "维斯特奇尔在台湾发表演说时，使用中文声称“我是台湾人”，这一言论被识别为发表支持“台独”分裂势力的政治言论。"}, {"id": "E14", "text": "维斯特奇尔与台湾地区领导人蔡英文等人进行了会面，这被识别为与台湾地区领导人进行高层会面。"}, {"id": "E15", "text": "中国国务委员兼外交部长王毅在德国进行访问，这是一次外交行程事件。"}, {"id": "E16", "text": "中国外交部长王毅谴责捷克参议长访问中国台湾地区，称其行为是公开挑衅，并批评其支持'台独'势力，属于官方谴责和定性表态。"}, {"id": "E17", "text": "中国外交部发言人华春莹对捷克议会参议院主席提出严厉批评，指出其不顾中方坚决反对和严正交涉，出于个人私利，在台湾当局利诱和反华势力鼓动下，执意赴台进行所谓“访问”。中方认为此举公然支持“台独”分裂势力和分裂活动，严重侵犯中国主权，干涉中国内政。"}, {"id": "E18", "text": "捷克参议院议长维斯特奇尔结束了对中国台湾地区的窜访。"}, {"id": "E19", "text": "中国企业宣布取消与捷克方面的订单，这是针对捷克议长窜访台湾地区采取的经济反制措施。"}];var _origGraphMeta={"doc_id": "D024", "doc_name": "D024 捷克参议长维特齐率89人代表团访台（2020.8.30-9.4）.txt"};var _graphJsonPath="D:\\code\\PycharmProjects\\pytorch\\causal_inference\\output\\doc_results\\D024\\graph.json";var _savePort=7760;var _pyDocText="捷克参议院议长维斯特奇尔不顾该国总统泽曼和总理巴比什的反对，于8月30日至9月4日带着包括反华分子布拉格市长贺瑞卜在内的89人代表团窜访台湾。对此，中国驻捷克大使馆发言人表示，维斯特奇尔不顾中捷关系和两国互利合作，无视捷克主流民意，出于个人政治算计执意访台，严重干涉中国内政，严重侵犯中国国家主权和领土完整，严重违反国际关系基本准则和双边政治承诺。中方对此予以强烈谴责和坚决反对。8月31日晚，中国外交部官网公布副部长秦刚约见捷克驻华大使佟福德的会谈内容。秦刚表示，维斯特奇尔访台是“冒天下之大不韪”。据台湾《自由时报》网站9月1日报道，解放军军机近日在台湾周边海域巡航时刻意打开讯号飞航轨迹，8月30日上午甚至据捷克访问团专机不到80公里，警告意味浓厚。维斯特奇尔率领的访问团于30日上午抵达台湾桃园机场，台湾地区外事部门负责人吴钊燮到机场迎接。岛内的联合新闻网透露，维斯特奇尔在台访问6天，将先后在政治大学和“立法院”发表演说，特别注意的是，维斯特奇尔9月1日在台演说时效仿美国前总统肯尼迪那句知名的“我是柏林人”，并用中文声称“我是台湾人”，此后还与蔡英文等人会面、参访宏碁、合库银等企业。正在德国访问的中国国务委员兼外交部长王毅9月1日说，捷克参议长罔顾中方和捷克政府反对执意访问中国台湾地区，公然为“台独”势力张目，甚至还煽动其他国家效仿，这是公开的挑衅。中方必须要告诉捷克参议长：你过线了！中国外交部发言人华春莹批评说，捷克议会参议院主席罔顾中方坚决反对和严正交涉，出于一己私利，在台湾当局利诱和反华势力鼓动下，执意赴台进行所谓“访问”，公然支持“台独”分裂势力和分裂活动，严重侵犯中国主权，干涉中国内政。中方对此予以强烈谴责。在捷克议长刚结束自己的访台行动，便收到了中国企业宣布取消订单的消息。\n维斯特奇尔率团访台被民进党当局视为“外交突破”，并对此洋洋自得。台湾地区立法机构秘书长林志嘉称，捷克参议院议长在捷克的宪法位阶仅次于总统，“此行意义重大”。蔡英文30日在脸书称，台湾和捷克之间有太多可以彼此分享的故事。\n捷克（捷克斯洛伐克）是最早承认并同新中国建交的国家，建交70多年来，捷克政府长期坚持一个中国的政策。维斯特奇尔此次访台在捷克内部引发质疑。现任总统泽曼是维斯特奇尔的最大反对者，他在声明中表示：“捷克共和国总统、议会众议院议长、总理和台湾地区外事部门负责人均不建议参议院议长访台”。捷克总统发言人此前也批评此行是“在系统性破坏国家利益”。有分析人士称，维斯特奇尔访问台湾的“内政原因远大于对捷中关系的考虑”，这种做法其实是“破坏捷中关系”“利用台湾乱搞‘外交’关系”。联合新闻网30日称，为何不是捷克总统访问台湾，为何捷克政府高层不来台湾？这显示捷克仍在一个中国框架下发展对台关系。\n对于维斯特奇尔一意孤行访台，中国驻捷克大使馆29日批驳道，中方一贯坚决反对建交国同中国台湾地区进行任何形式官方往来。中方敦促捷方恪守一个中国原则，以实际行动维护中捷关系大局。\n不少媒体注意到，在捷克与台当局的关系中，美国起了推波助澜的作用。英国广播公司称，美国国务卿蓬佩奥8月中旬访问捷克并在捷参议院发表演讲，批评中国大陆阻碍捷克与台湾交流等，“让捷克参议院议长访台一事，添上美中对抗的背景”。香港《信报》也称，近日言行不断针对中国的蓬佩奥欲拉拢捷克加入其鼓吹的“反华俱乐部”。中国驻捷克大使馆当时批评说，蓬佩奥打着所谓“民主”“自由”名号，无端攻击、抹黑和“甩锅”中国，恶意挑拨别国与中国关系，其言行充斥意识形态偏见和冷战思维，与时代潮流背道而驰。";var _pyManualReviewEdges=[];</script><script>
+var _edgeLookup = {};      // edgeId -> {type, from, to, reason, manualReview, isNew}
+var _deletedEdges = {};    // edgeId -> true
+var _manualEdits = {};     // edgeId -> {originalType, newType, reason}
+var _simpActive = false;
+var _simpOrig = {};
+var _editMode = false;
+var _evtMode = 'list';     // 'list' | 'doc'
+var _addEdge = null;       // null | {role: 'source'|'target', anchorId: string}
+var _newEdgePair = null;   // null | {source: string, target: string}
+var _hasUnsaved = false;
+var _pyManualReviewEdges = _pyManualReviewEdges || [];
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _edgeTitle(reason, manualReview) {
+    var title = _esc(reason || '');
+    if (manualReview) return title ? (title + ' [人工审核]') : '[人工审核]';
+    return title;
+}
+function _edgeColor(edgeType, manualReview) {
+    if (manualReview) return '#f5a623';
+    return edgeType === 'causal' ? '#d62728' : '#1f77b4';
+}
+function _edgeWidth(edgeType) {
+    return edgeType === 'causal' ? 3 : 1.6;
+}
+function _edgeDashes(edgeType, manualReview) {
+    if (edgeType !== 'temporal') return false;
+    return manualReview ? [10, 6] : true;
+}
+function _edgeStyle(edgeType, manualReview) {
+    var color = _edgeColor(edgeType, manualReview);
+    return {
+        color: {color: color, hover: color, highlight: color},
+        width: _edgeWidth(edgeType),
+        dashes: _edgeDashes(edgeType, manualReview),
+    };
+}
+function _wait(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+/* ── 图遍历辅助 ─────────────────────────────────────────────── */
+function _liveEdges() {
+    return network.body.data.edges.get().filter(function(e) { return !_deletedEdges[e.id]; });
+}
+function getDescendants(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (f === cur && !visited[t]) queue.push(t);
+        });
+    }
+    return visited;
+}
+function getAncestors(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (t === cur && !visited[f]) queue.push(f);
+        });
+    }
+    return visited;
+}
+function hasEdge(fromId, toId) {
+    var f = String(fromId), t = String(toId);
+    return _liveEdges().some(function(e) { return String(e.from) === f && String(e.to) === t; });
+}
+
+/* ── 模式切换 ──────────────────────────────────────────────── */
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+            upd.push({id: id, label: String(id), title: ev ? (_esc(id) + ': ' + _esc(ev.text)) : ''});
+        });
+        if (btn) btn.textContent = '简洁模式';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label, title: o.title});
+        });
+        if (btn) btn.textContent = '详细模式';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+/* ── 编辑模式 ──────────────────────────────────────────────── */
+function toggleEditMode() {
+    var btn = document.getElementById('btn-edit');
+    if (_editMode) {
+        if (_hasUnsaved && !confirm('有未保存的修改，退出修改模式后将丢失，确定退出？')) return;
+        _editMode = false;
+        btn.textContent = '修改';
+        btn.style.background = '#f5f5f5';
+        btn.style.borderColor = '#aaa';
+        closeAllMenus();
+    } else {
+        _editMode = true;
+        btn.textContent = '退出修改';
+        btn.style.background = '#fff3cd';
+        btn.style.borderColor = '#f5a623';
+    }
+}
+function closeAllMenus() {
+    closeEdgeMenu();
+    closeNodeMenu();
+    closeCandidatePanel();
+}
+
+/* ── 边右键菜单 ─────────────────────────────────────────────── */
+function showEdgeMenu(edgeId, x, y) {
+    var menu = document.getElementById('edge-ctx-menu');
+    menu.setAttribute('data-eid', edgeId);
+    var e = _edgeLookup[edgeId] || {};
+    var typeLabel = e.type === 'causal' ? '因果边' : '时序边';
+    document.getElementById('ctx-type-label').textContent = '当前: ' + typeLabel;
+    // 预计算「修改方向」是否可用（会产生环或反向边已存在则禁用）
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && e.from && e.to) {
+        var fId = String(e.from), tId = String(e.to);
+        _deletedEdges[edgeId] = true;
+        var desc = getDescendants(tId);
+        delete _deletedEdges[edgeId];
+        var disabled = !!(desc[fId] || hasEdge(tId, fId));
+        reverseBtn.style.color = disabled ? '#bbb' : '';
+        reverseBtn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+        reverseBtn.setAttribute('data-disabled', disabled ? '1' : '0');
+    }
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeEdgeMenu() {
+    var menu = document.getElementById('edge-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function menuDelete() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    closeEdgeMenu();
+    _setUnsaved();
+}
+function menuModify() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId] || {};
+    var other = e.type === 'causal' ? '时序边' : '因果边';
+    document.getElementById('dlg-title').textContent = '修改为' + other;
+    document.getElementById('dlg-reason').value = e.reason || '';
+    var dlg = document.getElementById('modify-dlg');
+    dlg.setAttribute('data-eid', edgeId);
+    dlg.style.display = 'flex';
+    document.getElementById('dlg-reason').focus();
+}
+
+function menuReverse() {
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && reverseBtn.getAttribute('data-disabled') === '1') return;
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId];
+    if (!e) return;
+    var fromId = String(e.from), toId = String(e.to);
+    // 再次验证（防止菜单开启期间图结构变化）
+    _deletedEdges[edgeId] = true;
+    var desc = getDescendants(toId);
+    delete _deletedEdges[edgeId];
+    if (desc[fromId]) { showToast('修改方向会产生环路，无法执行', 2500, '#c0392b'); return; }
+    if (hasEdge(toId, fromId)) { showToast('反向边已存在', 2500, '#c0392b'); return; }
+    // 删除原边，添加反向边
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    var isCausal = (e.type === 'causal');
+    var newEid = 'rev_' + Date.now();
+    var style = _edgeStyle(e.type, true);
+    network.body.data.edges.add([{
+        id: newEid, from: toId, to: fromId, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(e.reason || '') + ' [方向已反转]',
+    }]);
+    _edgeLookup[newEid] = {type: e.type, from: toId, to: fromId, reason: e.reason, manualReview: true, isNew: true};
+    showToast('已反转方向: ' + toId + ' → ' + fromId, 2200, '#27ae60');
+    _setUnsaved();
+}
+/* ── 节点点击菜单 ───────────────────────────────────────────── */
+function showNodeMenu(nodeId, x, y) {
+    var menu = document.getElementById('node-ctx-menu');
+    menu.setAttribute('data-nid', String(nodeId));
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeNodeMenu() {
+    var menu = document.getElementById('node-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function startAddEdge(role) {
+    var nodeId = document.getElementById('node-ctx-menu').getAttribute('data-nid');
+    closeNodeMenu();
+    _addEdge = {role: role, anchorId: nodeId};
+    _showCandidatePanel(nodeId, role);
+}
+
+/* ── 候选节点面板 ───────────────────────────────────────────── */
+function _showCandidatePanel(anchorId, role) {
+    var allIds = network.body.data.nodes.getIds().map(String);
+    var excluded = {};
+    excluded[String(anchorId)] = true;
+    if (role === 'source') {
+        // anchor 是起点，选终点 B：B 不能是 anchor 的祖先（防环）且不能有 anchor→B（防重复）
+        var anc = getAncestors(anchorId);
+        Object.keys(anc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.from) === String(anchorId)) excluded[String(e.to)] = true;
+        });
+    } else {
+        // anchor 是终点，选起点 A：A 不能是 anchor 的后代（防环）且不能有 A→anchor（防重复）
+        var desc = getDescendants(anchorId);
+        Object.keys(desc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.to) === String(anchorId)) excluded[String(e.from)] = true;
+        });
+    }
+    var candidates = allIds.filter(function(id) { return !excluded[id]; });
+    if (candidates.length === 0) {
+        showToast('没有可新增的候选节点', 2000, '#555');
+        _addEdge = null;
+        return;
+    }
+    var title = role === 'source' ? '以该节点为起点，选择终点：' : '以该节点为终点，选择起点：';
+    document.getElementById('candidate-title').textContent = title;
+    var html = '';
+    candidates.forEach(function(id) {
+        var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+        var label = ev ? (id + ': ' + ev.text) : id;
+        html += '<div onclick="selectCandidate(\'' + id + '\')" '
+              + 'style="padding:6px 10px;cursor:pointer;border-radius:4px;margin-bottom:3px;'
+              + 'font-size:12px;background:#f0f7ff;border:1px solid #c5d8f0;" '
+              + 'onmouseover="this.style.background=\'#dbeeff\'" '
+              + 'onmouseout="this.style.background=\'#f0f7ff\'">'
+              + _esc(label) + '</div>';
+    });
+    document.getElementById('candidate-body').innerHTML = html;
+    document.getElementById('candidate-panel').style.display = 'flex';
+}
+function closeCandidatePanel() {
+    var p = document.getElementById('candidate-panel');
+    if (p) p.style.display = 'none';
+    _addEdge = null;
+}
+function selectCandidate(candidateId) {
+    if (!_addEdge) { closeCandidatePanel(); return; }
+    var src = _addEdge.role === 'source' ? _addEdge.anchorId : candidateId;
+    var tgt = _addEdge.role === 'target' ? _addEdge.anchorId : candidateId;
+    closeCandidatePanel();
+    _newEdgePair = {source: src, target: tgt};
+    _showNewEdgeDlg(src, tgt);
+}
+
+/* ── 新建边对话框 ───────────────────────────────────────────── */
+function _showNewEdgeDlg(src, tgt) {
+    document.getElementById('new-edge-subtitle').textContent = src + ' → ' + tgt;
+    document.getElementById('new-edge-reason').value = '';
+    document.getElementById('new-edge-type').value = 'causal';
+    document.getElementById('new-edge-dlg').style.display = 'flex';
+    document.getElementById('new-edge-reason').focus();
+}
+function closeNewEdgeDlg() {
+    document.getElementById('new-edge-dlg').style.display = 'none';
+    _newEdgePair = null;
+}
+function applyNewEdge() {
+    if (!_newEdgePair) { closeNewEdgeDlg(); return; }
+    var reason = document.getElementById('new-edge-reason').value.trim();
+    if (!reason) { alert('请填写原因。'); return; }
+    var edgeType = document.getElementById('new-edge-type').value;
+    var src = _newEdgePair.source, tgt = _newEdgePair.target;
+    var eid = 'new_' + Date.now();
+    var style = _edgeStyle(edgeType, true);
+    network.body.data.edges.add([{
+        id: eid, from: src, to: tgt, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(reason) + ' [人工新增]',
+    }]);
+    _edgeLookup[eid] = {type: edgeType, from: src, to: tgt, reason: reason, manualReview: true, isNew: true};
+    closeNewEdgeDlg();
+    showToast('已新增边 ' + src + ' → ' + tgt, 2000, '#27ae60');
+    _setUnsaved();
+}
+
+/* ── 修改对话框 ────────────────────────────────────────────── */
+function closeModifyDlg() {
+    document.getElementById('modify-dlg').style.display = 'none';
+}
+function applyModify() {
+    var dlg = document.getElementById('modify-dlg');
+    var edgeId = dlg.getAttribute('data-eid');
+    var reason = document.getElementById('dlg-reason').value.trim();
+    if (!reason) { alert('请填写修改原因。'); return; }
+    var e = _edgeLookup[edgeId];
+    if (!e) { closeModifyDlg(); return; }
+    var newType = e.type === 'causal' ? 'temporal' : 'causal';
+    var style = _edgeStyle(newType, true);
+    network.body.data.edges.update([{
+        id: edgeId,
+        color: style.color,
+        dashes: style.dashes, width: style.width,
+        title: _esc(reason) + ' [人工审核]',
+    }]);
+    _manualEdits[edgeId] = {originalType: e.type, newType: newType, reason: reason};
+    e.reason = reason; e.type = newType; e.manualReview = true;
+    closeModifyDlg();
+    _setUnsaved();
+}
+
+/* ── 保存/下载 ─────────────────────────────────────────────── */
+function _setUnsaved() {
+    _hasUnsaved = true;
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '有未保存的修改'; el.style.opacity = '1'; }
+}
+function _updateGraphInfo(data) {
+    var causalCount = document.getElementById('causal-count');
+    var temporalCount = document.getElementById('temporal-count');
+    var titleEl = document.getElementById('doc-title');
+    if (causalCount) causalCount.textContent = String((data.causal_edges || []).length);
+    if (temporalCount) temporalCount.textContent = String((data.temporal_edges || []).length);
+    if (titleEl && data.doc_name) {
+        titleEl.textContent = String(data.doc_name).replace(/\.txt$/i, '');
+    }
+}
+function _loadLatestGraph() {
+    if (!_graphJsonPath) return Promise.resolve(false);
+    var url = 'http://localhost:' + _savePort + '/load_graph?path=' + encodeURIComponent(_graphJsonPath) + '&_ts=' + Date.now();
+    return fetch(url, {cache: 'no-store'}).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    }).then(function(res) {
+        if (!res.ok || !res.body || !res.body.data) return false;
+        _applyLoadedData(res.body.data);
+        return true;
+    }).catch(function() {
+        return false;
+    });
+}
+function _saveRequest(data) {
+    return fetch('http://localhost:' + _savePort + '/save_graph', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({path: _graphJsonPath, data: data}),
+    }).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    });
+}
+function _waitForSaveServer(maxAttempts) {
+    var attempts = 0;
+    function probe() {
+        attempts += 1;
+        return _loadLatestGraph().then(function(ok) {
+            if (ok || attempts >= maxAttempts) return ok;
+            return _wait(500).then(probe);
+        }).catch(function() {
+            if (attempts >= maxAttempts) return false;
+            return _wait(500).then(probe);
+        });
+    }
+    return probe();
+}
+function _saveFallback(data, msg) {
+    showToast(msg, 6000, '#c0392b');
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '保存失败，修改尚未写入 graph.json'; el.style.opacity = '1'; }
+}
+function _handleSaveResponse(res, data) {
+    if (res.ok && (!res.body || res.body.ok !== false)) {
+        showToast('已保存并重载 ✓', 3000, '#27ae60');
+        var el = document.getElementById('save-status');
+        if (el) { el.textContent = ''; el.style.opacity = '0'; }
+        _applyLoadedData(res.body.data || data);
+        return true;
+    }
+    var err = (res.body && res.body.error) ? ('保存失败：' + res.body.error) : '保存失败';
+    _saveFallback(data, err);
+    return false;
+}
+function buildSaveData() {
+    var causal = [], temporal = [];
+    for (var eid in _edgeLookup) {
+        if (_deletedEdges[eid]) continue;
+        var e = _edgeLookup[eid];
+        if (e.type === 'causal') {
+            var d = {cause: e.from, effect: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            causal.push(d);
+        } else {
+            var d = {source: e.from, target: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            temporal.push(d);
+        }
+    }
+    var evts = (_pyEvents || []).map(function(e) { return {event_id: e.id, text: e.text}; });
+    return {
+        doc_id: (_origGraphMeta || {}).doc_id || '',
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        doc_text: _pyDocText || '',
+        events: evts, causal_edges: causal, temporal_edges: temporal,
+        manual_review_edges: _pyManualReviewEdges || [],
+    };
+}
+function saveGraph() {
+    var data = buildSaveData();
+    showToast('保存中…', 30000, '#555');
+    _saveRequest(data).then(function(res) {
+        _handleSaveResponse(res, data);
+    }).catch(function() {
+        showToast('本地保存服务暂未就绪，正在自动重试…', 4000, '#e67e22');
+        _waitForSaveServer(6).then(function(ok) {
+            if (!ok) {
+                _saveFallback(data, '自动保存服务仍未就绪，未写入 graph.json');
+                return;
+            }
+            showToast('本地保存服务已就绪，正在重试保存…', 4000, '#e67e22');
+            _saveRequest(data).then(function(res) {
+                _handleSaveResponse(res, data);
+            }).catch(function() {
+                _saveFallback(data, '自动重试保存失败，未写入 graph.json');
+            });
+        });
+    });
+}
+function _applyLoadedData(data) {
+    /* 用服务器返回的 graph.json 内容就地重建可视化，边恢复红/蓝色，状态全清零 */
+    if (!data || typeof network === 'undefined') return;
+    network.body.data.edges.clear();
+    _edgeLookup = {};
+    _deletedEdges = {};
+    _manualEdits = {};
+    _hasUnsaved = false;
+    _pyCausal = (data.causal_edges || []).map(function(e) {
+        return {from: e.cause, to: e.effect, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    _pyTemporal = (data.temporal_edges || []).map(function(e) {
+        return {from: e.source, to: e.target, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    if (Array.isArray(data.events)) {
+        _pyEvents = data.events.map(function(ev) { return {id: ev.event_id, text: ev.text || ''}; });
+    }
+    if (typeof data.doc_text === 'string') {
+        _pyDocText = data.doc_text;
+    }
+    if (data.doc_id || data.doc_name) {
+        _origGraphMeta = {
+            doc_id: data.doc_id || ((_origGraphMeta || {}).doc_id || ''),
+            doc_name: data.doc_name || ((_origGraphMeta || {}).doc_name || ''),
+        };
+    }
+    _pyManualReviewEdges = Array.isArray(data.manual_review_edges) ? data.manual_review_edges : [];
+    _pyCausal.forEach(function(e, i) {
+        var eid = 'c' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('causal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'causal', from:String(e.from), to:String(e.to), reason:e.reason, manualReview:manualReview};
+    });
+    _pyTemporal.forEach(function(e, i) {
+        var eid = 't' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('temporal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'temporal', from:String(e.from), to:String(e.to), reason:e.reason||'', manualReview:manualReview};
+    });
+    _updateGraphInfo(data);
+    _renderEventPanel();
+}
+function downloadGraph(data) {
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'graph.json';
+    a.click();
+}
+function showToast(msg, duration, bg) {
+    var toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.style.background = bg || '#333';
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    if (toast._timer) clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() {
+        toast.style.opacity = '0';
+        setTimeout(function() { toast.style.display = 'none'; }, 400);
+    }, duration || 2500);
+}
+
+/* ── 事件面板（列表/全文切换） ─────────────────────────────── */
+function toggleEventList() {
+    _evtMode = (_evtMode === 'list') ? 'doc' : 'list';
+    _renderEventPanel();
+}
+function _renderEventPanel() {
+    var body = document.getElementById('evt-list-body');
+    var btn  = document.getElementById('btn-evtlist');
+    if (!body) return;
+    if (_evtMode === 'doc') {
+        body.innerHTML = '<pre style="white-space:pre-wrap;margin:0;font-size:12px;font-family:sans-serif;'
+            + 'color:#333;word-break:break-all;">' + _esc(_pyDocText || '（无全文）') + '</pre>';
+        if (btn) btn.textContent = '正在显示全文 ▲（点击返回事件列表）';
+    } else {
+        var html = '';
+        (_pyEvents || []).forEach(function(e) {
+            html += '<div style="margin-bottom:6px;">'
+                  + '<span style="font-weight:700;color:#1f77b4;">' + _esc(e.id) + '</span>'
+                  + '<span style="color:#555;">: ' + _esc(e.text) + '</span></div>';
+        });
+        body.innerHTML = html;
+        if (btn) btn.textContent = '事件列表 ▼（点击查看全文）';
+    }
+}
+/* ── 候选面板拖动 ───────────────────────────────────────── */
+var _candDrag = null;
+document.addEventListener('mousedown', function(e) {
+    var handle = document.getElementById('candidate-drag-handle');
+    if (!handle || !handle.contains(e.target)) return;
+    if (e.button !== 0) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    var rect = panel.getBoundingClientRect();
+    // 如果还在用百分比定位，先转换为具体像素坐标
+    panel.style.top  = rect.top  + 'px';
+    panel.style.left = rect.left + 'px';
+    panel.style.marginLeft = '0';
+    _candDrag = { startX: e.clientX, startY: e.clientY,
+                  initLeft: rect.left, initTop: rect.top };
+    e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+    if (!_candDrag) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    panel.style.left = (_candDrag.initLeft + e.clientX - _candDrag.startX) + 'px';
+    panel.style.top  = (_candDrag.initTop  + e.clientY - _candDrag.startY) + 'px';
+});
+document.addEventListener('mouseup', function(e) {
+    if (e.button === 0) _candDrag = null;
+});
+/* ── 初始化 ────────────────────────────────────────────────── */
+window.addEventListener('load', function() {
+    (_pyCausal || []).forEach(function(e, i) {
+        _edgeLookup['c' + i] = {type:'causal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    (_pyTemporal || []).forEach(function(e, i) {
+        _edgeLookup['t' + i] = {type:'temporal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    if (typeof network !== 'undefined') {
+        network.on('click', function(params) {
+            if (!_editMode) { closeAllMenus(); return; }
+            closeEdgeMenu();
+            closeNodeMenu();
+            // 如果处于候选选择状态，任意点击画布空白处取消
+            if (_addEdge && params.nodes.length === 0 && params.edges.length === 0) {
+                closeCandidatePanel();
+                return;
+            }
+            if (params.nodes.length > 0) {
+                // 如果候选面板已展开，直接调 selectCandidate
+                var panel = document.getElementById('candidate-panel');
+                if (panel && panel.style.display !== 'none') {
+                    selectCandidate(String(params.nodes[0]));
+                } else {
+                    showNodeMenu(params.nodes[0], params.pointer.DOM.x, params.pointer.DOM.y);
+                }
+            } else if (params.edges.length > 0) {
+                if (document.getElementById('candidate-panel').style.display !== 'none') return;
+                showEdgeMenu(params.edges[0], params.pointer.DOM.x, params.pointer.DOM.y);
+            }
+        });
+    }
+    _updateGraphInfo({
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        causal_edges: _pyCausal || [],
+        temporal_edges: _pyTemporal || [],
+    });
+    _renderEventPanel();
+    _loadLatestGraph();
+});
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:340px;"><div id="doc-title" style="font-weight:600;font-size:14px;margin-bottom:4px;">D024 捷克参议长维特齐率89人代表团访台（2020.8.30-9.4）</div><div>因果边：<b id="causal-count">6</b> 条&emsp;时序边：<b id="temporal-count">16</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button><button id="btn-edit" onclick="toggleEditMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">修改</button><button id="btn-save" onclick="saveGraph()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">保存</button></div><div id="save-status" style="font-size:11px;color:#e67e22;margin-top:4px;min-height:14px;"></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:300px;z-index:9999;display:flex;flex-direction:column;gap:8px;"><div id="events-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:12px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1 1 0;min-height:0;"><button id="btn-evtlist" onclick="toggleEventList()" style="width:100%;text-align:left;font-weight:700;font-size:13px;border:none;background:none;cursor:pointer;padding:0 0 6px 0;color:#333;border-bottom:1px solid #e0e0e0;margin-bottom:8px;">事件列表 ▼</button><div id="evt-list-body"></div></div><div id="doc-links-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:8px 14px;font-family:sans-serif;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:0 0 auto;max-height:40%;min-height:36px;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:5px;">文档网络</div><a href="../D001/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">1 D001 特朗普当选后蔡英文通话——打破37年惯例（2016.12）</a><a href="../D002/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">2 D002 蔡英文首次过境美国——访问洛杉矶和休斯敦（2019.7）</a><a href="../D003/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">3 D003 美国副国务卿克拉奇访台——1979年来最高级别国务院官员（2020.9）</a><a href="../D004/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">4 D004 美国卫生部长阿扎访台（2020.8）</a><a href="../D005/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">5 D005 美国驻联合国大使克拉夫特访台计划受阻（2021.1）</a><a href="../D006/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">6 D006 佩洛西访台（2022.8）</a><a href="../D007/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">7 D007 蔡英文过境纽约：在哥伦比亚大学领奖（2023.3.29-31）</a><a href="../D008/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">8 D008 蔡英文会晤众议长麦卡锡——首次台湾领导人在美国本土会见众议长（2023.4.5）</a><a href="../D009/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">9 D009 赖清德过境夏威夷引发＂海空联合战备警巡演练＂（2023.8）</a><a href="../D010/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">10 D010 赖清德就职后首次过境美国计划被特朗普政府拒绝（2025.8）</a><a href="../D011/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">11 D011 美国国务卿访华涉台交锋系列（多次，2023-2025）</a><a href="../D012/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">12 D012 拜登四次＂口误＂宣称协防台湾（2021-2023）</a><a href="../D013/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">13 D013 G7首次在联合声明中提及台海问题（2021.6）</a><a href="../D014/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">14 D014 北约战略概念文件首次点名中国——台海涉及（2022.6）</a><a href="../D015/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">15 D015 G7外长会不到48小时后解放军启动军演（2025.3）</a><a href="../D018/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">16 D018 立陶宛宣布允许台湾以＂台湾＂名义设代表处（2021.7）</a><a href="../D019/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">17 D019 中方召回驻立大使并要求立方召回驻华大使（2021.8）</a><a href="../D020/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">18 D020 ＂驻立陶宛台湾代表处＂正式挂牌及中方降级外交关系（2021.11）</a><a href="../D021/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">19 D021 欧盟在WTO起诉中国＂歧视立陶宛贸易＂并最终撤诉（2022-2025）</a><a href="../D022/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">20 D022 立陶宛新政府承认设＂台湾代表处＂是＂战略大错＂（2024-2026）</a><a href="../D023/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">21 D023 捷克前参议长柯佳洛访台计划遭中方施压及本人猝逝（2019-2020.1）</a><div style="padding:3px 0;font-size:12px;color:#1f77b4;font-weight:700;">22 D024 捷克参议长维特齐率89人代表团访台（2020.8.30-9.4）</div></div></div><div id="save-toast" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10010;color:#fff;font-family:sans-serif;font-size:14px;font-weight:600;padding:10px 22px;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,0.25);transition:opacity 0.4s;pointer-events:none;"></div><div id="edge-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:140px;"><div id="ctx-type-label" style="padding:4px 14px;color:#666;font-size:11px;border-bottom:1px solid #eee;margin-bottom:4px;"></div><div onclick="menuDelete()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background=''">删除</div><div onclick="menuModify()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background=''">修改类型</div><div id="ctx-reverse-btn" onclick="menuReverse()" style="padding:6px 14px;cursor:pointer;" onmouseover="if(this.getAttribute('data-disabled')!=='1')this.style.background='#e8f5e9'" onmouseout="this.style.background=''">修改方向</div><div onclick="closeEdgeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="node-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:220px;"><div onclick="startAddEdge('target')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为终点，选择起点：</div><div onclick="startAddEdge('source')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为起点，选择终点：</div><div onclick="closeNodeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="candidate-panel" style="display:none;position:fixed;top:20%;left:50%;margin-left:-150px;z-index:10001;background:#fff;border:1px solid #c0c0c0;border-radius:10px;font-family:sans-serif;min-width:300px;max-width:420px;max-height:65vh;overflow:hidden;flex-direction:column;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="candidate-drag-handle" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px 14px;cursor:grab;background:#f5f5f5;border-bottom:1px solid #e0e0e0;border-radius:10px 10px 0 0;flex-shrink:0;"><div id="candidate-title" style="font-weight:700;font-size:14px;user-select:none;"></div><button onclick="closeCandidatePanel()" style="border:none;background:none;cursor:pointer;font-size:16px;color:#999;padding:0;">✕</button></div><div id="candidate-body" style="padding:10px 14px;overflow-y:auto;max-height:55vh;"></div></div><div id="new-edge-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div style="font-weight:700;font-size:15px;margin-bottom:4px;">新增边</div><div id="new-edge-subtitle" style="font-size:13px;color:#555;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:4px;">类型</label><select id="new-edge-type" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:5px;margin-bottom:10px;"><option value="causal">因果边</option><option value="temporal">时序边</option></select><label style="display:block;font-size:13px;margin-bottom:6px;">原因（必填）</label><textarea id="new-edge-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeNewEdgeDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyNewEdge()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#27ae60;color:#fff;font-weight:600;">新增</button></div></div></div><div id="modify-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="dlg-title" style="font-weight:700;font-size:15px;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:6px;">修改原因（必填）</label><textarea id="dlg-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeModifyDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyModify()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#f5a623;color:#fff;font-weight:600;">确认修改</button></div></div></div></body>
+</html>

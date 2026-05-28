@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#dad7e6", "border": "#3a7bd5", "highlight": {"background": "#dad7e6", "border": "#1a1a1a"}, "hover": {"background": "#dad7e6", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u7f8e\u56fd\u603b\u7edf\u62dc\u767b\u5728\u4e2d\u7f8e\u5143\n\u9996\u5df4\u5398\u5c9b\u4f1a\u6664\u4e2d\u91cd\u7533\u5bf9\u534e\u653f\u7b56\u7acb\n\u573a\uff0c\u5305\u62ec\u4e94\u70b9\u627f\u8bfa\uff0c\u6838\u5fc3\u662f\u4e0d\u652f\n\u6301\u2018\u53f0\u6e7e\u72ec\u7acb\u2019\uff0c\u5e76\u5f3a\u8c03\u7f8e\u4e2d\u51b2\n\u7a81\u5e76\u975e\u4e0d\u53ef\u907f\u514d\uff0c\u7a33\u5b9a\u53d1\u5c55\u7684\u4e2d\n\u56fd\u7b26\u5408\u7f8e\u56fd\u548c\u4e16\u754c\u5229\u76ca\u3002\n\u25b2 0.11 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.199 (#4)\n\u8bed\u4e49\u5206: 0.025 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.112 (#11)"}, {"color": {"background": "#daccdb", "border": "#3a7bd5", "highlight": {"background": "#daccdb", "border": "#1a1a1a"}, "hover": {"background": "#daccdb", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u4e2d\u56fd\u56fd\u5bb6\u4e3b\u5e2d\u4e60\u8fd1\u5e73\u4e8e\n15\u65e5\u4e0a\u534811\u65f615\u5206\u8bb8\u4e58\u8f66\n\u62b5\u8fbe\u7f8e\u56fd\u65e7\u91d1\u5c71\u6590\u6d1b\u91cc\u5e84\u56ed\uff0c\u8fd9\n\u662f\u4e00\u6b21\u653f\u6cbb\u8bbf\u95ee\u4e8b\u4ef6\u3002\n\u25b2 0.17 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.199 (#4)\n\u8bed\u4e49\u5206: 0.136 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.138 + 0.30\u00d7\u7a00\u7f3a\u6027 0.327\n\u7efc\u5408\u5206: 0.167 (#7)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u4e2d\u56fd\u56fd\u5bb6\u4e3b\u5e2d\u4e60\u8fd1\u5e73\u5728\n\u7f8e\u56fd\u65e7\u91d1\u5c71\u4e0e\u7f8e\u56fd\u603b\u7edf\u62dc\u767b\u4e3e\u884c\n\u4e2d\u7f8e\u5143\u9996\u4f1a\u6664\u3002\n\u25b2 1.04 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.002\n\u7efc\u5408\u5206: 1.037 (#1)"}, {"color": {"background": "#d9a3af", "border": "#e07b20", "highlight": {"background": "#d9a3af", "border": "#1a1a1a"}, "hover": {"background": "#d9a3af", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u4e2d\u56fd\u56fd\u5bb6\u4e3b\u5e2d\u4e60\u8fd1\u5e73\u5728\n\u65e7\u91d1\u5c71\u6590\u6d1b\u91cc\u5e84\u56ed\u4e0e\u7f8e\u56fd\u603b\u7edf\u62dc\n\u767b\u4e3e\u884c\u4e86\u9ad8\u5c42\u4f1a\u6664\u3002\n\u25b2 0.37 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#2)\n\u8bed\u4e49\u5206: 0.420 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.420 + 0.30\u00d7\u7a00\u7f3a\u6027 0.247\n\u7efc\u5408\u5206: 0.372 (#2)"}, {"color": {"background": "#d9b5c2", "border": "#3a7bd5", "highlight": {"background": "#d9b5c2", "border": "#1a1a1a"}, "hover": {"background": "#d9b5c2", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u4e2d\u65b9\u9ad8\u5c42\u5728\u4e2d\u7f8e\u5143\u9996\u4f1a\n\u6664\u4e2d\uff0c\u5c31\u7a33\u5b9a\u548c\u6539\u5584\u4e2d\u7f8e\u5173\u7cfb\u8fd9\n\u4e00\u5927\u5c40\uff0c\u9610\u8ff0\u4e86\u4e2d\u65b9\u7684\u6743\u5a01\u7acb\u573a\n\u3002\n\u25b2 0.28 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#2)\n\u8bed\u4e49\u5206: 0.240 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.254 + 0.30\u00d7\u7a00\u7f3a\u6027 0.027\n\u7efc\u5408\u5206: 0.282 (#4)"}, {"color": {"background": "#dac6d4", "border": "#3a7bd5", "highlight": {"background": "#dac6d4", "border": "#1a1a1a"}, "hover": {"background": "#dac6d4", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u4e2d\u65b9\u9ad8\u5c42\u5728\u4e2d\u7f8e\u5143\u9996\u4f1a\n\u6664\u4e2d\uff0c\u5c31\u53f0\u6e7e\u95ee\u9898\u9610\u8ff0\u4e86\u4e2d\u65b9\u7684\n\u539f\u5219\u7acb\u573a\u3002\n\u25b2 0.20 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.181 (#9)\n\u8bed\u4e49\u5206: 0.218 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.208 + 0.30\u00d7\u7a00\u7f3a\u6027 0.570\n\u7efc\u5408\u5206: 0.200 (#6)"}, {"color": {"background": "#dacddb", "border": "#3a7bd5", "highlight": {"background": "#dacddb", "border": "#1a1a1a"}, "hover": {"background": "#dacddb", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u4e2d\u7f8e\u4e24\u56fd\u5143\u9996\u540c\u610f\u63a8\u52a8\n\u548c\u52a0\u5f3a\u5404\u9886\u57df\u5bf9\u8bdd\u5408\u4f5c\uff0c\u5176\u4e2d\u5305\n\u62ec\u5efa\u7acb\u4eba\u5de5\u667a\u80fd\u653f\u5e9c\u95f4\u5bf9\u8bdd\u673a\u5236\n\u3002\n\u25b2 0.16 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.199 (#4)\n\u8bed\u4e49\u5206: 0.127 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.143 + 0.30\u00d7\u7a00\u7f3a\u6027 0.030\n\u7efc\u5408\u5206: 0.163 (#8)"}, {"color": {"background": "#dad1e0", "border": "#3a7bd5", "highlight": {"background": "#dad1e0", "border": "#1a1a1a"}, "hover": {"background": "#dad1e0", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u4e2d\u7f8e\u4e24\u519b\u5728\u5e73\u7b49\u548c\u5c0a\u91cd\n\u7684\u57fa\u7840\u4e0a\uff0c\u6062\u590d\u4e86\u9ad8\u5c42\u519b\u4e8b\u6c9f\u901a\n\u3002\n\u25b2 0.14 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.199 (#4)\n\u8bed\u4e49\u5206: 0.085 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.080 + 0.30\u00d7\u7a00\u7f3a\u6027 0.512\n\u7efc\u5408\u5206: 0.142 (#9)"}, {"color": {"background": "#dadae9", "border": "#3a7bd5", "highlight": {"background": "#dadae9", "border": "#1a1a1a"}, "hover": {"background": "#dadae9", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u4e24\u56fd\u5143\u9996\u8fd8\u5f3a\u8c03\u5f53\u524d\u4e2d\n\u7f8e\u5e94\u52a0\u5feb\u52aa\u529b\u5e94\u5bf9\u6c14\u5019\u5371\u673a\u3002\n\u25b2 0.10 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.199 (#4)\n\u8bed\u4e49\u5206: 0.000 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.006 + 0.30\u00d7\u7a00\u7f3a\u6027 0.301\n\u7efc\u5408\u5206: 0.099 (#12)"}, {"color": {"background": "#d9b5c1", "border": "#e07b20", "highlight": {"background": "#d9b5c1", "border": "#1a1a1a"}, "hover": {"background": "#d9b5c1", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u4e2d\u56fd\u56fd\u5bb6\u4e3b\u5e2d\u4e60\u8fd1\u5e73\n\u5728\u65e7\u91d1\u5c71\u51fa\u5e2d\u4e86\u7531\u7f8e\u56fd\u53cb\u597d\u56e2\u4f53\n\u8054\u5408\u4e3e\u884c\u7684\u6b22\u8fce\u5bb4\u4f1a\uff0c\u8fd9\u662f\u4e00\u9879\n\u5916\u4ea4\u8bbf\u95ee\u6216\u793c\u4eea\u6027\u8d28\u7684\u4e8b\u4ef6\u3002\n\u25b2 0.28 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.062 (#11)\n\u8bed\u4e49\u5206: 0.505 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.515 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.284 (#3)"}, {"color": {"background": "#d9c0ce", "border": "#3a7bd5", "highlight": {"background": "#d9c0ce", "border": "#1a1a1a"}, "hover": {"background": "#d9c0ce", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u4e2d\u56fd\u56fd\u5bb6\u4e3b\u5e2d\u4e60\u8fd1\u5e73\n\u53d1\u8868\u4e86\u9898\u4e3a\u300a\u6c47\u805a\u4e24\u56fd\u4eba\u6c11\u529b\u91cf\n \u63a8\u8fdb\u4e2d\u7f8e\u53cb\u597d\u4e8b\u4e1a\u300b\u7684\u91cd\u8981\u6f14\n\u8bb2\uff0c\u8be5\u6f14\u8bb2\u805a\u7126\u4e8e\u4e2d\u7f8e\u5173\u7cfb\u3002\n\u25b2 0.23 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.067 (#10)\n\u8bed\u4e49\u5206: 0.387 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.390 + 0.30\u00d7\u7a00\u7f3a\u6027 0.200\n\u7efc\u5408\u5206: 0.227 (#5)"}, {"color": {"background": "#dad7e6", "border": "#3a7bd5", "highlight": {"background": "#dad7e6", "border": "#1a1a1a"}, "hover": {"background": "#dad7e6", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: \u4e2d\u56fd\u56fd\u5bb6\u5143\u9996\u4e60\u8fd1\u5e73\n\u4e3b\u5e2d\u5728\u6f14\u8bb2\u4e2d\uff0c\u5411\u7f8e\u65b9\u53ca\u56fd\u9645\u793e\n\u4f1a\u9610\u8ff0\u4e86\u5904\u7406\u4e2d\u7f8e\u5173\u7cfb\u7684\u6839\u672c\u9075\n\u5faa\uff0c\u5373\u201c\u76f8\u4e92\u5c0a\u91cd\u3001\u548c\u5e73\u5171\u5904\u3001\n\u5408\u4f5c\u5171\u8d62\u201d\u4e09\u9879\u539f\u5219\uff0c\u5e76\u575a\u5b9a\u8868\n\u8fbe\u4e86\u201c\u4e09\u4e2a\u4e0d\u4f1a\u53d8\u201d\u7684\u7acb\u573a\u3002\n\u25b2 0.11 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.048 (#12)\n\u8bed\u4e49\u5206: 0.177 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.156 + 0.30\u00d7\u7a00\u7f3a\u6027 0.847\n\u7efc\u5408\u5206: 0.113 (#10)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E3", "id": "c0", "title": "\u4f1a\u6664\u4e2d\u76f4\u63a5\u9610\u8ff0\u4e86\u4e2d\u65b9\u7acb\u573a", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c1", "title": "\u4f1a\u6664\u4e2d\u6df1\u5165\u9610\u8ff0\u4e86\u53f0\u6e7e\u95ee\u9898\u7acb\u573a", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c2", "title": "\u4f1a\u6664\u4e2d\u8fbe\u6210\u5408\u4f5c\u5171\u8bc6\uff0c\u5305\u62ecAI\u5bf9\u8bdd", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c3", "title": "\u4f1a\u6664\u4e2d\u540c\u610f\u6062\u590d\u4e24\u519b\u9ad8\u5c42\u6c9f\u901a", "to": "E8", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c4", "title": "\u4f1a\u6664\u4e2d\u5f3a\u8c03\u52a0\u5feb\u5e94\u5bf9\u6c14\u5019\u5371\u673a", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E10", "id": "c5", "title": "\u51fa\u5e2d\u5bb4\u4f1a\u5e76\u53d1\u8868\u6f14\u8bb2\uff0c\u6f14\u8bb2\u662f\u5bb4\u4f1a\u90e8\u5206", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E11", "id": "c6", "title": "\u6f14\u8bb2\u4e2d\u9610\u8ff0\u4e86\u5904\u7406\u5173\u7cfb\u7684\u539f\u5219\u548c\u7acb\u573a", "to": "E12", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.765\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t1", "title": "\u5df4\u5398\u5c9b\u627f\u8bfa\u4e3a\u4f1a\u6664\u94fa\u8def\uff0c\u975e\u76f4\u63a5\u4fc3\u53d1", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t2", "title": "\u62b5\u8fbe\u5e84\u56ed\u662f\u4f1a\u6664\u524d\u63d0\uff0c\u4f46\u975e\u56e0\u679c\u4fc3\u53d1", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t3", "title": "\u540c\u4e8b\u4ef6\u4e0d\u540c\u8868\u8ff0\uff0c\u5c5e\u8fde\u7eed\u6027\u63cf\u8ff0\u3002", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.772\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "美国总统拜登在中美元首巴厘岛会晤中重申对华政策立场，包括五点承诺，核心是不支持‘台湾独立’，并强调美中冲突并非不可避免，稳定发展的中国符合美国和世界利益。"}, {"id": "E2", "text": "中国国家主席习近平于15日上午11时15分许乘车抵达美国旧金山斐洛里庄园，这是一次政治访问事件。"}, {"id": "E3", "text": "中国国家主席习近平在美国旧金山与美国总统拜登举行中美元首会晤。"}, {"id": "E4", "text": "中国国家主席习近平在旧金山斐洛里庄园与美国总统拜登举行了高层会晤。"}, {"id": "E5", "text": "中方高层在中美元首会晤中，就稳定和改善中美关系这一大局，阐述了中方的权威立场。"}, {"id": "E6", "text": "中方高层在中美元首会晤中，就台湾问题阐述了中方的原则立场。"}, {"id": "E7", "text": "中美两国元首同意推动和加强各领域对话合作，其中包括建立人工智能政府间对话机制。"}, {"id": "E8", "text": "中美两军在平等和尊重的基础上，恢复了高层军事沟通。"}, {"id": "E9", "text": "两国元首还强调当前中美应加快努力应对气候危机。"}, {"id": "E10", "text": "中国国家主席习近平在旧金山出席了由美国友好团体联合举行的欢迎宴会，这是一项外交访问或礼仪性质的事件。"}, {"id": "E11", "text": "中国国家主席习近平发表了题为《汇聚两国人民力量 推进中美友好事业》的重要演讲，该演讲聚焦于中美关系。"}, {"id": "E12", "text": "中国国家元首习近平主席在演讲中，向美方及国际社会阐述了处理中美关系的根本遵循，即“相互尊重、和平共处、合作共赢”三项原则，并坚定表达了“三个不会变”的立场。"}];var _pyCausal=[{"from": "E3", "to": "E5", "reason": "会晤中直接阐述了中方立场"}, {"from": "E3", "to": "E6", "reason": "会晤中深入阐述了台湾问题立场"}, {"from": "E3", "to": "E7", "reason": "会晤中达成合作共识，包括AI对话"}, {"from": "E3", "to": "E8", "reason": "会晤中同意恢复两军高层沟通"}, {"from": "E3", "to": "E9", "reason": "会晤中强调加快应对气候危机"}, {"from": "E10", "to": "E11", "reason": "出席宴会并发表演讲，演讲是宴会部分"}, {"from": "E11", "to": "E12", "reason": "演讲中阐述了处理关系的原则和立场"}];var _pyTemporal=[{"from": "E4", "to": "E10", "reason": "语义嵌入相似度 0.765，按事件编号 E4 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E1", "to": "E3", "reason": "巴厘岛承诺为会晤铺路，非直接促发"}, {"from": "E2", "to": "E3", "reason": "抵达庄园是会晤前提，但非因果促发"}, {"from": "E3", "to": "E4", "reason": "同事件不同表述，属连续性描述。"}, {"from": "E5", "to": "E6", "reason": "语义嵌入相似度 0.772，按事件编号 E5 在 E6 之前，补一条仅表达时序的边。"}];var _pyScores={"E1": {"topo": 0.19864147901535034, "topo_rank": 4, "semantic": 0.025223, "semantic_rank": 11, "semantic_rich": 0.0, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.11193223950767517, "combined_rank": 11}, "E10": {"topo": 0.06228715181350708, "topo_rank": 11, "semantic": 0.505313, "semantic_rank": 2, "semantic_rich": 0.514771, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.28380007590675355, "combined_rank": 3}, "E11": {"topo": 0.0672658383846283, "topo_rank": 10, "semantic": 0.386997, "semantic_rank": 4, "semantic_rich": 0.389933, "semantic_rare": 0.20017, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.22713141919231414, "combined_rank": 5}, "E12": {"topo": 0.04809979349374771, "topo_rank": 12, "semantic": 0.177036, "semantic_rank": 7, "semantic_rich": 0.155623, "semantic_rare": 0.847301, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.11256789674687386, "combined_rank": 10}, "E2": {"topo": 0.19864147901535034, "topo_rank": 4, "semantic": 0.135968, "semantic_rank": 8, "semantic_rich": 0.138084, "semantic_rare": 0.327476, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.16730473950767516, "combined_rank": 7}, "E3": {"topo": 1.0736414194107056, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.00216, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.0368207097053528, "combined_rank": 1}, "E4": {"topo": 0.32364144921302795, "topo_rank": 2, "semantic": 0.420105, "semantic_rank": 3, "semantic_rich": 0.420344, "semantic_rare": 0.247482, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.37187322460651395, "combined_rank": 2}, "E5": {"topo": 0.32364144921302795, "topo_rank": 2, "semantic": 0.240225, "semantic_rank": 5, "semantic_rich": 0.253526, "semantic_rare": 0.026833, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.281933224606514, "combined_rank": 4}, "E6": {"topo": 0.1806291937828064, "topo_rank": 9, "semantic": 0.218377, "semantic_rank": 6, "semantic_rich": 0.208298, "semantic_rare": 0.570464, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.1995030968914032, "combined_rank": 6}, "E7": {"topo": 0.19864147901535034, "topo_rank": 4, "semantic": 0.127279, "semantic_rank": 9, "semantic_rich": 0.142587, "semantic_rare": 0.02982, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.1629602395076752, "combined_rank": 8}, "E8": {"topo": 0.19864147901535034, "topo_rank": 4, "semantic": 0.084718, "semantic_rank": 10, "semantic_rich": 0.079742, "semantic_rare": 0.511667, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.14167973950767518, "combined_rank": 9}, "E9": {"topo": 0.19864147901535034, "topo_rank": 4, "semantic": 0.0, "semantic_rank": 12, "semantic_rich": 0.005844, "semantic_rare": 0.301088, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.09932073950767517, "combined_rank": 12}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">E047 2023年11月习拜旧金山峰会涉台交锋</div><div>因果边：<b>7</b> 条&emsp;时序边：<b>5</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.22 / T- 0.23</div><div>C+ 0.20 / C- 0.36</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="中国国家主席习近平在美国旧金山与美国总统拜登举行中美元首会晤。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国家主席习近平在美国旧金山与…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.037 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="中国国家主席习近平在旧金山斐洛里庄园与美国总统拜登举行了高层会晤。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国家主席习近平在旧金山斐洛里…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.420 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.42 / 稀 0.25</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.372 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="中国国家主席习近平在旧金山出席了由美国友好团体联合举行的欢迎宴会，这是一项外交访问或礼仪性质的事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国家主席习近平在旧金山出席了…</td><td style="padding:4px 6px;text-align:center;">0.062 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.505 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.51 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.284 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="中方高层在中美元首会晤中，就稳定和改善中美关系这一大局，阐述了中方的权威立场。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中方高层在中美元首会晤中，就稳定…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.240 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.25 / 稀 0.03</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.282 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="中国国家主席习近平发表了题为《汇聚两国人民力量 推进中美友好事业》的重要演讲，该演讲聚焦于中美关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国家主席习近平发表了题为《汇…</td><td style="padding:4px 6px;text-align:center;">0.067 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.387 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.39 / 稀 0.20</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.227 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="中方高层在中美元首会晤中，就台湾问题阐述了中方的原则立场。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中方高层在中美元首会晤中，就台湾…</td><td style="padding:4px 6px;text-align:center;">0.181 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.218 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.21 / 稀 0.57</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.200 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="中国国家主席习近平于15日上午11时15分许乘车抵达美国旧金山斐洛里庄园，这是一次政治访问事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国家主席习近平于15日上午1…</td><td style="padding:4px 6px;text-align:center;">0.199 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.136 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.14 / 稀 0.33</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.167 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="中美两国元首同意推动和加强各领域对话合作，其中包括建立人工智能政府间对话机制。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中美两国元首同意推动和加强各领域…</td><td style="padding:4px 6px;text-align:center;">0.199 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.127 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.14 / 稀 0.03</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.163 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="中美两军在平等和尊重的基础上，恢复了高层军事沟通。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中美两军在平等和尊重的基础上，恢…</td><td style="padding:4px 6px;text-align:center;">0.199 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.085 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.08 / 稀 0.51</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.142 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="中国国家元首习近平主席在演讲中，向美方及国际社会阐述了处理中美关系的根本遵循，即“相互尊重、和平共处、合作共赢”三项原则，并坚定表达了“三个不会变”的立场。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国家元首习近平主席在演讲中，…</td><td style="padding:4px 6px;text-align:center;">0.048 <span style="color:#888;font-size:10px">(#12)</span></td><td style="padding:4px 6px;text-align:center;">0.177 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.16 / 稀 0.85</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.113 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="美国总统拜登在中美元首巴厘岛会晤中重申对华政策立场，包括五点承诺，核心是不支持‘台湾独立’，并强调美中冲突并非不可避免，稳定发展的中国符合美国和世界利益。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国总统拜登在中美元首巴厘岛会晤…</td><td style="padding:4px 6px;text-align:center;">0.199 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.025 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.112 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="两国元首还强调当前中美应加快努力应对气候危机。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">两国元首还强调当前中美应加快努力…</td><td style="padding:4px 6px;text-align:center;">0.199 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.01 / 稀 0.30</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.099 <span style="color:#888;font-size:10px">(#12)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

@@ -1,0 +1,747 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "E1", "label": "E1: \u4e60\u8fd1\u5e73\u4e3b\u5e2d\u4e0e\u62dc\u767b\u603b\u7edf\n\u5728\u5df4\u5398\u5c9b\u4e3e\u884c\u9ad8\u5c42\u4f1a\u6664\uff0c\u5e76\u53d6\u5f97\n\u5706\u6ee1\u6210\u529f\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E2", "label": "E2: \u4e2d\u7f8e\u53cc\u65b9\u5728\u4f1a\u6664\u4e2d\u8fbe\u6210\n\u4e86\u4e00\u7cfb\u5217\u91cd\u8981\u5171\u8bc6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E3", "label": "E3: \u4e2d\u56fd\u906d\u9047\u65e0\u4eba\u98de\u8247\u9886\u7a7a\n\u4fb5\u5165\u4e8b\u4ef6\uff0c\u51b2\u51fb\u4e2d\u7f8e\u5173\u7cfb\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E4", "label": "E4: \u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u8521\u82f1\u6587\n\u8fc7\u5883\u7a9c\u7f8e\uff0c\u5f71\u54cd\u4e2d\u7f8e\u5173\u7cfb\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E5", "label": "E5: \u7f8e\u65b9\u6301\u7eed\u91c7\u53d6\u635f\u5bb3\u4e2d\u65b9\n\u5229\u76ca\u7684\u653f\u6cbb\u884c\u4e3a\u548c\u8a00\u8bba\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E6", "label": "E6: \u4e2d\u7f8e\u653f\u6cbb\u5173\u7cfb\u4e25\u91cd\u504f\u79bb\n\u4e24\u56fd\u5143\u9996\u786e\u5b9a\u7684\u8f68\u9053\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E7", "label": "E7: \u7f8e\u65b9\u53cd\u590d\u8868\u793a\u5e0c\u671b\u5411\u524d\n\u770b\uff0c\u5b9e\u73b0\u7ffb\u7bc7\uff0c\u56de\u5230\u4e24\u56fd\u5143\u9996\u5df4\n\u5398\u5c9b\u4f1a\u6664\u5171\u8bc6\u7684\u8f68\u9053\uff0c\u91ca\u653e\u7f13\u548c\n\u4e2d\u7f8e\u5173\u7cfb\u3001\u56de\u5f52\u5171\u8bc6\u8f68\u9053\u7684\u5916\u4ea4\n\u4fe1\u53f7\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E8", "label": "E8: \u7f8e\u65b9\u591a\u6b21\u63d0\u51fa\u7f8e\u56fd\u56fd\u52a1\n\u537f\u5e03\u6797\u80af\u4ecd\u5e0c\u671b\u5c3d\u5feb\u8bbf\u534e\uff0c\u63d0\u51fa\n\u9ad8\u5c42\u5916\u4ea4\u8bbf\u95ee\u8ba1\u5212\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E9", "label": "E9: \u7f8e\u65b9\u4e3b\u52a8\u5411\u4e2d\u65b9\u63d0\u51fa\u5916\n\u4ea4\u63a5\u89e6\u8bf7\u6c42\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E10", "label": "E10: \u4e2d\u7f8e\u53cc\u65b9\u8fd1\u671f\u8fdb\u884c\u4e86\n\u591a\u6b21\u5916\u4ea4\u63a5\u89e6\u4e0e\u6c9f\u901a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E11", "label": "E11: \u4e2d\u65b9\u5728\u6c9f\u901a\u4e2d\u5411\u7f8e\u65b9\n\u9610\u660e\u4e86\u81ea\u8eab\u7684\u539f\u5219\u7acb\u573a\u548c\u91cd\u5927\u5173\n\u5207\uff0c\u5e76\u8981\u6c42\u7f8e\u65b9\u4e3a\u53cc\u65b9\u9ad8\u5c42\u4e92\u52a8\n\u8425\u9020\u826f\u597d\u6c1b\u56f4\u3001\u6392\u9664\u5e72\u6270\u5e76\u521b\u9020\n\u6761\u4ef6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E12", "label": "E12: \u7f8e\u56fd\u56fd\u52a1\u537f\u5e03\u6797\u80af\u4e8e\n6\u670818\u65e5\u81f319\u65e5\u5bf9\u4e2d\u56fd\u8fdb\u884c\n\u5916\u4ea4\u8bbf\u95ee\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E13", "label": "E13: \u4e2d\u56fd\u5916\u4ea4\u90e8\u957f\u79e6\u521a\u4e0e\n\u7f8e\u56fd\u56fd\u52a1\u537f\u5e03\u6797\u80af\u4e3e\u884c\u9ad8\u5c42\u5916\u4ea4\n\u4f1a\u8c08\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E14", "label": "E14: \u4e2d\u56fd\u56fd\u5bb6\u4e3b\u5e2d\u4e60\u8fd1\u5e73\n\u793c\u8282\u6027\u4f1a\u89c1\u4e86\u7f8e\u56fd\u56fd\u52a1\u537f\u5e03\u6797\u80af\n\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E15", "label": "E15: \u4e60\u8fd1\u5e73\u4e3b\u5e2d\u5728\u4f1a\u89c1\u4e2d\n\u9ad8\u5c4b\u5efa\u74f4\u5730\u9610\u660e\u4e86\u4e2d\u65b9\u5bf9\u7a33\u5b9a\u53d1\n\u5c55\u4e2d\u7f8e\u5173\u7cfb\u7684\u539f\u5219\u7acb\u573a\uff0c\u63d0\u51fa\u4e86\n\u6218\u7565\u6027\u3001\u6307\u5bfc\u6027\u610f\u89c1\uff0c\u5e76\u5e0c\u671b\u7f8e\n\u65b9\u91c7\u53d6\u7406\u6027\u52a1\u5b9e\u6001\u5ea6\uff0c\u4e0e\u4e2d\u65b9\u76f8\n\u5411\u800c\u884c\uff0c\u575a\u6301\u4e24\u56fd\u5143\u9996\u5728\u5df4\u5398\u5c9b\n\u4f1a\u6664\u4e2d\u8fbe\u6210\u7684\u5171\u8bc6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E16", "label": "E16: \u4e2d\u56fd\u9ad8\u5c42\u5b98\u5458\u738b\u6bc5\u4e0e\n\u7f8e\u56fd\u56fd\u52a1\u537f\u5e03\u6797\u80af\u4e3e\u884c\u4f1a\u8c08\uff0c\u5c5e\n\u4e8e\u4e2d\u7f8e\u5916\u4ea4\u4e92\u52a8\u4e8b\u4ef6\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E17", "label": "E17: \u4e2d\u56fd\u5b98\u65b9\u5728\u4f1a\u8c08\u4e2d\u5c31\n\u4e2d\u7f8e\u5173\u7cfb\u3001\u53f0\u6e7e\u95ee\u9898\u53ca\u79d1\u6280\u6253\u538b\n\u7b49\u6838\u5fc3\u5173\u5207\u5411\u7f8e\u65b9\u660e\u786e\u8868\u8fbe\u4e86\u7acb\n\u573a\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E18", "label": "E18: \u4e2d\u65b9\u5728\u5916\u4ea4\u4f1a\u89c1\u4f1a\u8c08\n\u4e2d\uff0c\u91cd\u7533\u4e86\u5728\u6838\u5fc3\u5229\u76ca\u548c\u91cd\u5927\u5173\n\u5207\u4e0a\u7684\u5e95\u7ebf\u7ea2\u7ebf\uff0c\u7279\u522b\u5f3a\u8c03\u53f0\u6e7e\n\u95ee\u9898\u662f\u4e2d\u56fd\u6838\u5fc3\u5229\u76ca\u4e2d\u7684\u6838\u5fc3\uff0c\n\u662f\u4e2d\u7f8e\u5173\u7cfb\u4e2d\u6700\u91cd\u5927\u548c\u6700\u7a81\u51fa\u7684\n\u98ce\u9669\u95ee\u9898\u3002\u4e2d\u65b9\u6566\u4fc3\u7f8e\u65b9\u606a\u5b88\u4e00\n\u4e2a\u4e2d\u56fd\u539f\u5219\u548c\u4e2d\u7f8e\u4e09\u4e2a\u8054\u5408\u516c\u62a5\n\uff0c\u5c0a\u91cd\u4e2d\u56fd\u7684\u4e3b\u6743\u548c\u9886\u571f\u5b8c\u6574\uff0c\n\u5e76\u660e\u786e\u53cd\u5bf9\u0027\u53f0\u72ec\u0027\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E19", "label": "E19: \u4e2d\u7f8e\u53cc\u65b9\u5c31\u843d\u5b9e\u4e24\u56fd\n\u5143\u9996\u5728\u5df4\u5398\u5c9b\u4f1a\u6664\u65f6\u8fbe\u6210\u7684\u5171\u8bc6\n\uff0c\u5e76\u56de\u5f52\u8be5\u4f1a\u6664\u6240\u786e\u5b9a\u7684\u8bae\u7a0b\uff0c\n\u8fbe\u6210\u4e86\u4e00\u81f4\u610f\u89c1\u6216\u4f5c\u51fa\u4e86\u5171\u540c\u8868\n\u6001\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E20", "label": "E20: \u4e2d\u7f8e\u53cc\u65b9\u540c\u610f\u6309\u7167\u4e24\n\u56fd\u5143\u9996\u8fbe\u6210\u7684\u5171\u8bc6\uff0c\u7ee7\u7eed\u4fdd\u6301\u9ad8\n\u5c42\u4ea4\u5f80\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E21", "label": "E21: \u7f8e\u56fd\u56fd\u52a1\u537f\u5e03\u6797\u80af\u5411\n\u4e2d\u56fd\u56fd\u52a1\u59d4\u5458\u79e6\u521a\u53d1\u51fa\u4e86\u8bbf\u7f8e\u9080\n\u8bf7\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E22", "label": "E22: \u4e2d\u56fd\u56fd\u52a1\u59d4\u5458\u79e6\u521a\u56de\n\u5e94\u7f8e\u65b9\u9080\u8bf7\uff0c\u8868\u793a\u613f\u610f\u5728\u53cc\u65b9\u90fd\n\u65b9\u4fbf\u7684\u65f6\u5019\u8bbf\u95ee\u7f8e\u56fd\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E23", "label": "E23: \u4e2d\u7f8e\u53cc\u65b9\u5c31\u7ee7\u7eed\u63a8\u8fdb\n\u4e2d\u7f8e\u5173\u7cfb\u6307\u5bfc\u539f\u5219\u78cb\u5546\u8fbe\u6210\u5171\u8bc6\n\uff0c\u8fd9\u662f\u53cc\u65b9\u4e3a\u540e\u7eed\u5916\u4ea4\u8bae\u7a0b\u5236\u5b9a\n\u7684\u5171\u540c\u8ba1\u5212\u3002", "shape": "box"}, {"color": "#97c2fc", "id": "E24", "label": "E24: \u4e2d\u7f8e\u53cc\u65b9\u8ba1\u5212\u7ee7\u7eed\u901a\n\u8fc7\u8054\u5408\u5de5\u4f5c\u7ec4\u673a\u5236\uff0c\u5c31\u4e24\u56fd\u5173\u7cfb\n\u4e2d\u7684\u5177\u4f53\u95ee\u9898\u8fdb\u884c\u5916\u4ea4\u78cb\u5546\u3002", "shape": "box"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "\u5df4\u5398\u5c9b\u5171\u8bc6\u662f\u53cc\u65b9\u540c\u610f\u843d\u5b9e\u5e76\u56de\u5f52\u7684\u660e\u786e\u57fa\u7840", "to": "E19", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c1", "title": "\u98de\u8247\u4e8b\u4ef6\u51b2\u51fb\u5173\u7cfb\uff0c\u5bfc\u81f4\u5176\u504f\u79bb\u8f68\u9053", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c2", "title": "\u8521\u82f1\u6587\u7a9c\u7f8e\u5f71\u54cd\u5173\u7cfb\uff0c\u5bfc\u81f4\u5176\u504f\u79bb\u8f68\u9053", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E5", "id": "c3", "title": "\u7f8e\u65b9\u9519\u8bef\u8a00\u884c\u635f\u5bb3\u4e2d\u65b9\u5229\u76ca\uff0c\u5bfc\u81f4\u5173\u7cfb\u504f\u79bb", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c4", "title": "\u5173\u7cfb\u504f\u79bb\u8f68\u9053\u4fc3\u4f7f\u7f8e\u65b9\u5e0c\u671b\u7ffb\u7bc7\u56de\u5f52", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c5", "title": "\u5e0c\u671b\u7ffb\u7bc7\u56de\u5f52\u5171\u8bc6\u8f68\u9053\uff0c\u4fc3\u4f7f\u63d0\u51fa\u5e03\u6797\u80af\u8bbf\u534e", "to": "E8", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E9", "id": "c6", "title": "\u7f8e\u65b9\u63d0\u51fa\u63a5\u89e6\u8bf7\u6c42\uff0c\u5bfc\u81f4\u53cc\u65b9\u8fdb\u884c\u63a5\u89e6\u6c9f\u901a", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E10", "id": "c7", "title": "\u53cc\u65b9\u8fdb\u884c\u63a5\u89e6\u6c9f\u901a\uff0c\u4e2d\u65b9\u5728\u6c9f\u901a\u4e2d\u9610\u660e\u7acb\u573a", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E11", "id": "c8", "title": "\u4e2d\u65b9\u9610\u660e\u7acb\u573a\u5e76\u8981\u6c42\u521b\u9020\u6761\u4ef6\uff0c\u4fc3\u6210\u5e03\u6797\u80af\u8bbf\u534e", "to": "E12", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E12", "id": "c9", "title": "\u5e03\u6797\u80af\u8bbf\u534e\u671f\u95f4\uff0c\u4e0e\u79e6\u521a\u4e3e\u884c\u4f1a\u8c08", "to": "E13", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E12", "id": "c10", "title": "\u5e03\u6797\u80af\u8bbf\u534e\u671f\u95f4\uff0c\u4e60\u8fd1\u5e73\u793c\u8282\u6027\u4f1a\u89c1", "to": "E14", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E12", "id": "c11", "title": "\u5e03\u6797\u80af\u8bbf\u534e\u671f\u95f4\uff0c\u4e0e\u738b\u6bc5\u4e3e\u884c\u4f1a\u8c08", "to": "E16", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E13", "id": "c12", "title": "\u79e6\u521a\u4e0e\u5e03\u6797\u80af\u4f1a\u8c08\u4e2d\uff0c\u4e2d\u65b9\u5c31\u6838\u5fc3\u5173\u5207\u8868\u660e\u7acb\u573a", "to": "E17", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E15", "id": "c13", "title": "\u4e60\u4e3b\u5e2d\u63d0\u51fa\u575a\u6301\u5df4\u5398\u5c9b\u5171\u8bc6\uff0c\u53cc\u65b9\u968f\u540e\u540c\u610f\u843d\u5b9e", "to": "E19", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E16", "id": "c14", "title": "\u738b\u6bc5\u4e0e\u5e03\u6797\u80af\u4f1a\u8c08\u4e2d\uff0c\u4e2d\u65b9\u5c31\u6838\u5fc3\u5173\u5207\u8868\u660e\u7acb\u573a", "to": "E17", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E16", "id": "c15", "title": "\u738b\u6bc5\u4e0e\u5e03\u6797\u80af\u4f1a\u8c08\u4e2d\uff0c\u4e2d\u65b9\u91cd\u7533\u5e95\u7ebf\u7ea2\u7ebf", "to": "E18", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E19", "id": "c16", "title": "\u540c\u610f\u843d\u5b9e\u5171\u8bc6\u5e76\u56de\u5f52\u8bae\u7a0b\uff0c\u5305\u542b\u540c\u610f\u4fdd\u6301\u9ad8\u5c42\u4ea4\u5f80", "to": "E20", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E19", "id": "c17", "title": "\u540c\u610f\u843d\u5b9e\u5171\u8bc6\u5e76\u56de\u5f52\u8bae\u7a0b\uff0c\u5305\u542b\u63a8\u8fdb\u6307\u5bfc\u539f\u5219\u78cb\u5546", "to": "E23", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E19", "id": "c18", "title": "\u540c\u610f\u843d\u5b9e\u5171\u8bc6\u5e76\u56de\u5f52\u8bae\u7a0b\uff0c\u5305\u542b\u63a8\u8fdb\u8054\u5408\u5de5\u4f5c\u7ec4\u78cb\u5546", "to": "E24", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E20", "id": "c19", "title": "\u540c\u610f\u4fdd\u6301\u9ad8\u5c42\u4ea4\u5f80\uff0c\u5e03\u6797\u80af\u968f\u5373\u53d1\u51fa\u8bbf\u7f8e\u9080\u8bf7", "to": "E21", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E21", "id": "c20", "title": "\u5e03\u6797\u80af\u53d1\u51fa\u9080\u8bf7\uff0c\u79e6\u521a\u8868\u793a\u613f\u5728\u65b9\u4fbf\u65f6\u8bbf\u7f8e", "to": "E22", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.709\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.780\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E13 \u5728 E16 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E16", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E20", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.775\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E20 \u5728 E23 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E23", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E15", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.721\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E15 \u5728 E18 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E18", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E23", "id": "t4", "title": "\u6307\u5bfc\u539f\u5219\u78cb\u5546\u4e0e\u8054\u5408\u5de5\u4f5c\u7ec4\u78cb\u5546\u662f\u5e76\u5217\u7684\u540e\u7eed\u8ba1\u5212\u3002", "to": "E24", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E17", "id": "t5", "title": "\u8868\u660e\u7acb\u573a\u4e0e\u91cd\u7533\u5e95\u7ebf\u662f\u540c\u4e00\u4f1a\u8c08\u5185\u5bb9\u7684\u4e24\u4e2a\u65b9\u9762\u3002", "to": "E18", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t6", "title": "\u4f1a\u6664\u6210\u529f\u4e0e\u8fbe\u6210\u5171\u8bc6\u662f\u540c\u4e00\u4e8b\u4ef6\u7684\u4e24\u4e2a\u65b9\u9762\uff0c\u65e0\u56e0\u679c\u3002", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t7", "title": "\u63d0\u51fa\u8bbf\u534e\u8ba1\u5212\u4e0e\u63d0\u51fa\u63a5\u89e6\u8bf7\u6c42\u662f\u540c\u4e00\u610f\u56fe\u7684\u8fde\u7eed\u8868\u8ff0\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E14", "id": "t8", "title": "\u4f1a\u89c1\u662f\u9610\u660e\u7acb\u573a\u7684\u573a\u5408\uff0c\u4f46\u975e\u76f4\u63a5\u4fc3\u53d1\u3002", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t9", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.721\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E13 \u5728 E14 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E14", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "color": {"background": "#dbeeff", "border": "#3a7bd5", "highlight": {"background": "#b8d9f8", "border": "#1a4fa0"}, "hover": {"background": "#c9e8ff", "border": "#2a5ec0"}}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyCausal=[{"from": "E2", "to": "E19", "reason": "巴厘岛共识是双方同意落实并回归的明确基础", "manual_review": false}, {"from": "E3", "to": "E6", "reason": "飞艇事件冲击关系，导致其偏离轨道", "manual_review": false}, {"from": "E4", "to": "E6", "reason": "蔡英文窜美影响关系，导致其偏离轨道", "manual_review": false}, {"from": "E5", "to": "E6", "reason": "美方错误言行损害中方利益，导致关系偏离", "manual_review": false}, {"from": "E6", "to": "E7", "reason": "关系偏离轨道促使美方希望翻篇回归", "manual_review": false}, {"from": "E7", "to": "E8", "reason": "希望翻篇回归共识轨道，促使提出布林肯访华", "manual_review": false}, {"from": "E9", "to": "E10", "reason": "美方提出接触请求，导致双方进行接触沟通", "manual_review": false}, {"from": "E10", "to": "E11", "reason": "双方进行接触沟通，中方在沟通中阐明立场", "manual_review": false}, {"from": "E11", "to": "E12", "reason": "中方阐明立场并要求创造条件，促成布林肯访华", "manual_review": false}, {"from": "E12", "to": "E13", "reason": "布林肯访华期间，与秦刚举行会谈", "manual_review": false}, {"from": "E12", "to": "E14", "reason": "布林肯访华期间，习近平礼节性会见", "manual_review": false}, {"from": "E12", "to": "E16", "reason": "布林肯访华期间，与王毅举行会谈", "manual_review": false}, {"from": "E13", "to": "E17", "reason": "秦刚与布林肯会谈中，中方就核心关切表明立场", "manual_review": false}, {"from": "E15", "to": "E19", "reason": "习主席提出坚持巴厘岛共识，双方随后同意落实", "manual_review": false}, {"from": "E16", "to": "E17", "reason": "王毅与布林肯会谈中，中方就核心关切表明立场", "manual_review": false}, {"from": "E16", "to": "E18", "reason": "王毅与布林肯会谈中，中方重申底线红线", "manual_review": false}, {"from": "E19", "to": "E20", "reason": "同意落实共识并回归议程，包含同意保持高层交往", "manual_review": false}, {"from": "E19", "to": "E23", "reason": "同意落实共识并回归议程，包含推进指导原则磋商", "manual_review": false}, {"from": "E19", "to": "E24", "reason": "同意落实共识并回归议程，包含推进联合工作组磋商", "manual_review": false}, {"from": "E20", "to": "E21", "reason": "同意保持高层交往，布林肯随即发出访美邀请", "manual_review": false}, {"from": "E21", "to": "E22", "reason": "布林肯发出邀请，秦刚表示愿在方便时访美", "manual_review": false}];var _pyTemporal=[{"from": "E2", "to": "E9", "reason": "语义嵌入相似度 0.709，按事件编号 E2 在 E9 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E13", "to": "E16", "reason": "语义嵌入相似度 0.780，按事件编号 E13 在 E16 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E20", "to": "E23", "reason": "语义嵌入相似度 0.775，按事件编号 E20 在 E23 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E15", "to": "E18", "reason": "语义嵌入相似度 0.721，按事件编号 E15 在 E18 之前，补一条仅表达时序的边。", "manual_review": false}, {"from": "E23", "to": "E24", "reason": "指导原则磋商与联合工作组磋商是并列的后续计划。", "manual_review": false}, {"from": "E17", "to": "E18", "reason": "表明立场与重申底线是同一会谈内容的两个方面。", "manual_review": false}, {"from": "E1", "to": "E2", "reason": "会晤成功与达成共识是同一事件的两个方面，无因果。", "manual_review": false}, {"from": "E8", "to": "E9", "reason": "提出访华计划与提出接触请求是同一意图的连续表述。", "manual_review": false}, {"from": "E14", "to": "E15", "reason": "会见是阐明立场的场合，但非直接促发。", "manual_review": false}, {"from": "E13", "to": "E14", "reason": "语义嵌入相似度 0.721，按事件编号 E13 在 E14 之前，补一条仅表达时序的边。", "manual_review": false}];var _pyEvents=[{"id": "E1", "text": "习近平主席与拜登总统在巴厘岛举行高层会晤，并取得圆满成功。"}, {"id": "E2", "text": "中美双方在会晤中达成了一系列重要共识。"}, {"id": "E3", "text": "中国遭遇无人飞艇领空侵入事件，冲击中美关系。"}, {"id": "E4", "text": "台湾地区领导人蔡英文过境窜美，影响中美关系。"}, {"id": "E5", "text": "美方持续采取损害中方利益的政治行为和言论。"}, {"id": "E6", "text": "中美政治关系严重偏离两国元首确定的轨道。"}, {"id": "E7", "text": "美方反复表示希望向前看，实现翻篇，回到两国元首巴厘岛会晤共识的轨道，释放缓和中美关系、回归共识轨道的外交信号。"}, {"id": "E8", "text": "美方多次提出美国国务卿布林肯仍希望尽快访华，提出高层外交访问计划。"}, {"id": "E9", "text": "美方主动向中方提出外交接触请求。"}, {"id": "E10", "text": "中美双方近期进行了多次外交接触与沟通。"}, {"id": "E11", "text": "中方在沟通中向美方阐明了自身的原则立场和重大关切，并要求美方为双方高层互动营造良好氛围、排除干扰并创造条件。"}, {"id": "E12", "text": "美国国务卿布林肯于6月18日至19日对中国进行外交访问。"}, {"id": "E13", "text": "中国外交部长秦刚与美国国务卿布林肯举行高层外交会谈。"}, {"id": "E14", "text": "中国国家主席习近平礼节性会见了美国国务卿布林肯。"}, {"id": "E15", "text": "习近平主席在会见中高屋建瓴地阐明了中方对稳定发展中美关系的原则立场，提出了战略性、指导性意见，并希望美方采取理性务实态度，与中方相向而行，坚持两国元首在巴厘岛会晤中达成的共识。"}, {"id": "E16", "text": "中国高层官员王毅与美国国务卿布林肯举行会谈，属于中美外交互动事件。"}, {"id": "E17", "text": "中国官方在会谈中就中美关系、台湾问题及科技打压等核心关切向美方明确表达了立场。"}, {"id": "E18", "text": "中方在外交会见会谈中，重申了在核心利益和重大关切上的底线红线，特别强调台湾问题是中国核心利益中的核心，是中美关系中最重大和最突出的风险问题。中方敦促美方恪守一个中国原则和中美三个联合公报，尊重中国的主权和领土完整，并明确反对'台独'。"}, {"id": "E19", "text": "中美双方就落实两国元首在巴厘岛会晤时达成的共识，并回归该会晤所确定的议程，达成了一致意见或作出了共同表态。"}, {"id": "E20", "text": "中美双方同意按照两国元首达成的共识，继续保持高层交往。"}, {"id": "E21", "text": "美国国务卿布林肯向中国国务委员秦刚发出了访美邀请。"}, {"id": "E22", "text": "中国国务委员秦刚回应美方邀请，表示愿意在双方都方便的时候访问美国。"}, {"id": "E23", "text": "中美双方就继续推进中美关系指导原则磋商达成共识，这是双方为后续外交议程制定的共同计划。"}, {"id": "E24", "text": "中美双方计划继续通过联合工作组机制，就两国关系中的具体问题进行外交磋商。"}];var _origGraphMeta={"doc_id": "D011", "doc_name": "D011 美国国务卿访华涉台交锋系列（多次，2023-2025）.txt"};var _graphJsonPath="D:\\code\\PycharmProjects\\pytorch\\causal_inference\\output\\doc_results\\D011\\graph.json";var _savePort=7760;var _pyDocText="央视网消息：据外交部网站消息，2023年6月19日晚，外交部美大司司长杨涛就美国国务卿布林肯访华向中外媒体吹风并答问。\n杨涛表示，去年11月，习近平主席同拜登总统在巴厘岛成功会晤，达成一系列重要共识，为中美关系指明了方向。美方表示美国国务卿布林肯希尽早访华，跟进会晤后续工作。中方对此表示欢迎。但今年初以来，中美关系先是遭遇无人飞艇事件的冲击，接着又受到蔡英文“过境”窜美的影响，加上美方不断采取损害中方利益的错误言行。这些导致中美关系严重偏离两国元首确定的轨道，严重干扰双方对话合作的议程，严重损害来之不易的双边关系改善势头。\n一段时间以来，美方反复表示希望向前看，实现翻篇，回到两国元首巴厘岛会晤共识的轨道，也多次提出布林肯国务卿仍希望尽快访华。国际社会也普遍希望中美缓和紧张。中美关系处于困难局面，不符合两国人民利益和国际社会期待。应美方要求，中美近期进行了一系列接触沟通。中方在沟通中阐明了原则立场和重大关切，要求美方为高层互动营造氛围、排除干扰、创造条件。最终，经双方商定，美国国务卿布林肯于6月18日至19日访华。\n杨涛表示，布林肯访华期间，习近平主席于6月19日礼节性会见，高屋建瓴阐明对稳定发展中美关系的原则立场，提出战略性、指导性意见。习近平主席在会见时着重指出，第一，世界需要总体稳定的中美关系，中美两国能否正确相处事关人类前途命运。宽广的地球完全容得下中美各自发展、共同繁荣。第二，中国尊重美国的利益，不会去挑战和取代美国。同样，美国也要尊重中国，不要损害中国的正当权益。任何一方都不能按照自己的意愿塑造对方，更不能剥夺对方正当发展权利。第三，希望美方采取理性务实态度，同中方相向而行，坚持两国元首巴厘岛会晤达成的共识，把有关积极表态落实到行动上，让中美关系稳下来、好起来。\n同日，中共中央政治局委员、中央外办主任王毅会见，就中美关系、台湾问题、科技打压等涉及中方核心关切的重大问题表明立场。6月18日，秦刚国务委员兼外交部长会谈，就中美关系、台湾问题、共同关心的重大国际和地区问题等广泛议题进行沟通。有关会见会谈是坦诚、深入、建设性的。\n一是讲清了当前中美关系困局的症结所在。当前中美关系处在建交以来最低谷，这种状况不符合两国人民根本利益，也不符合国际社会共同期待。导致中美关系陷入低谷的根源在于，美方抱持错误的对华认知，制定错误的对华政策。\n二是指出了中美关系历经波折，美方有必要深刻反思。美方应秉持客观理性的对华认知，与中方相向而行，维护好中美关系的政治基础，冷静、专业、理性处理意外偶发事件，共同管控分歧，避免战略意外。应不折不扣落实习近平主席和拜登总统巴厘岛会晤共识，推动中美关系止跌企稳，重回正轨。\n三是提出了稳定中美关系的方向和路径。中国对美政策始终保持连续性和稳定性，致力于构建稳定、可预期、建设性的中美关系。中美双方要以对人民、对历史、对世界负责的态度，扭转中美关系螺旋式下滑，推动重回健康稳定轨道，共同找到中美在新时期的正确相处之道。当务之急是把两国元首巴厘岛会晤共识真正落到实处，根本遵循是习近平主席提出的相互尊重、和平共处、合作共赢原则，这也应该是双方共同坚持的精神、共同守住的底线、共同追求的目标。\n四是阐释了中国发展振兴的历史逻辑和必然趋势，介绍了中国式现代化的鲜明特征和全过程人民民主的丰富内涵，敦促美方不要拿国强必霸的模板来镜像中国，不要用西方传统大国走过的轨迹来误判中国。\n五是重申了中方在核心利益和重大关切上的底线红线。中方在台湾、民主人权、道路制度、科技打压等问题上阐明严正立场，提出明确要求。强调台湾问题是中国核心利益中的核心，是中美关系最重大的问题，也是最突出的风险。敦促美方恪守一个中国原则和中美三个联合公报，尊重中国主权和领土完整，明确反对“台独”。要求美方停止炒作“中国威胁论”，取消对华非法单边制裁，放弃对中国科技发展打压，不得肆意干涉中国的内政。\n杨涛介绍了双方达成的积极共识和成果。其中最重要的一条是，双方同意落实两国元首巴厘岛会晤时确定的共识，回到会晤确定的议程。双方同意按照两国元首共识保持高层交往，布林肯国务卿邀请秦刚国务委员访美，秦刚国务委员表示愿在双方方便时访美。双方同意继续推进中美关系指导原则磋商。双方愿继续推进中美联合工作组磋商，解决中美关系中的具体问题。双方同意鼓励扩大两国人文和教育交流，均致力于增加中美之间的客运航班，欢迎更多对方国家学生、学者、工商界人士互访，愿为此提供支持和便利。";var _pyManualReviewEdges=[];</script><script>
+var _edgeLookup = {};      // edgeId -> {type, from, to, reason, manualReview, isNew}
+var _deletedEdges = {};    // edgeId -> true
+var _manualEdits = {};     // edgeId -> {originalType, newType, reason}
+var _simpActive = false;
+var _simpOrig = {};
+var _editMode = false;
+var _evtMode = 'list';     // 'list' | 'doc'
+var _addEdge = null;       // null | {role: 'source'|'target', anchorId: string}
+var _newEdgePair = null;   // null | {source: string, target: string}
+var _hasUnsaved = false;
+var _pyManualReviewEdges = _pyManualReviewEdges || [];
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function _edgeTitle(reason, manualReview) {
+    var title = _esc(reason || '');
+    if (manualReview) return title ? (title + ' [人工审核]') : '[人工审核]';
+    return title;
+}
+function _edgeColor(edgeType, manualReview) {
+    if (manualReview) return '#f5a623';
+    return edgeType === 'causal' ? '#d62728' : '#1f77b4';
+}
+function _edgeWidth(edgeType) {
+    return edgeType === 'causal' ? 3 : 1.6;
+}
+function _edgeDashes(edgeType, manualReview) {
+    if (edgeType !== 'temporal') return false;
+    return manualReview ? [10, 6] : true;
+}
+function _edgeStyle(edgeType, manualReview) {
+    var color = _edgeColor(edgeType, manualReview);
+    return {
+        color: {color: color, hover: color, highlight: color},
+        width: _edgeWidth(edgeType),
+        dashes: _edgeDashes(edgeType, manualReview),
+    };
+}
+function _wait(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+
+/* ── 图遍历辅助 ─────────────────────────────────────────────── */
+function _liveEdges() {
+    return network.body.data.edges.get().filter(function(e) { return !_deletedEdges[e.id]; });
+}
+function getDescendants(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (f === cur && !visited[t]) queue.push(t);
+        });
+    }
+    return visited;
+}
+function getAncestors(nodeId) {
+    var visited = {}, queue = [String(nodeId)];
+    while (queue.length) {
+        var cur = queue.shift();
+        if (visited[cur]) continue;
+        visited[cur] = true;
+        _liveEdges().forEach(function(e) {
+            var f = String(e.from), t = String(e.to);
+            if (t === cur && !visited[f]) queue.push(f);
+        });
+    }
+    return visited;
+}
+function hasEdge(fromId, toId) {
+    var f = String(fromId), t = String(toId);
+    return _liveEdges().some(function(e) { return String(e.from) === f && String(e.to) === t; });
+}
+
+/* ── 模式切换 ──────────────────────────────────────────────── */
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+            upd.push({id: id, label: String(id), title: ev ? (_esc(id) + ': ' + _esc(ev.text)) : ''});
+        });
+        if (btn) btn.textContent = '简洁模式';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label, title: o.title});
+        });
+        if (btn) btn.textContent = '详细模式';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+/* ── 编辑模式 ──────────────────────────────────────────────── */
+function toggleEditMode() {
+    var btn = document.getElementById('btn-edit');
+    if (_editMode) {
+        if (_hasUnsaved && !confirm('有未保存的修改，退出修改模式后将丢失，确定退出？')) return;
+        _editMode = false;
+        btn.textContent = '修改';
+        btn.style.background = '#f5f5f5';
+        btn.style.borderColor = '#aaa';
+        closeAllMenus();
+    } else {
+        _editMode = true;
+        btn.textContent = '退出修改';
+        btn.style.background = '#fff3cd';
+        btn.style.borderColor = '#f5a623';
+    }
+}
+function closeAllMenus() {
+    closeEdgeMenu();
+    closeNodeMenu();
+    closeCandidatePanel();
+}
+
+/* ── 边右键菜单 ─────────────────────────────────────────────── */
+function showEdgeMenu(edgeId, x, y) {
+    var menu = document.getElementById('edge-ctx-menu');
+    menu.setAttribute('data-eid', edgeId);
+    var e = _edgeLookup[edgeId] || {};
+    var typeLabel = e.type === 'causal' ? '因果边' : '时序边';
+    document.getElementById('ctx-type-label').textContent = '当前: ' + typeLabel;
+    // 预计算「修改方向」是否可用（会产生环或反向边已存在则禁用）
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && e.from && e.to) {
+        var fId = String(e.from), tId = String(e.to);
+        _deletedEdges[edgeId] = true;
+        var desc = getDescendants(tId);
+        delete _deletedEdges[edgeId];
+        var disabled = !!(desc[fId] || hasEdge(tId, fId));
+        reverseBtn.style.color = disabled ? '#bbb' : '';
+        reverseBtn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+        reverseBtn.setAttribute('data-disabled', disabled ? '1' : '0');
+    }
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeEdgeMenu() {
+    var menu = document.getElementById('edge-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function menuDelete() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    closeEdgeMenu();
+    _setUnsaved();
+}
+function menuModify() {
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId] || {};
+    var other = e.type === 'causal' ? '时序边' : '因果边';
+    document.getElementById('dlg-title').textContent = '修改为' + other;
+    document.getElementById('dlg-reason').value = e.reason || '';
+    var dlg = document.getElementById('modify-dlg');
+    dlg.setAttribute('data-eid', edgeId);
+    dlg.style.display = 'flex';
+    document.getElementById('dlg-reason').focus();
+}
+
+function menuReverse() {
+    var reverseBtn = document.getElementById('ctx-reverse-btn');
+    if (reverseBtn && reverseBtn.getAttribute('data-disabled') === '1') return;
+    var edgeId = document.getElementById('edge-ctx-menu').getAttribute('data-eid');
+    if (!edgeId) return;
+    closeEdgeMenu();
+    var e = _edgeLookup[edgeId];
+    if (!e) return;
+    var fromId = String(e.from), toId = String(e.to);
+    // 再次验证（防止菜单开启期间图结构变化）
+    _deletedEdges[edgeId] = true;
+    var desc = getDescendants(toId);
+    delete _deletedEdges[edgeId];
+    if (desc[fromId]) { showToast('修改方向会产生环路，无法执行', 2500, '#c0392b'); return; }
+    if (hasEdge(toId, fromId)) { showToast('反向边已存在', 2500, '#c0392b'); return; }
+    // 删除原边，添加反向边
+    network.body.data.edges.remove(edgeId);
+    _deletedEdges[edgeId] = true;
+    var isCausal = (e.type === 'causal');
+    var newEid = 'rev_' + Date.now();
+    var style = _edgeStyle(e.type, true);
+    network.body.data.edges.add([{
+        id: newEid, from: toId, to: fromId, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(e.reason || '') + ' [方向已反转]',
+    }]);
+    _edgeLookup[newEid] = {type: e.type, from: toId, to: fromId, reason: e.reason, manualReview: true, isNew: true};
+    showToast('已反转方向: ' + toId + ' → ' + fromId, 2200, '#27ae60');
+    _setUnsaved();
+}
+/* ── 节点点击菜单 ───────────────────────────────────────────── */
+function showNodeMenu(nodeId, x, y) {
+    var menu = document.getElementById('node-ctx-menu');
+    menu.setAttribute('data-nid', String(nodeId));
+    menu.style.left = (x + 6) + 'px';
+    menu.style.top  = (y + 6) + 'px';
+    menu.style.display = 'block';
+}
+function closeNodeMenu() {
+    var menu = document.getElementById('node-ctx-menu');
+    if (menu) menu.style.display = 'none';
+}
+function startAddEdge(role) {
+    var nodeId = document.getElementById('node-ctx-menu').getAttribute('data-nid');
+    closeNodeMenu();
+    _addEdge = {role: role, anchorId: nodeId};
+    _showCandidatePanel(nodeId, role);
+}
+
+/* ── 候选节点面板 ───────────────────────────────────────────── */
+function _showCandidatePanel(anchorId, role) {
+    var allIds = network.body.data.nodes.getIds().map(String);
+    var excluded = {};
+    excluded[String(anchorId)] = true;
+    if (role === 'source') {
+        // anchor 是起点，选终点 B：B 不能是 anchor 的祖先（防环）且不能有 anchor→B（防重复）
+        var anc = getAncestors(anchorId);
+        Object.keys(anc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.from) === String(anchorId)) excluded[String(e.to)] = true;
+        });
+    } else {
+        // anchor 是终点，选起点 A：A 不能是 anchor 的后代（防环）且不能有 A→anchor（防重复）
+        var desc = getDescendants(anchorId);
+        Object.keys(desc).forEach(function(k) { excluded[k] = true; });
+        _liveEdges().forEach(function(e) {
+            if (String(e.to) === String(anchorId)) excluded[String(e.from)] = true;
+        });
+    }
+    var candidates = allIds.filter(function(id) { return !excluded[id]; });
+    if (candidates.length === 0) {
+        showToast('没有可新增的候选节点', 2000, '#555');
+        _addEdge = null;
+        return;
+    }
+    var title = role === 'source' ? '以该节点为起点，选择终点：' : '以该节点为终点，选择起点：';
+    document.getElementById('candidate-title').textContent = title;
+    var html = '';
+    candidates.forEach(function(id) {
+        var ev = (_pyEvents || []).find(function(e) { return e.id === id; });
+        var label = ev ? (id + ': ' + ev.text) : id;
+        html += '<div onclick="selectCandidate(\'' + id + '\')" '
+              + 'style="padding:6px 10px;cursor:pointer;border-radius:4px;margin-bottom:3px;'
+              + 'font-size:12px;background:#f0f7ff;border:1px solid #c5d8f0;" '
+              + 'onmouseover="this.style.background=\'#dbeeff\'" '
+              + 'onmouseout="this.style.background=\'#f0f7ff\'">'
+              + _esc(label) + '</div>';
+    });
+    document.getElementById('candidate-body').innerHTML = html;
+    document.getElementById('candidate-panel').style.display = 'flex';
+}
+function closeCandidatePanel() {
+    var p = document.getElementById('candidate-panel');
+    if (p) p.style.display = 'none';
+    _addEdge = null;
+}
+function selectCandidate(candidateId) {
+    if (!_addEdge) { closeCandidatePanel(); return; }
+    var src = _addEdge.role === 'source' ? _addEdge.anchorId : candidateId;
+    var tgt = _addEdge.role === 'target' ? _addEdge.anchorId : candidateId;
+    closeCandidatePanel();
+    _newEdgePair = {source: src, target: tgt};
+    _showNewEdgeDlg(src, tgt);
+}
+
+/* ── 新建边对话框 ───────────────────────────────────────────── */
+function _showNewEdgeDlg(src, tgt) {
+    document.getElementById('new-edge-subtitle').textContent = src + ' → ' + tgt;
+    document.getElementById('new-edge-reason').value = '';
+    document.getElementById('new-edge-type').value = 'causal';
+    document.getElementById('new-edge-dlg').style.display = 'flex';
+    document.getElementById('new-edge-reason').focus();
+}
+function closeNewEdgeDlg() {
+    document.getElementById('new-edge-dlg').style.display = 'none';
+    _newEdgePair = null;
+}
+function applyNewEdge() {
+    if (!_newEdgePair) { closeNewEdgeDlg(); return; }
+    var reason = document.getElementById('new-edge-reason').value.trim();
+    if (!reason) { alert('请填写原因。'); return; }
+    var edgeType = document.getElementById('new-edge-type').value;
+    var src = _newEdgePair.source, tgt = _newEdgePair.target;
+    var eid = 'new_' + Date.now();
+    var style = _edgeStyle(edgeType, true);
+    network.body.data.edges.add([{
+        id: eid, from: src, to: tgt, arrows: 'to',
+        color: style.color,
+        width: style.width, dashes: style.dashes,
+        title: _esc(reason) + ' [人工新增]',
+    }]);
+    _edgeLookup[eid] = {type: edgeType, from: src, to: tgt, reason: reason, manualReview: true, isNew: true};
+    closeNewEdgeDlg();
+    showToast('已新增边 ' + src + ' → ' + tgt, 2000, '#27ae60');
+    _setUnsaved();
+}
+
+/* ── 修改对话框 ────────────────────────────────────────────── */
+function closeModifyDlg() {
+    document.getElementById('modify-dlg').style.display = 'none';
+}
+function applyModify() {
+    var dlg = document.getElementById('modify-dlg');
+    var edgeId = dlg.getAttribute('data-eid');
+    var reason = document.getElementById('dlg-reason').value.trim();
+    if (!reason) { alert('请填写修改原因。'); return; }
+    var e = _edgeLookup[edgeId];
+    if (!e) { closeModifyDlg(); return; }
+    var newType = e.type === 'causal' ? 'temporal' : 'causal';
+    var style = _edgeStyle(newType, true);
+    network.body.data.edges.update([{
+        id: edgeId,
+        color: style.color,
+        dashes: style.dashes, width: style.width,
+        title: _esc(reason) + ' [人工审核]',
+    }]);
+    _manualEdits[edgeId] = {originalType: e.type, newType: newType, reason: reason};
+    e.reason = reason; e.type = newType; e.manualReview = true;
+    closeModifyDlg();
+    _setUnsaved();
+}
+
+/* ── 保存/下载 ─────────────────────────────────────────────── */
+function _setUnsaved() {
+    _hasUnsaved = true;
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '有未保存的修改'; el.style.opacity = '1'; }
+}
+function _updateGraphInfo(data) {
+    var causalCount = document.getElementById('causal-count');
+    var temporalCount = document.getElementById('temporal-count');
+    var titleEl = document.getElementById('doc-title');
+    if (causalCount) causalCount.textContent = String((data.causal_edges || []).length);
+    if (temporalCount) temporalCount.textContent = String((data.temporal_edges || []).length);
+    if (titleEl && data.doc_name) {
+        titleEl.textContent = String(data.doc_name).replace(/\.txt$/i, '');
+    }
+}
+function _loadLatestGraph() {
+    if (!_graphJsonPath) return Promise.resolve(false);
+    var url = 'http://localhost:' + _savePort + '/load_graph?path=' + encodeURIComponent(_graphJsonPath) + '&_ts=' + Date.now();
+    return fetch(url, {cache: 'no-store'}).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    }).then(function(res) {
+        if (!res.ok || !res.body || !res.body.data) return false;
+        _applyLoadedData(res.body.data);
+        return true;
+    }).catch(function() {
+        return false;
+    });
+}
+function _saveRequest(data) {
+    return fetch('http://localhost:' + _savePort + '/save_graph', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({path: _graphJsonPath, data: data}),
+    }).then(function(r) {
+        var ok = r.ok;
+        return r.json().then(function(j) { return {ok: ok, body: j}; });
+    });
+}
+function _waitForSaveServer(maxAttempts) {
+    var attempts = 0;
+    function probe() {
+        attempts += 1;
+        return _loadLatestGraph().then(function(ok) {
+            if (ok || attempts >= maxAttempts) return ok;
+            return _wait(500).then(probe);
+        }).catch(function() {
+            if (attempts >= maxAttempts) return false;
+            return _wait(500).then(probe);
+        });
+    }
+    return probe();
+}
+function _saveFallback(data, msg) {
+    showToast(msg, 6000, '#c0392b');
+    var el = document.getElementById('save-status');
+    if (el) { el.textContent = '保存失败，修改尚未写入 graph.json'; el.style.opacity = '1'; }
+}
+function _handleSaveResponse(res, data) {
+    if (res.ok && (!res.body || res.body.ok !== false)) {
+        showToast('已保存并重载 ✓', 3000, '#27ae60');
+        var el = document.getElementById('save-status');
+        if (el) { el.textContent = ''; el.style.opacity = '0'; }
+        _applyLoadedData(res.body.data || data);
+        return true;
+    }
+    var err = (res.body && res.body.error) ? ('保存失败：' + res.body.error) : '保存失败';
+    _saveFallback(data, err);
+    return false;
+}
+function buildSaveData() {
+    var causal = [], temporal = [];
+    for (var eid in _edgeLookup) {
+        if (_deletedEdges[eid]) continue;
+        var e = _edgeLookup[eid];
+        if (e.type === 'causal') {
+            var d = {cause: e.from, effect: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            causal.push(d);
+        } else {
+            var d = {source: e.from, target: e.to, reason: e.reason};
+            if (e.manualReview) d.manual_review = true;
+            temporal.push(d);
+        }
+    }
+    var evts = (_pyEvents || []).map(function(e) { return {event_id: e.id, text: e.text}; });
+    return {
+        doc_id: (_origGraphMeta || {}).doc_id || '',
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        doc_text: _pyDocText || '',
+        events: evts, causal_edges: causal, temporal_edges: temporal,
+        manual_review_edges: _pyManualReviewEdges || [],
+    };
+}
+function saveGraph() {
+    var data = buildSaveData();
+    showToast('保存中…', 30000, '#555');
+    _saveRequest(data).then(function(res) {
+        _handleSaveResponse(res, data);
+    }).catch(function() {
+        showToast('本地保存服务暂未就绪，正在自动重试…', 4000, '#e67e22');
+        _waitForSaveServer(6).then(function(ok) {
+            if (!ok) {
+                _saveFallback(data, '自动保存服务仍未就绪，未写入 graph.json');
+                return;
+            }
+            showToast('本地保存服务已就绪，正在重试保存…', 4000, '#e67e22');
+            _saveRequest(data).then(function(res) {
+                _handleSaveResponse(res, data);
+            }).catch(function() {
+                _saveFallback(data, '自动重试保存失败，未写入 graph.json');
+            });
+        });
+    });
+}
+function _applyLoadedData(data) {
+    /* 用服务器返回的 graph.json 内容就地重建可视化，边恢复红/蓝色，状态全清零 */
+    if (!data || typeof network === 'undefined') return;
+    network.body.data.edges.clear();
+    _edgeLookup = {};
+    _deletedEdges = {};
+    _manualEdits = {};
+    _hasUnsaved = false;
+    _pyCausal = (data.causal_edges || []).map(function(e) {
+        return {from: e.cause, to: e.effect, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    _pyTemporal = (data.temporal_edges || []).map(function(e) {
+        return {from: e.source, to: e.target, reason: e.reason || '', manual_review: !!e.manual_review};
+    });
+    if (Array.isArray(data.events)) {
+        _pyEvents = data.events.map(function(ev) { return {id: ev.event_id, text: ev.text || ''}; });
+    }
+    if (typeof data.doc_text === 'string') {
+        _pyDocText = data.doc_text;
+    }
+    if (data.doc_id || data.doc_name) {
+        _origGraphMeta = {
+            doc_id: data.doc_id || ((_origGraphMeta || {}).doc_id || ''),
+            doc_name: data.doc_name || ((_origGraphMeta || {}).doc_name || ''),
+        };
+    }
+    _pyManualReviewEdges = Array.isArray(data.manual_review_edges) ? data.manual_review_edges : [];
+    _pyCausal.forEach(function(e, i) {
+        var eid = 'c' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('causal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'causal', from:String(e.from), to:String(e.to), reason:e.reason, manualReview:manualReview};
+    });
+    _pyTemporal.forEach(function(e, i) {
+        var eid = 't' + i;
+        var manualReview = !!e.manual_review;
+        var style = _edgeStyle('temporal', manualReview);
+        network.body.data.edges.add([{
+            id: eid, from: e.from, to: e.to, arrows: 'to',
+            color: style.color,
+            width: style.width, dashes: style.dashes, title: _edgeTitle(e.reason, manualReview),
+        }]);
+        _edgeLookup[eid] = {type:'temporal', from:String(e.from), to:String(e.to), reason:e.reason||'', manualReview:manualReview};
+    });
+    _updateGraphInfo(data);
+    _renderEventPanel();
+}
+function downloadGraph(data) {
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'graph.json';
+    a.click();
+}
+function showToast(msg, duration, bg) {
+    var toast = document.getElementById('save-toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.style.background = bg || '#333';
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+    if (toast._timer) clearTimeout(toast._timer);
+    toast._timer = setTimeout(function() {
+        toast.style.opacity = '0';
+        setTimeout(function() { toast.style.display = 'none'; }, 400);
+    }, duration || 2500);
+}
+
+/* ── 事件面板（列表/全文切换） ─────────────────────────────── */
+function toggleEventList() {
+    _evtMode = (_evtMode === 'list') ? 'doc' : 'list';
+    _renderEventPanel();
+}
+function _renderEventPanel() {
+    var body = document.getElementById('evt-list-body');
+    var btn  = document.getElementById('btn-evtlist');
+    if (!body) return;
+    if (_evtMode === 'doc') {
+        body.innerHTML = '<pre style="white-space:pre-wrap;margin:0;font-size:12px;font-family:sans-serif;'
+            + 'color:#333;word-break:break-all;">' + _esc(_pyDocText || '（无全文）') + '</pre>';
+        if (btn) btn.textContent = '正在显示全文 ▲（点击返回事件列表）';
+    } else {
+        var html = '';
+        (_pyEvents || []).forEach(function(e) {
+            html += '<div style="margin-bottom:6px;">'
+                  + '<span style="font-weight:700;color:#1f77b4;">' + _esc(e.id) + '</span>'
+                  + '<span style="color:#555;">: ' + _esc(e.text) + '</span></div>';
+        });
+        body.innerHTML = html;
+        if (btn) btn.textContent = '事件列表 ▼（点击查看全文）';
+    }
+}
+/* ── 候选面板拖动 ───────────────────────────────────────── */
+var _candDrag = null;
+document.addEventListener('mousedown', function(e) {
+    var handle = document.getElementById('candidate-drag-handle');
+    if (!handle || !handle.contains(e.target)) return;
+    if (e.button !== 0) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    var rect = panel.getBoundingClientRect();
+    // 如果还在用百分比定位，先转换为具体像素坐标
+    panel.style.top  = rect.top  + 'px';
+    panel.style.left = rect.left + 'px';
+    panel.style.marginLeft = '0';
+    _candDrag = { startX: e.clientX, startY: e.clientY,
+                  initLeft: rect.left, initTop: rect.top };
+    e.preventDefault();
+});
+document.addEventListener('mousemove', function(e) {
+    if (!_candDrag) return;
+    var panel = document.getElementById('candidate-panel');
+    if (!panel) return;
+    panel.style.left = (_candDrag.initLeft + e.clientX - _candDrag.startX) + 'px';
+    panel.style.top  = (_candDrag.initTop  + e.clientY - _candDrag.startY) + 'px';
+});
+document.addEventListener('mouseup', function(e) {
+    if (e.button === 0) _candDrag = null;
+});
+/* ── 初始化 ────────────────────────────────────────────────── */
+window.addEventListener('load', function() {
+    (_pyCausal || []).forEach(function(e, i) {
+        _edgeLookup['c' + i] = {type:'causal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    (_pyTemporal || []).forEach(function(e, i) {
+        _edgeLookup['t' + i] = {type:'temporal', from:e.from, to:e.to, reason:e.reason, manualReview:!!e.manual_review};
+    });
+    if (typeof network !== 'undefined') {
+        network.on('click', function(params) {
+            if (!_editMode) { closeAllMenus(); return; }
+            closeEdgeMenu();
+            closeNodeMenu();
+            // 如果处于候选选择状态，任意点击画布空白处取消
+            if (_addEdge && params.nodes.length === 0 && params.edges.length === 0) {
+                closeCandidatePanel();
+                return;
+            }
+            if (params.nodes.length > 0) {
+                // 如果候选面板已展开，直接调 selectCandidate
+                var panel = document.getElementById('candidate-panel');
+                if (panel && panel.style.display !== 'none') {
+                    selectCandidate(String(params.nodes[0]));
+                } else {
+                    showNodeMenu(params.nodes[0], params.pointer.DOM.x, params.pointer.DOM.y);
+                }
+            } else if (params.edges.length > 0) {
+                if (document.getElementById('candidate-panel').style.display !== 'none') return;
+                showEdgeMenu(params.edges[0], params.pointer.DOM.x, params.pointer.DOM.y);
+            }
+        });
+    }
+    _updateGraphInfo({
+        doc_name: (_origGraphMeta || {}).doc_name || '',
+        causal_edges: _pyCausal || [],
+        temporal_edges: _pyTemporal || [],
+    });
+    _renderEventPanel();
+    _loadLatestGraph();
+});
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:340px;"><div id="doc-title" style="font-weight:600;font-size:14px;margin-bottom:4px;">D011 美国国务卿访华涉台交锋系列（多次，2023-2025）</div><div>因果边：<b id="causal-count">21</b> 条&emsp;时序边：<b id="temporal-count">10</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button><button id="btn-edit" onclick="toggleEditMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">修改</button><button id="btn-save" onclick="saveGraph()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">保存</button></div><div id="save-status" style="font-size:11px;color:#e67e22;margin-top:4px;min-height:14px;"></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:300px;z-index:9999;display:flex;flex-direction:column;gap:8px;"><div id="events-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:12px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1 1 0;min-height:0;"><button id="btn-evtlist" onclick="toggleEventList()" style="width:100%;text-align:left;font-weight:700;font-size:13px;border:none;background:none;cursor:pointer;padding:0 0 6px 0;color:#333;border-bottom:1px solid #e0e0e0;margin-bottom:8px;">事件列表 ▼</button><div id="evt-list-body"></div></div><div id="doc-links-panel" style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:8px 14px;font-family:sans-serif;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:0 0 auto;max-height:40%;min-height:36px;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:4px;margin-bottom:5px;">文档网络</div><a href="../D001/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">1 D001 特朗普当选后蔡英文通话——打破37年惯例（2016.12）</a><a href="../D002/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">2 D002 蔡英文首次过境美国——访问洛杉矶和休斯敦（2019.7）</a><a href="../D003/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">3 D003 美国副国务卿克拉奇访台——1979年来最高级别国务院官员（2020.9）</a><a href="../D004/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">4 D004 美国卫生部长阿扎访台（2020.8）</a><a href="../D005/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">5 D005 美国驻联合国大使克拉夫特访台计划受阻（2021.1）</a><a href="../D006/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">6 D006 佩洛西访台（2022.8）</a><a href="../D007/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">7 D007 蔡英文过境纽约：在哥伦比亚大学领奖（2023.3.29-31）</a><a href="../D008/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">8 D008 蔡英文会晤众议长麦卡锡——首次台湾领导人在美国本土会见众议长（2023.4.5）</a><a href="../D009/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">9 D009 赖清德过境夏威夷引发＂海空联合战备警巡演练＂（2023.8）</a><a href="../D010/graph.html" style="display:block;padding:3px 0;font-size:12px;color:#555;text-decoration:none;line-height:1.5;" onmouseover="this.style.color='#1f77b4'" onmouseout="this.style.color='#555'">10 D010 赖清德就职后首次过境美国计划被特朗普政府拒绝（2025.8）</a><div style="padding:3px 0;font-size:12px;color:#1f77b4;font-weight:700;">11 D011 美国国务卿访华涉台交锋系列（多次，2023-2025）</div></div></div><div id="save-toast" style="display:none;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10010;color:#fff;font-family:sans-serif;font-size:14px;font-weight:600;padding:10px 22px;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,0.25);transition:opacity 0.4s;pointer-events:none;"></div><div id="edge-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:140px;"><div id="ctx-type-label" style="padding:4px 14px;color:#666;font-size:11px;border-bottom:1px solid #eee;margin-bottom:4px;"></div><div onclick="menuDelete()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background=''">删除</div><div onclick="menuModify()" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background=''">修改类型</div><div id="ctx-reverse-btn" onclick="menuReverse()" style="padding:6px 14px;cursor:pointer;" onmouseover="if(this.getAttribute('data-disabled')!=='1')this.style.background='#e8f5e9'" onmouseout="this.style.background=''">修改方向</div><div onclick="closeEdgeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="node-ctx-menu" style="display:none;position:fixed;z-index:10000;background:#fff;border:1px solid #c0c0c0;border-radius:6px;padding:8px 0;font-family:sans-serif;font-size:13px;box-shadow:0 3px 8px rgba(0,0,0,0.15);min-width:220px;"><div onclick="startAddEdge('target')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为终点，选择起点：</div><div onclick="startAddEdge('source')" style="padding:6px 14px;cursor:pointer;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background=''">以该节点为起点，选择终点：</div><div onclick="closeNodeMenu()" style="padding:6px 14px;cursor:pointer;color:#999;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background=''">取消</div></div><div id="candidate-panel" style="display:none;position:fixed;top:20%;left:50%;margin-left:-150px;z-index:10001;background:#fff;border:1px solid #c0c0c0;border-radius:10px;font-family:sans-serif;min-width:300px;max-width:420px;max-height:65vh;overflow:hidden;flex-direction:column;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="candidate-drag-handle" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px 14px;cursor:grab;background:#f5f5f5;border-bottom:1px solid #e0e0e0;border-radius:10px 10px 0 0;flex-shrink:0;"><div id="candidate-title" style="font-weight:700;font-size:14px;user-select:none;"></div><button onclick="closeCandidatePanel()" style="border:none;background:none;cursor:pointer;font-size:16px;color:#999;padding:0;">✕</button></div><div id="candidate-body" style="padding:10px 14px;overflow-y:auto;max-height:55vh;"></div></div><div id="new-edge-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div style="font-weight:700;font-size:15px;margin-bottom:4px;">新增边</div><div id="new-edge-subtitle" style="font-size:13px;color:#555;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:4px;">类型</label><select id="new-edge-type" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:5px;margin-bottom:10px;"><option value="causal">因果边</option><option value="temporal">时序边</option></select><label style="display:block;font-size:13px;margin-bottom:6px;">原因（必填）</label><textarea id="new-edge-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeNewEdgeDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyNewEdge()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#27ae60;color:#fff;font-weight:600;">新增</button></div></div></div><div id="modify-dlg" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;"><div style="background:#fff;border-radius:10px;padding:22px 26px;font-family:sans-serif;min-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);"><div id="dlg-title" style="font-weight:700;font-size:15px;margin-bottom:14px;"></div><label style="display:block;font-size:13px;margin-bottom:6px;">修改原因（必填）</label><textarea id="dlg-reason" rows="3" style="width:100%;box-sizing:border-box;font-size:13px;border:1px solid #ccc;border-radius:4px;padding:6px;resize:vertical;"></textarea><div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;"><button onclick="closeModifyDlg()" style="padding:5px 14px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">取消</button><button onclick="applyModify()" style="padding:5px 14px;border:none;border-radius:4px;cursor:pointer;background:#f5a623;color:#fff;font-weight:600;">确认修改</button></div></div></div></body>
+</html>

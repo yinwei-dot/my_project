@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d9b0bc", "border": "#3a7bd5", "highlight": {"background": "#d9b0bc", "border": "#1a1a1a"}, "hover": {"background": "#d9b0bc", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u53e6\u636e\u53f0\u6e7e\u300a\u81ea\u7531\u65f6\u62a5\u300b\n\u7f51\u7ad92024\u5e7411\u67083\u65e5\u62a5\u9053\n\uff0c\u53f0\u6d77\u519b\u73b0\u670924\u8258\u6e2f\u52e4\u62d6\u8239\uff0c\n\u4e8e1987\u5e74\u81f32002\u5e74\u95f4\u5efa\n\u9020\uff0c\u5747\u5df2\u4f7f\u752820\u5e74\u4ee5\u4e0a\uff0c\u5176\u4e2d\n5\u8258\u751a\u81f3\u5df2\u903e30\u5e74\u5168\u5bff\u671f\u3002\n\u25b2 0.31 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#4)\n\u8bed\u4e49\u5206: 0.041 (#14)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.075 + 0.30\u00d7\u7a00\u7f3a\u6027 0.117\n\u7efc\u5408\u5206: 0.307 (#11)"}, {"color": {"background": "#d64245", "border": "#c0910a", "highlight": {"background": "#d64245", "border": "#1a1a1a"}, "hover": {"background": "#d64245", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u53f0\u6e7e\u5f53\u5c40\u6267\u884c\u7684\u5175\u5f79\u5236\n\u5ea6\u89c4\u5b9a\u53f0\u519b\u4e49\u52a1\u5175\u7684\u670d\u5f79\u65f6\u95f4\u53ea\n\u67094\u4e2a\u6708\u3002\n\u25b2 0.86 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.824 (#2)\n\u8bed\u4e49\u5206: 0.902 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.919 + 0.30\u00d7\u7a00\u7f3a\u6027 0.001\n\u7efc\u5408\u5206: 0.863 (#1)"}, {"color": {"background": "#d9bbc8", "border": "#3a7bd5", "highlight": {"background": "#d9bbc8", "border": "#1a1a1a"}, "hover": {"background": "#d9bbc8", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u53f0\u6e7e\u5f53\u5c40\u53f7\u79f0\u62e5\u6709\u8d85\u8fc7\n200\u4e07\u7684\u201c\u540e\u5907\u5927\u519b\u201d\uff0c\u5e76\u53ef\n\u4ee5\u572824\u5c0f\u65f6\u5185\u52a8\u545821.5\u4e07\n\u7684\u9000\u5f79\u519b\u4eba\u6295\u5165\u6218\u573a\u3002\n\u25b2 0.25 (#14)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#13)\n\u8bed\u4e49\u5206: 0.184 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.107 + 0.30\u00d7\u7a00\u7f3a\u6027 0.767\n\u7efc\u5408\u5206: 0.254 (#14)"}, {"color": {"background": "#d89da8", "border": "#3a7bd5", "highlight": {"background": "#d89da8", "border": "#1a1a1a"}, "hover": {"background": "#d89da8", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u4e3a\u4e86\u8ba9\u8fd9\u4e9b\u9000\u5f79\u519b\u4eba\u80fd\n\u591f\u4fdd\u6301\u4e00\u5b9a\u7684\u519b\u4e8b\u6280\u80fd\u6c34\u5e73\uff0c\u53f0\n\u6e7e\u5f53\u5c40\u8bbe\u7f6e\u4e86\u201c\u5e74\u5e74\u65bd\u8bad\uff0c\u6bcf\u6b21\n14\u5929\u201d\u7684\u6559\u80b2\u53ec\u96c6\u8bad\u7ec3\u5236\u5ea6\u3002\n\u25b2 0.40 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#4)\n\u8bed\u4e49\u5206: 0.232 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.254 + 0.30\u00d7\u7a00\u7f3a\u6027 0.146\n\u7efc\u5408\u5206: 0.403 (#9)"}, {"color": {"background": "#d8949d", "border": "#3a7bd5", "highlight": {"background": "#d8949d", "border": "#1a1a1a"}, "hover": {"background": "#d8949d", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u53f0\u6d77\u519b\u4e3a\u786e\u4fdd\u8230\u8247\u4efb\u52a1\n\u6267\u884c\u53ca\u62d6\u8239\u4eba\u5458\u4f5c\u4e1a\u5b89\u5168\uff0c\u4e8e2\n019\u5e74\u63d0\u51fa\u65b0\u5f0f\u6e2f\u52e4\u62d6\u8239\u8d2d\u7f6e\n\u8ba1\u5212\uff0c\u603b\u7ecf\u8d39\u7ea69.68\u4ebf\u5143\u65b0\n\u53f0\u5e01\uff0c\u81ea2020\u5e74\u6267\u884c\u81f320\n24\u5e74\uff0c\u89c4\u5212\u8d2d\u7f6e7\u8258\u3002\n\u25b2 0.45 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#4)\n\u8bed\u4e49\u5206: 0.331 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.371 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.452 (#7)"}, {"color": {"background": "#dacddc", "border": "#3a7bd5", "highlight": {"background": "#dacddc", "border": "#1a1a1a"}, "hover": {"background": "#dacddc", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u53f0\u7acb\u6cd5\u673a\u6784\u9884\u7b97\u4e2d\u5fc3\u65e5\n\u524d\u53d1\u5e03\u53f0\u5f53\u5c40\u9632\u52a1\u4e8b\u52a1\u4e3b\u7ba1\u90e8\u95e8\n2025\u5e74\u5ea6\u5355\u4f4d\u9884\u7b97\u8bc4\u4f30\u62a5\u544a\n\uff0c\u6307\u51fa\u53f0\u5f53\u5c40\u9632\u52a1\u4e8b\u52a1\u4e3b\u7ba1\u90e8\u95e8\n\u4e8e2020\u5e74\u63d0\u51fa\u201c\u63d0\u5347\u540e\u5907\u6218\n\u529b\u9879\u76ee\u62a5\u544a\u201d\uff0c\u5185\u5bb9\u6307\u201c\u63d0\u5347\u540e\n\u5907\u6218\u529b\u201d\u9879\u76ee\u6539\u9769\u540e\uff0c\u6bcf\u5e74\u8bad\u80fd\n\u603b\u91cf\u5c06\u589e\u81f329\u4e07\u4eba\u3002\n\u25b2 0.16 (#16)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#13)\n\u8bed\u4e49\u5206: 0.000 (#16)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.337\n\u7efc\u5408\u5206: 0.162 (#16)"}, {"color": {"background": "#d8777f", "border": "#3a7bd5", "highlight": {"background": "#d8777f", "border": "#1a1a1a"}, "hover": {"background": "#d8777f", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u8bc4\u4f30\u62a5\u544a\u6307\u51fa\uff0c202\n2\u5e74\u81f32024\u5e74\u53f0\u5f53\u5c40\u9632\u52a1\u4e8b\n\u52a1\u4e3b\u7ba1\u90e8\u95e8\u89c4\u5212\u5e74\u5ea6\u6559\u53ec\u76ee\u6807\u4eba\n\u6570\u5206\u522b\u4e3a145803\u4eba\u300111\n8490\u4eba\u53ca95886\u4eba\uff0c\u4e0e\n\u5f53\u65f6\u53f0\u5f53\u5c40\u9632\u52a1\u4e8b\u52a1\u4e3b\u7ba1\u90e8\u95e8\u7684\n\u89c4\u5212\u8bad\u91cf\u4ecd\u6709\u5dee\u8ddd\u3002\n\u25b2 0.59 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.114 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.159 + 0.30\u00d7\u7a00\u7f3a\u6027 0.033\n\u7efc\u5408\u5206: 0.594 (#4)"}, {"color": {"background": "#d8777f", "border": "#3a7bd5", "highlight": {"background": "#d8777f", "border": "#1a1a1a"}, "hover": {"background": "#d8777f", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u8bc4\u4f30\u62a5\u544a\u4e3e\u4f8b\uff0c202\n2\u5e74\u81f32024\u5e746\u6708\u5e95\uff0c\u5e74\u5ea6\n\u5b9e\u9645\u53ec\u8bad\u4eba\u6570\u5360\u76ee\u6807\u6570\u7684\u6bd4\u7387\u4ec5\n\u5206\u522b\u4e3a62.50%\u300170.6\n5%\u53ca65.52%\u3002\n\u25b2 0.59 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#4)\n\u8bed\u4e49\u5206: 0.614 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.481 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.594 (#5)"}, {"color": {"background": "#d9bbc8", "border": "#3a7bd5", "highlight": {"background": "#d9bbc8", "border": "#1a1a1a"}, "hover": {"background": "#d9bbc8", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u53f0\u6e7e\u5f53\u5c40\u4e8e2023\u5e74\n\u518d\u6b21\u5b9e\u65bd\u4e3a\u671f14\u5929\u7684\u65b0\u5236\u6559\u53ec\n\u8bad\u7ec3\uff0c\u4f5c\u4e3a\u519b\u4e8b\u52a8\u5458\u63aa\u65bd\uff0c\u63a8\u65ad\n\u65e8\u5728\u9488\u5bf9\u4e2d\u56fd\u5927\u9646\u7684\u519b\u4e8b\u51c6\u5907\u3002\n\u25b2 0.25 (#15)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.497 (#10)\n\u8bed\u4e49\u5206: 0.010 (#15)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.037 + 0.30\u00d7\u7a00\u7f3a\u6027 0.166\n\u7efc\u5408\u5206: 0.253 (#15)"}, {"color": {"background": "#d9b5c2", "border": "#3a7bd5", "highlight": {"background": "#d9b5c2", "border": "#1a1a1a"}, "hover": {"background": "#d9b5c2", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u4ece\u53f0\u519b\u516c\u5e03\u7684\u6559\u53ec\u8bad\n\u7ec3\u5185\u5bb9\u6765\u770b\uff0c\u5305\u62ec\u8f7b\u6b66\u5668\u5c04\u51fb\u3001\n\u884c\u519b\u5bbf\u8425\u3001\u6218\u4f24\u6551\u62a4\u3001\u8ba4\u77e5\u4f5c\u6218\n\u53ca\u6cd5\u5236\u6559\u80b2\u7b49\u3002\n\u25b2 0.28 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.460 (#11)\n\u8bed\u4e49\u5206: 0.105 (#13)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.121 + 0.30\u00d7\u7a00\u7f3a\u6027 0.208\n\u7efc\u5408\u5206: 0.282 (#12)"}, {"color": {"background": "#d9b9c6", "border": "#3a7bd5", "highlight": {"background": "#d9b9c6", "border": "#1a1a1a"}, "hover": {"background": "#d9b9c6", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u53f0\u9646\u519b\u53ca\u53f0\u6d77\u519b\u4e8e2\n023\u5e74\u63d0\u51fa\u591a\u9879\u6b66\u5668\u88c5\u5907\u91c7\u8d2d\n\u8ba1\u5212\uff0c\u8fd9\u662f\u53f0\u519b\u4e3a\u63d0\u5347\u6218\u529b\u800c\u8fdb\n\u884c\u7684\u8ba1\u5212\u52a8\u4f5c\u3002\n\u25b2 0.26 (#13)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#13)\n\u8bed\u4e49\u5206: 0.201 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.157 + 0.30\u00d7\u7a00\u7f3a\u6027 0.561\n\u7efc\u5408\u5206: 0.263 (#13)"}, {"color": {"background": "#d8919b", "border": "#3a7bd5", "highlight": {"background": "#d8919b", "border": "#1a1a1a"}, "hover": {"background": "#d8919b", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: \u8bc4\u4f30\u62a5\u544a\u8868\u793a\uff0c\u6839\u636e\n\u53f0\u5f53\u5c40\u9632\u52a1\u4e8b\u52a1\u4e3b\u7ba1\u90e8\u95e8\u7edf\u8ba1\uff0c\n\u622a\u81f32024\u5e746\u6708\u5e95\uff0c\u58eb\u5175\u9000\n\u4f0d\u540e8\u5e74\u5185\u4ee5\u53ca\u519b\u5b98\u4e0e\u58eb\u5b98\u9000\u4f0d\n\u540e12\u5e74\u5185\u7684\u5217\u7ba1\u4eba\u6570\u4e3a864\n167\u4eba\u3002\n\u25b2 0.46 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#4)\n\u8bed\u4e49\u5206: 0.355 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.394 + 0.30\u00d7\u7a00\u7f3a\u6027 0.005\n\u7efc\u5408\u5206: 0.464 (#6)"}, {"color": {"background": "#d7686e", "border": "#e07b20", "highlight": {"background": "#d7686e", "border": "#1a1a1a"}, "hover": {"background": "#d7686e", "border": "#1a1a1a"}}, "id": "E13", "label": "E13: \u6263\u9664\u7279\u5b9a\u56e0\u7d20\u4e0d\u53ef\u53ec\n\u96c6\u4eba\u6570\uff0c\u53ef\u9009\u5145\u6559\u80b2\u53ec\u96c6\u4eba\u6570\u4e3a\n710569\u4eba\uff0c\u5176\u4e2d\u66fe\u63a5\u53d7\u53ec\n\u8bad\u4eba\u6570\u4e3a243084\u4eba\uff0c\u5360\u6bd4\n\u4ec5\u7ea634.21%\uff0c\u5269\u4e0b65.\n79%\u672a\u66fe\u63a5\u53d7\u53ec\u96c6\u8bad\u7ec3\u3002\n\u25b2 0.67 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.660 (#3)\n\u8bed\u4e49\u5206: 0.683 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.605 + 0.30\u00d7\u7a00\u7f3a\u6027 0.648\n\u7efc\u5408\u5206: 0.672 (#3)"}, {"color": {"background": "#d89da7", "border": "#3a7bd5", "highlight": {"background": "#d89da7", "border": "#1a1a1a"}, "hover": {"background": "#d89da7", "border": "#1a1a1a"}}, "id": "E14", "label": "E14: \u8bc4\u4f30\u62a5\u544a\u8fdb\u4e00\u6b65\u6307\u51fa\n\uff0c\u6bcf\u5e74\u5ea6\u5b9e\u65bd\u6559\u53ec\uff0c\u5b9e\u9645\u4e0b\u4ee4\u53ec\n\u96c6\u4eba\u6570\u5f80\u5f80\u8f83\u76ee\u6807\u6570\u51cf\u5c11\uff0c\u518d\u6263\n\u9664\u514d\u53ec\u6570\u3001\u5e94\u5230\u672a\u5230\u6570\u7b49\uff0c\u81f4\u5b9e\n\u9645\u53ec\u8bad\u4eba\u6570\u4e0e\u76ee\u6807\u6570\u5dee\u8ddd\u9887\u5927\u3002\n\u25b2 0.41 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.381 (#12)\n\u8bed\u4e49\u5206: 0.433 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.335 + 0.30\u00d7\u7a00\u7f3a\u6027 0.826\n\u7efc\u5408\u5206: 0.407 (#8)"}, {"color": {"background": "#d9aab6", "border": "#3a7bd5", "highlight": {"background": "#d9aab6", "border": "#1a1a1a"}, "hover": {"background": "#d9aab6", "border": "#1a1a1a"}}, "id": "E15", "label": "E15: \u53f0\u5f53\u5c40\u901a\u8fc7\u6210\u7acb\u201c\u5168\n\u793e\u4f1a\u9632\u536b\u97e7\u6027\u59d4\u5458\u4f1a\u201d\uff0c\u5c06\u5f3a\u5316\n\u540e\u5907\u6218\u529b\u4f5c\u4e3a\u9632\u536b\u65bd\u653f\u91cd\u70b9\uff0c\u5c5e\n\u4e8e\u7ec4\u7ec7\u6784\u5efa\u4e8b\u4ef6\u3002\n\u25b2 0.34 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.144 (#16)\n\u8bed\u4e49\u5206: 0.529 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.499 + 0.30\u00d7\u7a00\u7f3a\u6027 0.385\n\u7efc\u5408\u5206: 0.337 (#10)"}, {"color": {"background": "#d75155", "border": "#e07b20", "highlight": {"background": "#d75155", "border": "#1a1a1a"}, "hover": {"background": "#d75155", "border": "#1a1a1a"}}, "id": "E16", "label": "E16: \u5728\u5c61\u6b21\u62db\u6807\u672a\u679c\u540e\uff0c\n\u53f0\u6d77\u519b\u5df2\u5c06\u6b64\u6848\u5b8c\u7ed3\u65f6\u95f4\u81ea20\n25\u5e74\u5ef6\u81f32029\u5e74\uff0c\u603b\u9884\u7b97\n\u4ea6\u53ef\u80fd\u968f\u4e4b\u8c03\u589e\u3002\n\u25b2 0.79 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#4)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.078\n\u7efc\u5408\u5206: 0.787 (#2)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "\u670d\u5f79\u671f\u77ed\u4fc3\u53d1\u8bbe\u7f6e\u6559\u53ec\u7ef4\u6301\u6280\u80fd", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c1", "title": "\u5236\u5ea6\u8bbe\u7f6e\u4fc3\u53d1\u5177\u4f53\u5b9e\u65bd\u8bad\u7ec3", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E5", "id": "c2", "title": "\u8ba1\u5212\u63d0\u51fa\u540e\u62db\u6807\u672a\u679c\u5bfc\u81f4\u5ef6\u671f", "to": "E16", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E12", "id": "c3", "title": "\u603b\u4eba\u6570\u6570\u636e\u4fc3\u53d1\u53ef\u9009\u5145\u4eba\u6570\u8ba1\u7b97", "to": "E13", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E11", "id": "t0", "title": "E11\u662f\u8ba1\u5212\u52a8\u4f5c\uff0cE16\u662f\u5177\u4f53\u9879\u76ee\u5ef6\u671f\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1\u3002", "to": "E16", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.710\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.707\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E13 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.784\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E1 \u5728 E5 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.716\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t5", "title": "\u62a5\u544a\u4e2d\u76ee\u6807\u4e0e\u73b0\u72b6\u5e76\u5217\uff0c\u65e0\u56e0\u679c", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t6", "title": "\u6bd4\u4f8b\u4f4e\u4e0e\u4e0b\u4ee4\u51cf\u5c11\u5e76\u5217\uff0c\u65e0\u56e0\u679c", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t7", "title": "\u62a5\u544a\u4e3e\u4f8b\u652f\u6491\u9648\u8ff0\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t8", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.719\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t9", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE3 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E2 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E14", "id": "t10", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE15 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E14 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t11", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E2 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E2", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "另据台湾《自由时报》网站2024年11月3日报道，台海军现有24艘港勤拖船，于1987年至2002年间建造，均已使用20年以上，其中5艘甚至已逾30年全寿期。"}, {"id": "E2", "text": "台湾当局执行的兵役制度规定台军义务兵的服役时间只有4个月。"}, {"id": "E3", "text": "台湾当局号称拥有超过200万的“后备大军”，并可以在24小时内动员21.5万的退役军人投入战场。"}, {"id": "E4", "text": "为了让这些退役军人能够保持一定的军事技能水平，台湾当局设置了“年年施训，每次14天”的教育召集训练制度。"}, {"id": "E5", "text": "台海军为确保舰艇任务执行及拖船人员作业安全，于2019年提出新式港勤拖船购置计划，总经费约9.68亿元新台币，自2020年执行至2024年，规划购置7艘。"}, {"id": "E6", "text": "台立法机构预算中心日前发布台当局防务事务主管部门2025年度单位预算评估报告，指出台当局防务事务主管部门于2020年提出“提升后备战力项目报告”，内容指“提升后备战力”项目改革后，每年训能总量将增至29万人。"}, {"id": "E7", "text": "评估报告指出，2022年至2024年台当局防务事务主管部门规划年度教召目标人数分别为145803人、118490人及95886人，与当时台当局防务事务主管部门的规划训量仍有差距。"}, {"id": "E8", "text": "评估报告举例，2022年至2024年6月底，年度实际召训人数占目标数的比率仅分别为62.50%、70.65%及65.52%。"}, {"id": "E9", "text": "台湾当局于2023年再次实施为期14天的新制教召训练，作为军事动员措施，推断旨在针对中国大陆的军事准备。"}, {"id": "E10", "text": "从台军公布的教召训练内容来看，包括轻武器射击、行军宿营、战伤救护、认知作战及法制教育等。"}, {"id": "E11", "text": "台陆军及台海军于2023年提出多项武器装备采购计划，这是台军为提升战力而进行的计划动作。"}, {"id": "E12", "text": "评估报告表示，根据台当局防务事务主管部门统计，截至2024年6月底，士兵退伍后8年内以及军官与士官退伍后12年内的列管人数为864167人。"}, {"id": "E13", "text": "扣除特定因素不可召集人数，可选充教育召集人数为710569人，其中曾接受召训人数为243084人，占比仅约34.21%，剩下65.79%未曾接受召集训练。"}, {"id": "E14", "text": "评估报告进一步指出，每年度实施教召，实际下令召集人数往往较目标数减少，再扣除免召数、应到未到数等，致实际召训人数与目标数差距颇大。"}, {"id": "E15", "text": "台当局通过成立“全社会防卫韧性委员会”，将强化后备战力作为防卫施政重点，属于组织构建事件。"}, {"id": "E16", "text": "在屡次招标未果后，台海军已将此案完结时间自2025年延至2029年，总预算亦可能随之调增。"}];var _pyCausal=[{"from": "E2", "to": "E4", "reason": "服役期短促发设置教召维持技能"}, {"from": "E4", "to": "E9", "reason": "制度设置促发具体实施训练"}, {"from": "E5", "to": "E16", "reason": "计划提出后招标未果导致延期"}, {"from": "E12", "to": "E13", "reason": "总人数数据促发可选充人数计算"}];var _pyTemporal=[{"from": "E11", "to": "E16", "reason": "E11是计划动作，E16是具体项目延期，无直接促发。"}, {"from": "E7", "to": "E12", "reason": "语义嵌入相似度 0.710，按事件编号 E7 在 E12 之前，补一条仅表达时序的边。"}, {"from": "E8", "to": "E13", "reason": "语义嵌入相似度 0.707，按事件编号 E8 在 E13 之前，补一条仅表达时序的边。"}, {"from": "E1", "to": "E5", "reason": "语义嵌入相似度 0.784，按事件编号 E1 在 E5 之前，补一条仅表达时序的边。"}, {"from": "E7", "to": "E10", "reason": "语义嵌入相似度 0.716，按事件编号 E7 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E6", "to": "E7", "reason": "报告中目标与现状并列，无因果"}, {"from": "E13", "to": "E14", "reason": "比例低与下令减少并列，无因果"}, {"from": "E7", "to": "E8", "reason": "报告举例支撑陈述，无直接促发"}, {"from": "E9", "to": "E10", "reason": "语义嵌入相似度 0.719，按事件编号 E9 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E3", "reason": "孤立点消除：E3 与前一事件 E2 构成时序关系，仅表达时序，不表达因果。"}, {"from": "E14", "to": "E15", "reason": "孤立点消除：E15 与前一事件 E14 构成时序关系，仅表达时序，不表达因果。"}, {"from": "E1", "to": "E2", "reason": "子图桥接：E1 → E2 为跨连通分量最小跨度对，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 0.5736413598060608, "topo_rank": 4, "semantic": 0.041215, "semantic_rank": 14, "semantic_rich": 0.075037, "semantic_rare": 0.117206, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3074281799030304, "combined_rank": 11}, "E10": {"topo": 0.46033424139022827, "topo_rank": 11, "semantic": 0.10464, "semantic_rank": 13, "semantic_rich": 0.121142, "semantic_rare": 0.207777, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2824871206951141, "combined_rank": 12}, "E11": {"topo": 0.32364141941070557, "topo_rank": 13, "semantic": 0.201441, "semantic_rank": 10, "semantic_rich": 0.156705, "semantic_rare": 0.560979, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2625412097053528, "combined_rank": 13}, "E12": {"topo": 0.5736413598060608, "topo_rank": 4, "semantic": 0.355212, "semantic_rank": 7, "semantic_rich": 0.393976, "semantic_rare": 0.005491, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.46442667990303044, "combined_rank": 6}, "E13": {"topo": 0.6595738530158997, "topo_rank": 3, "semantic": 0.683495, "semantic_rank": 3, "semantic_rich": 0.60452, "semantic_rare": 0.6478, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6715344265079498, "combined_rank": 3}, "E14": {"topo": 0.3810213804244995, "topo_rank": 12, "semantic": 0.432556, "semantic_rank": 6, "semantic_rich": 0.33528, "semantic_rare": 0.825725, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4067886902122497, "combined_rank": 8}, "E15": {"topo": 0.14397567510604858, "topo_rank": 16, "semantic": 0.529467, "semantic_rank": 5, "semantic_rich": 0.499441, "semantic_rare": 0.38531, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3367213375530243, "combined_rank": 10}, "E16": {"topo": 0.5736413598060608, "topo_rank": 4, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.078189, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.7868206799030304, "combined_rank": 2}, "E2": {"topo": 0.823641300201416, "topo_rank": 2, "semantic": 0.902064, "semantic_rank": 2, "semantic_rich": 0.918584, "semantic_rare": 0.001479, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.862852650100708, "combined_rank": 1}, "E3": {"topo": 0.32364141941070557, "topo_rank": 13, "semantic": 0.183862, "semantic_rank": 11, "semantic_rich": 0.106567, "semantic_rare": 0.766616, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.25375170970535277, "combined_rank": 14}, "E4": {"topo": 0.5736413598060608, "topo_rank": 4, "semantic": 0.232477, "semantic_rank": 9, "semantic_rich": 0.253582, "semantic_rare": 0.146293, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4030591799030304, "combined_rank": 9}, "E5": {"topo": 0.5736413598060608, "topo_rank": 4, "semantic": 0.330817, "semantic_rank": 8, "semantic_rich": 0.371491, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4522291799030304, "combined_rank": 7}, "E6": {"topo": 0.32364141941070557, "topo_rank": 13, "semantic": 0.0, "semantic_rank": 16, "semantic_rich": 0.0, "semantic_rare": 0.33676, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.16182070970535278, "combined_rank": 16}, "E7": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 0.11447, "semantic_rank": 12, "semantic_rich": 0.158839, "semantic_rare": 0.033127, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.594055650100708, "combined_rank": 4}, "E8": {"topo": 0.5736413598060608, "topo_rank": 4, "semantic": 0.613794, "semantic_rank": 4, "semantic_rich": 0.480714, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5937176799030304, "combined_rank": 5}, "E9": {"topo": 0.49737563729286194, "topo_rank": 10, "semantic": 0.009599, "semantic_rank": 15, "semantic_rich": 0.036836, "semantic_rare": 0.166052, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.253487318646431, "combined_rank": 15}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">NM047 台湾陆海空后备总兵力评估争议（2024-2025）</div><div>因果边：<b>4</b> 条&emsp;时序边：<b>12</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.17 / T- 0.20</div><div>C+ 0.38 / C- 0.25</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="台湾当局执行的兵役制度规定台军义务兵的服役时间只有4个月。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾当局执行的兵役制度规定台军义…</td><td style="padding:4px 6px;text-align:center;">0.824 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.902 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.92 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.863 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="在屡次招标未果后，台海军已将此案完结时间自2025年延至2029年，总预算亦可能随之调增。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E16</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">在屡次招标未果后，台海军已将此案…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.08</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.787 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="扣除特定因素不可召集人数，可选充教育召集人数为710569人，其中曾接受召训人数为243084人，占比仅约34.21%，剩下65.79%未曾接受召集训练。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E13</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">扣除特定因素不可召集人数，可选充…</td><td style="padding:4px 6px;text-align:center;">0.660 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.683 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.60 / 稀 0.65</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.672 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="评估报告指出，2022年至2024年台当局防务事务主管部门规划年度教召目标人数分别为145803人、118490人及95886人，与当时台当局防务事务主管部门的规划训量仍有差距。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">评估报告指出，2022年至202…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.114 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.16 / 稀 0.03</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.594 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="评估报告举例，2022年至2024年6月底，年度实际召训人数占目标数的比率仅分别为62.50%、70.65%及65.52%。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">评估报告举例，2022年至202…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.614 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.48 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.594 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="评估报告表示，根据台当局防务事务主管部门统计，截至2024年6月底，士兵退伍后8年内以及军官与士官退伍后12年内的列管人数为864167人。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">评估报告表示，根据台当局防务事务…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.355 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.39 / 稀 0.01</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.464 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="台海军为确保舰艇任务执行及拖船人员作业安全，于2019年提出新式港勤拖船购置计划，总经费约9.68亿元新台币，自2020年执行至2024年，规划购置7艘。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台海军为确保舰艇任务执行及拖船人…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.331 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.37 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.452 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="评估报告进一步指出，每年度实施教召，实际下令召集人数往往较目标数减少，再扣除免召数、应到未到数等，致实际召训人数与目标数差距颇大。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E14</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">评估报告进一步指出，每年度实施教…</td><td style="padding:4px 6px;text-align:center;">0.381 <span style="color:#888;font-size:10px">(#12)</span></td><td style="padding:4px 6px;text-align:center;">0.433 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.34 / 稀 0.83</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.407 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="为了让这些退役军人能够保持一定的军事技能水平，台湾当局设置了“年年施训，每次14天”的教育召集训练制度。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">为了让这些退役军人能够保持一定的…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.232 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.25 / 稀 0.15</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.403 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="台当局通过成立“全社会防卫韧性委员会”，将强化后备战力作为防卫施政重点，属于组织构建事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E15</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局通过成立“全社会防卫韧性委…</td><td style="padding:4px 6px;text-align:center;">0.144 <span style="color:#888;font-size:10px">(#16)</span></td><td style="padding:4px 6px;text-align:center;">0.529 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.50 / 稀 0.39</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.337 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="另据台湾《自由时报》网站2024年11月3日报道，台海军现有24艘港勤拖船，于1987年至2002年间建造，均已使用20年以上，其中5艘甚至已逾30年全寿期。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">另据台湾《自由时报》网站2024…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.041 <span style="color:#888;font-size:10px">(#14)</span><div style="color:#888;font-size:10px">丰 0.08 / 稀 0.12</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.307 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="从台军公布的教召训练内容来看，包括轻武器射击、行军宿营、战伤救护、认知作战及法制教育等。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">从台军公布的教召训练内容来看，包…</td><td style="padding:4px 6px;text-align:center;">0.460 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.105 <span style="color:#888;font-size:10px">(#13)</span><div style="color:#888;font-size:10px">丰 0.12 / 稀 0.21</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.282 <span style="color:#888;font-size:10px">(#12)</span></td></tr><tr title="台陆军及台海军于2023年提出多项武器装备采购计划，这是台军为提升战力而进行的计划动作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台陆军及台海军于2023年提出多…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#13)</span></td><td style="padding:4px 6px;text-align:center;">0.201 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.16 / 稀 0.56</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.263 <span style="color:#888;font-size:10px">(#13)</span></td></tr><tr title="台湾当局号称拥有超过200万的“后备大军”，并可以在24小时内动员21.5万的退役军人投入战场。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾当局号称拥有超过200万的“…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#13)</span></td><td style="padding:4px 6px;text-align:center;">0.184 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.11 / 稀 0.77</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.254 <span style="color:#888;font-size:10px">(#14)</span></td></tr><tr title="台湾当局于2023年再次实施为期14天的新制教召训练，作为军事动员措施，推断旨在针对中国大陆的军事准备。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾当局于2023年再次实施为期…</td><td style="padding:4px 6px;text-align:center;">0.497 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.010 <span style="color:#888;font-size:10px">(#15)</span><div style="color:#888;font-size:10px">丰 0.04 / 稀 0.17</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.253 <span style="color:#888;font-size:10px">(#15)</span></td></tr><tr title="台立法机构预算中心日前发布台当局防务事务主管部门2025年度单位预算评估报告，指出台当局防务事务主管部门于2020年提出“提升后备战力项目报告”，内容指“提升后备战力”项目改革后，每年训能总量将增至29万人。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台立法机构预算中心日前发布台当局…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#13)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#16)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.34</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.162 <span style="color:#888;font-size:10px">(#16)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

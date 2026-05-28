@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d9a7b2", "border": "#e07b20", "highlight": {"background": "#d9a7b2", "border": "#1a1a1a"}, "hover": {"background": "#d9a7b2", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u53f0\u6e7e\u7ecf\u6d4e\u90e8\u8ba1\u5212\u65b0\u589e\u5546\n\u4e1a\u884c\u4e3a\u7981\u6b62\u4e8b\u9879\uff0c\u660e\u786e\u7981\u6b62\u53f0\u6e7e\n\u4efb\u4f55\u5355\u4f4d\u4ee3\u7406\u6216\u7ecf\u9500\u4e2d\u56fd\u5927\u9646\u7684\nOTT TV\u670d\u52a1\u3002\n\u25b2 0.36 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#3)\n\u8bed\u4e49\u5206: 0.306 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.365 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.357 (#3)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u53f0\u5f53\u5c40\u884c\u653f\u673a\u6784\u53ca\u5176\u4e0b\n\u5c5e\u90e8\u95e8\u81ea2022\u5e7412\u67085\u65e5\n\u8d77\uff0c\u7981\u6b62\u4f7f\u7528TikTok\u3001\u6296\n\u97f3\u7b49\u4e2d\u56fd\u5927\u9646\u4e92\u8054\u7f51\u5e94\u7528\u7a0b\u5e8f\u3002\n\u25b2 1.01 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.950 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.019\n\u7efc\u5408\u5206: 1.012 (#1)"}, {"color": {"background": "#d9c5d3", "border": "#3a7bd5", "highlight": {"background": "#d9c5d3", "border": "#1a1a1a"}, "hover": {"background": "#d9c5d3", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u53f0\u5f53\u5c40\u884c\u653f\u673a\u6784\u79d8\u4e66\u957f\n\u674e\u5b5f\u8c1a\u5728\u7acb\u6cd5\u673a\u6784\u5185\u653f\u59d4\u5458\u4f1a\u63a5\n\u53d7\u8d28\u8be2\u65f6\u516c\u5f00\u5ba3\u79f0\uff0c\u5c06\u5728\u884c\u653f\u673a\n\u6784\u4e4b\u5916\u534f\u8c03\u5176\u4ed6\u56db\u5927\u653f\u5e9c\u673a\u6784\uff0c\n\u8981\u6c42\u5b83\u4eec\u53c2\u7167\u884c\u653f\u673a\u6784\u7684\u505a\u6cd5\uff0c\n\u6269\u5927\u5bf9TikTok\u3001\u6296\u97f3\u7b49\u5e94\n\u7528\u7684\u7981\u4ee4\u8303\u56f4\u3002\n\u25b2 0.20 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#3)\n\u8bed\u4e49\u5206: 0.000 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.523\n\u7efc\u5408\u5206: 0.203 (#4)"}, {"color": {"background": "#d64043", "border": "#e07b20", "highlight": {"background": "#d64043", "border": "#1a1a1a"}, "hover": {"background": "#d64043", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u201c\u884c\u653f\u9662\u201d\u653f\u52a1\u59d4\u5458\u7f57\n\u79c9\u58f0\u79f0\uff0c\u516c\u52a1\u4eba\u5458\u82e5\u8fdd\u53cd\u76f8\u5173\u89c4\n\u5b9a\uff0c\u4f1a\u6309\u89c4\u5b9a\u60e9\u5904\u3002\n\u25b2 0.87 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#2)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.933 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.870 (#2)"}, {"color": {"background": "#dac8d6", "border": "#3a7bd5", "highlight": {"background": "#dac8d6", "border": "#1a1a1a"}, "hover": {"background": "#dac8d6", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: 2025\u5e7410\u670815\n\u65e5\u4e0a\u5348\uff0c\u6dd8\u5b9d\u53f0\u6e7e\u5728\u5b98\u7f51\u53d1\u5e03\u201c\n\u6dd8\u5b9d\u53f0\u6e7e\u8425\u8fd0\u8ba1\u5212\u8c03\u6574\u516c\u544a\u201d\uff0c\n\u79f0\u7ecf\u614e\u91cd\u8bc4\u4f30\u540e\uff0c\u51b3\u5b9a\u4e8e10\u6708\n15\u65e511\u65f6\u8d77\u9646\u7eed\u5173\u95ed\u6dd8\u5b9d\u53f0\n\u6e7e\u5e73\u53f0\u4e0b\u5355\u7b49\u524d\u53f0\u529f\u80fd\uff0c\u5e73\u53f0\u5176\n\u4ed6\u670d\u52a1\u5c06\u6301\u7eed\u8fd0\u4f5c\u81f3\u4eca\u5e7412\u6708\n31\u65e5\uff0c\u968f\u540e\u6b63\u5f0f\u4e0b\u7ebf\u3002\n\u25b2 0.19 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.243 (#5)\n\u8bed\u4e49\u5206: 0.137 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.089 + 0.30\u00d7\u7a00\u7f3a\u6027 0.915\n\u7efc\u5408\u5206: 0.190 (#5)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "E2\u7981\u4ee4\u540e\uff0cE3\u534f\u8c03\u5176\u4ed6\u673a\u6784\u6269\u5927\u6267\u884c", "to": "E3", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t0", "title": "E4\u662fE2\u7981\u4ee4\u7684\u914d\u5957\u63aa\u65bd\uff0c\u5e76\u5217\u63cf\u8ff0", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t1", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE1 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E2 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t2", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE5 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E4 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E5", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "台湾经济部计划新增商业行为禁止事项，明确禁止台湾任何单位代理或经销中国大陆的OTT TV服务。"}, {"id": "E2", "text": "台当局行政机构及其下属部门自2022年12月5日起，禁止使用TikTok、抖音等中国大陆互联网应用程序。"}, {"id": "E3", "text": "台当局行政机构秘书长李孟谚在立法机构内政委员会接受质询时公开宣称，将在行政机构之外协调其他四大政府机构，要求它们参照行政机构的做法，扩大对TikTok、抖音等应用的禁令范围。"}, {"id": "E4", "text": "“行政院”政务委员罗秉声称，公务人员若违反相关规定，会按规定惩处。"}, {"id": "E5", "text": "2025年10月15日上午，淘宝台湾在官网发布“淘宝台湾营运计划调整公告”，称经慎重评估后，决定于10月15日11时起陆续关闭淘宝台湾平台下单等前台功能，平台其他服务将持续运作至今年12月31日，随后正式下线。"}];var _pyCausal=[{"from": "E2", "to": "E3", "reason": "E2禁令后，E3协调其他机构扩大执行"}];var _pyTemporal=[{"from": "E2", "to": "E4", "reason": "E4是E2禁令的配套措施，并列描述"}, {"from": "E1", "to": "E2", "reason": "孤立点消除：E1 与前一事件 E2 构成时序关系，仅表达时序，不表达因果。"}, {"from": "E4", "to": "E5", "reason": "孤立点消除：E5 与前一事件 E4 构成时序关系，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 0.4069747030735016, "topo_rank": 3, "semantic": 0.30624, "semantic_rank": 3, "semantic_rich": 0.365246, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3566073515367508, "combined_rank": 3}, "E2": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.949849, "semantic_rank": 2, "semantic_rich": 1.0, "semantic_rare": 0.019395, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.0117450904960632, "combined_rank": 1}, "E3": {"topo": 0.4069747030735016, "topo_rank": 3, "semantic": 0.0, "semantic_rank": 5, "semantic_rich": 0.0, "semantic_rare": 0.522787, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2034873515367508, "combined_rank": 4}, "E4": {"topo": 0.7403079271316528, "topo_rank": 2, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 0.933116, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8701539635658264, "combined_rank": 2}, "E5": {"topo": 0.2426549792289734, "topo_rank": 5, "semantic": 0.13669, "semantic_rank": 4, "semantic_rich": 0.088689, "semantic_rare": 0.915028, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.18967248961448668, "combined_rank": 5}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">EC028 大陆封杀台湾爱奇艺、淘宝台湾等数字平台</div><div>因果边：<b>1</b> 条&emsp;时序边：<b>3</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.17 / T- 0.22</div><div>C+ 0.34 / C- 0.26</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="台当局行政机构及其下属部门自2022年12月5日起，禁止使用TikTok、抖音等中国大陆互联网应用程序。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局行政机构及其下属部门自20…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.950 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.02</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.012 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="“行政院”政务委员罗秉声称，公务人员若违反相关规定，会按规定惩处。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">“行政院”政务委员罗秉声称，公务…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 0.93 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.870 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="台湾经济部计划新增商业行为禁止事项，明确禁止台湾任何单位代理或经销中国大陆的OTT TV服务。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾经济部计划新增商业行为禁止事…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.306 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.37 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.357 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="台当局行政机构秘书长李孟谚在立法机构内政委员会接受质询时公开宣称，将在行政机构之外协调其他四大政府机构，要求它们参照行政机构的做法，扩大对TikTok、抖音等应用的禁令范围。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局行政机构秘书长李孟谚在立法…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.52</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.203 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="2025年10月15日上午，淘宝台湾在官网发布“淘宝台湾营运计划调整公告”，称经慎重评估后，决定于10月15日11时起陆续关闭淘宝台湾平台下单等前台功能，平台其他服务将持续运作至今年12月31日，随后正式下线。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2025年10月15日上午，淘宝…</td><td style="padding:4px 6px;text-align:center;">0.243 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.137 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.09 / 稀 0.92</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.190 <span style="color:#888;font-size:10px">(#5)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

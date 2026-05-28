@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#daccda", "border": "#3a7bd5", "highlight": {"background": "#daccda", "border": "#1a1a1a"}, "hover": {"background": "#daccda", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u9a6c\u82f1\u4e5d\u6267\u653f8\u5e74\u671f\u95f4\uff0c\n\u57fa\u4e8e\u201c\u4e5d\u4e8c\u5171\u8bc6\u201d\u4e0e\u7956\u56fd\u5927\u9646\u8fbe\n\u6210\u201c\u5916\u4ea4\u4f11\u5175\u201d\u9ed8\u5951\u3002\n\u25b2 0.17 (#17)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#12)\n\u8bed\u4e49\u5206: 0.015 (#18)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.126 + 0.30\u00d7\u7a00\u7f3a\u6027 0.251\n\u7efc\u5408\u5206: 0.169 (#17)"}, {"color": {"background": "#d7737a", "border": "#3a7bd5", "highlight": {"background": "#d7737a", "border": "#1a1a1a"}, "hover": {"background": "#d7737a", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: 2007\u5e74\uff0c\u53f0\u6e7e\u5730\u533a\n\u4e0e\u54e5\u65af\u8fbe\u9ece\u52a0\u7ec8\u6b62\u4e86\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.61 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#6)\n\u8bed\u4e49\u5206: 0.654 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.695 + 0.30\u00d7\u7a00\u7f3a\u6027 0.141\n\u7efc\u5408\u5206: 0.614 (#7)"}, {"color": {"background": "#d9a4b0", "border": "#3a7bd5", "highlight": {"background": "#d9a4b0", "border": "#1a1a1a"}, "hover": {"background": "#d9a4b0", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u5188\u6bd4\u4e9a\u4e3b\u52a8\u4e0e\u53f0\u6e7e\u201c\u65ad\n\u4ea4\u201d\u3002\n\u25b2 0.37 (#13)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#12)\n\u8bed\u4e49\u5206: 0.410 (#13)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.503 + 0.30\u00d7\u7a00\u7f3a\u6027 0.074\n\u7efc\u5408\u5206: 0.367 (#13)"}, {"color": {"background": "#d87a81", "border": "#3a7bd5", "highlight": {"background": "#d87a81", "border": "#1a1a1a"}, "hover": {"background": "#d87a81", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u8521\u82f1\u6587\n\u4e0e\u7f8e\u56fd\u5f53\u9009\u603b\u7edf\u5510\u7eb3\u5fb7\u00b7\u7279\u6717\u666e\n\u8fdb\u884c\u653f\u6cbb\u901a\u8bdd\uff0c\u8fd9\u662f\u81ea1979\n\u5e74\u7f8e\u53f0\u65ad\u4ea4\u4ee5\u6765\uff0c\u53f0\u6e7e\u5730\u533a\u9886\u5bfc\n\u4eba\u4e0e\u7f8e\u56fd\u5f53\u9009\u603b\u7edf\u4e4b\u95f4\u7684\u9996\u6b21\u76f4\n\u63a5\u901a\u8bdd\u3002\n\u25b2 0.58 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#12)\n\u8bed\u4e49\u5206: 0.842 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.657 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.583 (#8)"}, {"color": {"background": "#d76f76", "border": "#3a7bd5", "highlight": {"background": "#d76f76", "border": "#1a1a1a"}, "hover": {"background": "#d76f76", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: 2016\u5e7412\u670821\n\u65e5\uff0c\u53f0\u6e7e\u5730\u533a\u4e0e\u5723\u591a\u7f8e\u548c\u666e\u6797\u897f\n\u6bd4\u7ec8\u6b62\u4e86\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.63 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.824 (#3)\n\u8bed\u4e49\u5206: 0.444 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.548 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.634 (#5)"}, {"color": {"background": "#d77178", "border": "#3a7bd5", "highlight": {"background": "#d77178", "border": "#1a1a1a"}, "hover": {"background": "#d77178", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: 2017\u5e746\u670813\u65e5\n\uff0c\u53f0\u6e7e\u5730\u533a\u4e0e\u5df4\u62ff\u9a6c\u7ec8\u6b62\u4e86\u5916\u4ea4\n\u5173\u7cfb\u3002\n\u25b2 0.63 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.535 (#8)\n\u8bed\u4e49\u5206: 0.716 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.771 + 0.30\u00d7\u7a00\u7f3a\u6027 0.040\n\u7efc\u5408\u5206: 0.626 (#6)"}, {"color": {"background": "#d88e97", "border": "#3a7bd5", "highlight": {"background": "#d88e97", "border": "#1a1a1a"}, "hover": {"background": "#d88e97", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: 2018\u5e745\u67081\u65e5\uff0c\n\u53f0\u6e7e\u5730\u533a\u4e0e\u591a\u7c73\u5c3c\u52a0\u7ec8\u6b62\u4e86\u5916\u4ea4\n\u5173\u7cfb\u3002\n\u25b2 0.48 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.463 (#9)\n\u8bed\u4e49\u5206: 0.496 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.585 + 0.30\u00d7\u7a00\u7f3a\u6027 0.033\n\u7efc\u5408\u5206: 0.480 (#10)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u53f0\u6e7e\u5730\u533a\u4e0e\u5e03\u57fa\u7eb3\u6cd5\u7d22\n\u7ec8\u6b62\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 1.00 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.996 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.092\n\u7efc\u5408\u5206: 0.998 (#1)"}, {"color": {"background": "#d897a1", "border": "#3a7bd5", "highlight": {"background": "#d897a1", "border": "#1a1a1a"}, "hover": {"background": "#d897a1", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u53f0\u6e7e\u5730\u533a\u4e0e\u8428\u5c14\u74e6\u591a\u65ad\n\u7edd\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.43 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.271 (#16)\n\u8bed\u4e49\u5206: 0.597 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.667 + 0.30\u00d7\u7a00\u7f3a\u6027 0.048\n\u7efc\u5408\u5206: 0.434 (#11)"}, {"color": {"background": "#d7666c", "border": "#3a7bd5", "highlight": {"background": "#d7666c", "border": "#1a1a1a"}, "hover": {"background": "#d7666c", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u53f0\u6e7e\u5730\u533a\u4e0e\u6240\u7f57\u95e8\u7fa4\n\u5c9b\u4e8e2019\u5e749\u670816\u65e5\u7ec8\u6b62\n\u4e86\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.68 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.787 (#4)\n\u8bed\u4e49\u5206: 0.576 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.646 + 0.30\u00d7\u7a00\u7f3a\u6027 0.063\n\u7efc\u5408\u5206: 0.681 (#4)"}, {"color": {"background": "#dad2e0", "border": "#3a7bd5", "highlight": {"background": "#dad2e0", "border": "#1a1a1a"}, "hover": {"background": "#dad2e0", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u53f0\u6e7e\u5730\u533a\u4e0e\u57fa\u91cc\u5df4\u65af\n\u4e8e9\u670820\u65e5\u65ad\u4ea4\uff0c\u8fd9\u662f\u4e00\u8d77\u6d89\n\u53ca\u53f0\u6e7e\u5730\u533a\u7684\u5916\u4ea4\u4e8b\u4ef6\u3002\n\u25b2 0.14 (#18)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.036 (#18)\n\u8bed\u4e49\u5206: 0.245 (#15)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.376 + 0.30\u00d7\u7a00\u7f3a\u6027 0.014\n\u7efc\u5408\u5206: 0.141 (#18)"}, {"color": {"background": "#dacad9", "border": "#3a7bd5", "highlight": {"background": "#dacad9", "border": "#1a1a1a"}, "hover": {"background": "#dacad9", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: 2020\u5e744\u67081\u65e5\n\uff0c\u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u8521\u82f1\u6587\u5ba3\u5e03\u5b9e\n\u65bd\u201c\u53e3\u7f69\u5916\u4ea4\u201d\u8ba1\u5212\uff0c\u901a\u8fc7\u6350\u8d60\n\u53e3\u7f69\u652f\u63f4\u75ab\u60c5\u4e25\u91cd\u56fd\u5bb6\u7684\u533b\u7597\u4eba\n\u5458\uff0c\u65e8\u5728\u901a\u8fc7\u7269\u8d44\u63f4\u52a9\u8fdb\u884c\u653f\u6cbb\n\u535a\u5f08\u3002\n\u25b2 0.18 (#16)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.324 (#12)\n\u8bed\u4e49\u5206: 0.029 (#17)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.847\n\u7efc\u5408\u5206: 0.176 (#16)"}, {"color": {"background": "#d9b4c1", "border": "#3a7bd5", "highlight": {"background": "#d9b4c1", "border": "#1a1a1a"}, "hover": {"background": "#d9b4c1", "border": "#1a1a1a"}}, "id": "E13", "label": "E13: \u53f0\u6e7e\u5730\u533a\u5728\u7acb\u9676\u5b9b\u8bbe\n\u7acb\u5177\u6709\u5b98\u65b9\u6027\u8d28\u7684\u9a7b\u7acb\u9676\u5b9b\u53f0\u6e7e\n\u4ee3\u8868\u5904\uff0c\u5e76\u4e8e2021\u5e7411\u6708\n18\u65e5\u6b63\u5f0f\u6302\u724c\u3002\n\u25b2 0.29 (#14)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#6)\n\u8bed\u4e49\u5206: 0.000 (#19)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.073 + 0.30\u00d7\u7a00\u7f3a\u6027 0.422\n\u7efc\u5408\u5206: 0.287 (#14)"}, {"color": {"background": "#d75b60", "border": "#e07b20", "highlight": {"background": "#d75b60", "border": "#1a1a1a"}, "hover": {"background": "#d75b60", "border": "#1a1a1a"}}, "id": "E14", "label": "E14: 2021\u5e7412\u67089\n\u65e5\uff0c\u53f0\u6e7e\u5730\u533a\u4e0e\u5c3c\u52a0\u62c9\u74dc\u7ec8\u6b62\u4e86\n\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.74 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.963 (#2)\n\u8bed\u4e49\u5206: 0.512 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.599 + 0.30\u00d7\u7a00\u7f3a\u6027 0.034\n\u7efc\u5408\u5206: 0.738 (#2)"}, {"color": {"background": "#d89ba6", "border": "#3a7bd5", "highlight": {"background": "#d89ba6", "border": "#1a1a1a"}, "hover": {"background": "#d89ba6", "border": "#1a1a1a"}}, "id": "E15", "label": "E15: \u4e2d\u7f8e\u6d32\u8bae\u4f1a\uff08\u7531\u5c3c\u52a0\n\u62c9\u74dc\u7c4d\u8bae\u957f\u3001\u4ea6\u4e3a\u5176\u603b\u7edf\u7684\u5965\u8482\n\u5609\u4e3b\u5bfc\uff09\u53d1\u5e03\u58f0\u660e\uff0c\u5ba3\u79f0\u4e0e\u4e2d\u534e\n\u4eba\u6c11\u5171\u548c\u56fd\u8fd1\u5e74\u5efa\u4ea4\u7684\u5df4\u62ff\u9a6c\u3001\n\u8428\u5c14\u74e6\u591a\u4e0e\u591a\u7c73\u5c3c\u52a0\u5171\u540c\u547c\u5401\u4e2d\n\u7f8e\u6d32\u7edf\u5408\u4f53\u8f6c\u5411\u627f\u8ba4\u4e2d\u534e\u4eba\u6c11\u5171\n\u548c\u56fd\u4e3a\u4e2d\u56fd\u4eba\u6c11\u7684\u552f\u4e00\u5408\u6cd5\u4ee3\u8868\n\uff0c\u8fd9\u662f\u9488\u5bf9\u53f0\u6e7e\u6240\u8c13\u201c\u90a6\u4ea4\u201d\u4f53\n\u7cfb\u7684\u653f\u6cbb\u8868\u6001\u3002\n\u25b2 0.41 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.394 (#10)\n\u8bed\u4e49\u5206: 0.433 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.394 + 0.30\u00d7\u7a00\u7f3a\u6027 0.630\n\u7efc\u5408\u5206: 0.414 (#12)"}, {"color": {"background": "#d76267", "border": "#e07b20", "highlight": {"background": "#d76267", "border": "#1a1a1a"}, "hover": {"background": "#d76267", "border": "#1a1a1a"}}, "id": "E16", "label": "E16: \u53f0\u6e7e\u5730\u533a\u4e0e\u6d2a\u90fd\u62c9\u65af\n\u4e8e2023\u5e743\u670826\u65e5\u7ec8\u6b62\u4e86\n\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.70 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.679 (#5)\n\u8bed\u4e49\u5206: 0.727 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.763 + 0.30\u00d7\u7a00\u7f3a\u6027 0.111\n\u7efc\u5408\u5206: 0.703 (#3)"}, {"color": {"background": "#d9becc", "border": "#3a7bd5", "highlight": {"background": "#d9becc", "border": "#1a1a1a"}, "hover": {"background": "#d9becc", "border": "#1a1a1a"}}, "id": "E17", "label": "E17: 2023\u5e748\u6708\uff0c\u53f0\n\u6e7e\u5730\u533a\u88ab\u8feb\u9000\u51fa\u4e2d\u7f8e\u6d32\u8bae\u4f1a\uff0c\u8fd9\n\u662f\u4e00\u4e2a\u653f\u6cbb/\u5916\u4ea4\u4f4d\u79fb\u4e8b\u4ef6\u3002\n\u25b2 0.24 (#15)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.206 (#17)\n\u8bed\u4e49\u5206: 0.267 (#14)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.395 + 0.30\u00d7\u7a00\u7f3a\u6027 0.013\n\u7efc\u5408\u5206: 0.237 (#15)"}, {"color": {"background": "#d88189", "border": "#3a7bd5", "highlight": {"background": "#d88189", "border": "#1a1a1a"}, "hover": {"background": "#d88189", "border": "#1a1a1a"}}, "id": "E18", "label": "E18: 2024\u5e741\u670815\n\u65e5\uff0c\u53f0\u6e7e\u5730\u533a\u4e0e\u8bfa\u9c81\u7ec8\u6b62\u4e86\u5916\u4ea4\n\u5173\u7cfb\u3002\n\u25b2 0.55 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.339 (#11)\n\u8bed\u4e49\u5206: 0.753 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.787 + 0.30\u00d7\u7a00\u7f3a\u6027 0.102\n\u7efc\u5408\u5206: 0.546 (#9)"}, {"color": {"background": "#dad9e8", "border": "#3a7bd5", "highlight": {"background": "#dad9e8", "border": "#1a1a1a"}, "hover": {"background": "#dad9e8", "border": "#1a1a1a"}}, "id": "E19", "label": "E19: \u5728\u8521\u82f1\u6587\u653f\u5e9c\u4efb\u5185\uff0c\n\u53f0\u6e7e\u5730\u533a\u4e0e\u5723\u591a\u7f8e\u666e\u6797\u897f\u6bd4\u3001\u5df4\n\u62ff\u9a6c\u3001\u591a\u7c73\u5c3c\u52a0\u3001\u5e03\u57fa\u7eb3\u6cd5\u7d22\u3001\n\u8428\u5c14\u74e6\u591a\u3001\u6240\u7f57\u95e8\u7fa4\u5c9b\u3001\u57fa\u91cc\u5df4\n\u65af\u3001\u5c3c\u52a0\u62c9\u74dc\u3001\u6d2a\u90fd\u5df4\u65af\u3001\u8bfa\u9c81\n\u517110\u4e2a\u56fd\u5bb6\u65ad\u4ea4\uff0c\u5bfc\u81f4\u5176\u90a6\u4ea4\n\u56fd\u6570\u91cf\u51cf\u5c11\u3002\n\u25b2 0.10 (#19)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.014 (#19)\n\u8bed\u4e49\u5206: 0.195 (#16)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.310 + 0.30\u00d7\u7a00\u7f3a\u6027 0.115\n\u7efc\u5408\u5206: 0.105 (#19)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E15", "id": "c0", "title": "\u4e2d\u7f8e\u6d32\u8bae\u4f1a\u58f0\u660e\u547c\u5401\u627f\u8ba4\u4e2d\u56fd\uff0c\u5bfc\u81f4\u53f0\u6e7e\u88ab\u8feb\u9000\u51fa", "to": "E17", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.716\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E8 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.778\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E10 \u5728 E14 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.727\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E5 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.786\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E16", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.784\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E16 \u5728 E18 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E18", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E14", "id": "t5", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.767\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E14 \u5728 E16 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E16", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E14", "id": "t6", "title": "\u5c3c\u52a0\u62c9\u74dc\u65ad\u4ea4\u540e\uff0c\u4e2d\u7f8e\u6d32\u8bae\u4f1a\u53d1\u5e03\u58f0\u660e\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1", "to": "E15", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E16", "id": "t7", "title": "\u6d2a\u90fd\u62c9\u65af\u65ad\u4ea4\u4e0e\u9000\u51fa\u8bae\u4f1a\u65e0\u76f4\u63a5\u56e0\u679c\uff0c\u5c5e\u80cc\u666f\u3002", "to": "E17", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E13", "id": "t8", "title": "\u539f\u6587\u65e0\u76f4\u63a5\u56e0\u679c\u7ebf\u7d22\uff0c\u4ec5\u65f6\u95f4\u76f8\u90bb\u3002", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t9", "title": "\u539f\u6587\u65e0\u76f4\u63a5\u56e0\u679c\u7ebf\u7d22\uff0c\u4ec5\u65f6\u95f4\u5148\u540e\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E12", "id": "t10", "title": "\u53e3\u7f69\u5916\u4ea4\u4e0e\u8bbe\u4ee3\u8868\u5904\u65e0\u76f4\u63a5\u56e0\u679c\uff0c\u5c5e\u5e76\u5217\u884c\u52a8\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t11", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.810\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t12", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.785\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E8 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t13", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.785\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t14", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.782\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E6 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t15", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.751\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E10 \u5728 E11 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t16", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE1 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E2 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E2", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E18", "id": "t17", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE19 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E18 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E19", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "马英九执政8年期间，基于“九二共识”与祖国大陆达成“外交休兵”默契。"}, {"id": "E2", "text": "2007年，台湾地区与哥斯达黎加终止了外交关系。"}, {"id": "E3", "text": "冈比亚主动与台湾“断交”。"}, {"id": "E4", "text": "台湾地区领导人蔡英文与美国当选总统唐纳德·特朗普进行政治通话，这是自1979年美台断交以来，台湾地区领导人与美国当选总统之间的首次直接通话。"}, {"id": "E5", "text": "2016年12月21日，台湾地区与圣多美和普林西比终止了外交关系。"}, {"id": "E6", "text": "2017年6月13日，台湾地区与巴拿马终止了外交关系。"}, {"id": "E7", "text": "2018年5月1日，台湾地区与多米尼加终止了外交关系。"}, {"id": "E8", "text": "台湾地区与布基纳法索终止外交关系。"}, {"id": "E9", "text": "台湾地区与萨尔瓦多断绝外交关系。"}, {"id": "E10", "text": "台湾地区与所罗门群岛于2019年9月16日终止了外交关系。"}, {"id": "E11", "text": "台湾地区与基里巴斯于9月20日断交，这是一起涉及台湾地区的外交事件。"}, {"id": "E12", "text": "2020年4月1日，台湾地区领导人蔡英文宣布实施“口罩外交”计划，通过捐赠口罩支援疫情严重国家的医疗人员，旨在通过物资援助进行政治博弈。"}, {"id": "E13", "text": "台湾地区在立陶宛设立具有官方性质的驻立陶宛台湾代表处，并于2021年11月18日正式挂牌。"}, {"id": "E14", "text": "2021年12月9日，台湾地区与尼加拉瓜终止了外交关系。"}, {"id": "E15", "text": "中美洲议会（由尼加拉瓜籍议长、亦为其总统的奥蒂嘉主导）发布声明，宣称与中华人民共和国近年建交的巴拿马、萨尔瓦多与多米尼加共同呼吁中美洲统合体转向承认中华人民共和国为中国人民的唯一合法代表，这是针对台湾所谓“邦交”体系的政治表态。"}, {"id": "E16", "text": "台湾地区与洪都拉斯于2023年3月26日终止了外交关系。"}, {"id": "E17", "text": "2023年8月，台湾地区被迫退出中美洲议会，这是一个政治/外交位移事件。"}, {"id": "E18", "text": "2024年1月15日，台湾地区与诺鲁终止了外交关系。"}, {"id": "E19", "text": "在蔡英文政府任内，台湾地区与圣多美普林西比、巴拿马、多米尼加、布基纳法索、萨尔瓦多、所罗门群岛、基里巴斯、尼加拉瓜、洪都巴斯、诺鲁共10个国家断交，导致其邦交国数量减少。"}];var _pyCausal=[{"from": "E15", "to": "E17", "reason": "中美洲议会声明呼吁承认中国，导致台湾被迫退出"}];var _pyTemporal=[{"from": "E3", "to": "E8", "reason": "语义嵌入相似度 0.716，按事件编号 E3 在 E8 之前，补一条仅表达时序的边。"}, {"from": "E10", "to": "E14", "reason": "语义嵌入相似度 0.778，按事件编号 E10 在 E14 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E5", "reason": "语义嵌入相似度 0.727，按事件编号 E2 在 E5 之前，补一条仅表达时序的边。"}, {"from": "E8", "to": "E10", "reason": "语义嵌入相似度 0.786，按事件编号 E8 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E16", "to": "E18", "reason": "语义嵌入相似度 0.784，按事件编号 E16 在 E18 之前，补一条仅表达时序的边。"}, {"from": "E14", "to": "E16", "reason": "语义嵌入相似度 0.767，按事件编号 E14 在 E16 之前，补一条仅表达时序的边。"}, {"from": "E14", "to": "E15", "reason": "尼加拉瓜断交后，中美洲议会发布声明，无直接促发"}, {"from": "E16", "to": "E17", "reason": "洪都拉斯断交与退出议会无直接因果，属背景。"}, {"from": "E13", "to": "E14", "reason": "原文无直接因果线索，仅时间相邻。"}, {"from": "E4", "to": "E5", "reason": "原文无直接因果线索，仅时间先后。"}, {"from": "E12", "to": "E13", "reason": "口罩外交与设代表处无直接因果，属并列行动。"}, {"from": "E8", "to": "E9", "reason": "语义嵌入相似度 0.810，按事件编号 E8 在 E9 之前，补一条仅表达时序的边。"}, {"from": "E7", "to": "E8", "reason": "语义嵌入相似度 0.785，按事件编号 E7 在 E8 之前，补一条仅表达时序的边。"}, {"from": "E5", "to": "E6", "reason": "语义嵌入相似度 0.785，按事件编号 E5 在 E6 之前，补一条仅表达时序的边。"}, {"from": "E6", "to": "E7", "reason": "语义嵌入相似度 0.782，按事件编号 E6 在 E7 之前，补一条仅表达时序的边。"}, {"from": "E10", "to": "E11", "reason": "语义嵌入相似度 0.751，按事件编号 E10 在 E11 之前，补一条仅表达时序的边。"}, {"from": "E1", "to": "E2", "reason": "孤立点消除：E1 与前一事件 E2 构成时序关系，仅表达时序，不表达因果。"}, {"from": "E18", "to": "E19", "reason": "孤立点消除：E19 与前一事件 E18 构成时序关系，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 0.32364141941070557, "topo_rank": 12, "semantic": 0.015321, "semantic_rank": 18, "semantic_rich": 0.126046, "semantic_rare": 0.2505, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.16948120970535277, "combined_rank": 17}, "E10": {"topo": 0.787182092666626, "topo_rank": 4, "semantic": 0.575575, "semantic_rank": 8, "semantic_rich": 0.645698, "semantic_rare": 0.063267, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.681378546333313, "combined_rank": 4}, "E11": {"topo": 0.036405861377716064, "topo_rank": 18, "semantic": 0.244923, "semantic_rank": 15, "semantic_rich": 0.375728, "semantic_rare": 0.01432, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.14066443068885803, "combined_rank": 18}, "E12": {"topo": 0.32364141941070557, "topo_rank": 12, "semantic": 0.028582, "semantic_rank": 17, "semantic_rich": 0.0, "semantic_rare": 0.846815, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.17611170970535278, "combined_rank": 16}, "E13": {"topo": 0.5736413598060608, "topo_rank": 6, "semantic": 0.0, "semantic_rank": 19, "semantic_rich": 0.073426, "semantic_rare": 0.422407, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2868206799030304, "combined_rank": 14}, "E14": {"topo": 0.9634575247764587, "topo_rank": 2, "semantic": 0.512168, "semantic_rank": 9, "semantic_rich": 0.598607, "semantic_rare": 0.033561, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.7378127623882293, "combined_rank": 2}, "E15": {"topo": 0.3943387269973755, "topo_rank": 10, "semantic": 0.432981, "semantic_rank": 12, "semantic_rich": 0.394008, "semantic_rare": 0.629525, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4136598634986878, "combined_rank": 12}, "E16": {"topo": 0.6789869070053101, "topo_rank": 5, "semantic": 0.727038, "semantic_rank": 4, "semantic_rich": 0.763452, "semantic_rare": 0.111361, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.703012453502655, "combined_rank": 3}, "E17": {"topo": 0.2061556577682495, "topo_rank": 17, "semantic": 0.266874, "semantic_rank": 14, "semantic_rich": 0.39466, "semantic_rare": 0.013185, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.23651482888412476, "combined_rank": 15}, "E18": {"topo": 0.3390515446662903, "topo_rank": 11, "semantic": 0.752565, "semantic_rank": 3, "semantic_rich": 0.787276, "semantic_rare": 0.102192, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5458082723331452, "combined_rank": 9}, "E19": {"topo": 0.013911902904510498, "topo_rank": 19, "semantic": 0.195467, "semantic_rank": 16, "semantic_rich": 0.310466, "semantic_rare": 0.11505, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.10468945145225525, "combined_rank": 19}, "E2": {"topo": 0.5736413598060608, "topo_rank": 6, "semantic": 0.654371, "semantic_rank": 6, "semantic_rich": 0.694727, "semantic_rare": 0.141396, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6140061799030304, "combined_rank": 7}, "E3": {"topo": 0.32364141941070557, "topo_rank": 12, "semantic": 0.410174, "semantic_rank": 13, "semantic_rich": 0.50262, "semantic_rare": 0.073658, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3669077097053528, "combined_rank": 13}, "E4": {"topo": 0.32364141941070557, "topo_rank": 12, "semantic": 0.842129, "semantic_rank": 2, "semantic_rich": 0.656699, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5828852097053527, "combined_rank": 8}, "E5": {"topo": 0.823641300201416, "topo_rank": 3, "semantic": 0.443961, "semantic_rank": 11, "semantic_rich": 0.548321, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.633801150100708, "combined_rank": 5}, "E6": {"topo": 0.5346936583518982, "topo_rank": 8, "semantic": 0.716386, "semantic_rank": 5, "semantic_rich": 0.770894, "semantic_rare": 0.039703, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6255398291759491, "combined_rank": 6}, "E7": {"topo": 0.4632582664489746, "topo_rank": 9, "semantic": 0.496426, "semantic_rank": 10, "semantic_rich": 0.585277, "semantic_rare": 0.033301, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4798421332244873, "combined_rank": 10}, "E8": {"topo": 0.9955555200576782, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.092361, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.9977777600288391, "combined_rank": 1}, "E9": {"topo": 0.2711305320262909, "topo_rank": 16, "semantic": 0.59701, "semantic_rank": 7, "semantic_rich": 0.667348, "semantic_rare": 0.048426, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.43407026601314547, "combined_rank": 11}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">I001 总体趋势：蔡英文执政8年10国断交，邦交国降至12个（2016-2024）</div><div>因果边：<b>1</b> 条&emsp;时序边：<b>18</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.12 / T- 0.18</div><div>C+ 0.41 / C- 0.29</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="台湾地区与布基纳法索终止外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区与布基纳法索终止外交关系…</td><td style="padding:4px 6px;text-align:center;">0.996 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.09</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.998 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="2021年12月9日，台湾地区与尼加拉瓜终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E14</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2021年12月9日，台湾地区与…</td><td style="padding:4px 6px;text-align:center;">0.963 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.512 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.60 / 稀 0.03</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.738 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="台湾地区与洪都拉斯于2023年3月26日终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E16</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区与洪都拉斯于2023年3…</td><td style="padding:4px 6px;text-align:center;">0.679 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.727 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.76 / 稀 0.11</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.703 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="台湾地区与所罗门群岛于2019年9月16日终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区与所罗门群岛于2019年…</td><td style="padding:4px 6px;text-align:center;">0.787 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.576 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.65 / 稀 0.06</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.681 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="2016年12月21日，台湾地区与圣多美和普林西比终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2016年12月21日，台湾地区…</td><td style="padding:4px 6px;text-align:center;">0.824 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.444 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.55 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.634 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="2017年6月13日，台湾地区与巴拿马终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2017年6月13日，台湾地区与…</td><td style="padding:4px 6px;text-align:center;">0.535 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.716 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.77 / 稀 0.04</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.626 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="2007年，台湾地区与哥斯达黎加终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2007年，台湾地区与哥斯达黎加…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.654 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.69 / 稀 0.14</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.614 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="台湾地区领导人蔡英文与美国当选总统唐纳德·特朗普进行政治通话，这是自1979年美台断交以来，台湾地区领导人与美国当选总统之间的首次直接通话。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区领导人蔡英文与美国当选总…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#12)</span></td><td style="padding:4px 6px;text-align:center;">0.842 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.66 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.583 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="2024年1月15日，台湾地区与诺鲁终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E18</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2024年1月15日，台湾地区与…</td><td style="padding:4px 6px;text-align:center;">0.339 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.753 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.79 / 稀 0.10</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.546 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="2018年5月1日，台湾地区与多米尼加终止了外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2018年5月1日，台湾地区与多…</td><td style="padding:4px 6px;text-align:center;">0.463 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.496 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.59 / 稀 0.03</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.480 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="台湾地区与萨尔瓦多断绝外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区与萨尔瓦多断绝外交关系。</td><td style="padding:4px 6px;text-align:center;">0.271 <span style="color:#888;font-size:10px">(#16)</span></td><td style="padding:4px 6px;text-align:center;">0.597 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.67 / 稀 0.05</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.434 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="中美洲议会（由尼加拉瓜籍议长、亦为其总统的奥蒂嘉主导）发布声明，宣称与中华人民共和国近年建交的巴拿马、萨尔瓦多与多米尼加共同呼吁中美洲统合体转向承认中华人民共和国为中国人民的唯一合法代表，这是针对台湾所谓“邦交”体系的政治表态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E15</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中美洲议会（由尼加拉瓜籍议长、亦…</td><td style="padding:4px 6px;text-align:center;">0.394 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.433 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.39 / 稀 0.63</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.414 <span style="color:#888;font-size:10px">(#12)</span></td></tr><tr title="冈比亚主动与台湾“断交”。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">冈比亚主动与台湾“断交”。</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#12)</span></td><td style="padding:4px 6px;text-align:center;">0.410 <span style="color:#888;font-size:10px">(#13)</span><div style="color:#888;font-size:10px">丰 0.50 / 稀 0.07</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.367 <span style="color:#888;font-size:10px">(#13)</span></td></tr><tr title="台湾地区在立陶宛设立具有官方性质的驻立陶宛台湾代表处，并于2021年11月18日正式挂牌。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E13</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区在立陶宛设立具有官方性质…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#19)</span><div style="color:#888;font-size:10px">丰 0.07 / 稀 0.42</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.287 <span style="color:#888;font-size:10px">(#14)</span></td></tr><tr title="2023年8月，台湾地区被迫退出中美洲议会，这是一个政治/外交位移事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E17</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2023年8月，台湾地区被迫退出…</td><td style="padding:4px 6px;text-align:center;">0.206 <span style="color:#888;font-size:10px">(#17)</span></td><td style="padding:4px 6px;text-align:center;">0.267 <span style="color:#888;font-size:10px">(#14)</span><div style="color:#888;font-size:10px">丰 0.39 / 稀 0.01</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.237 <span style="color:#888;font-size:10px">(#15)</span></td></tr><tr title="2020年4月1日，台湾地区领导人蔡英文宣布实施“口罩外交”计划，通过捐赠口罩支援疫情严重国家的医疗人员，旨在通过物资援助进行政治博弈。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2020年4月1日，台湾地区领导…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#12)</span></td><td style="padding:4px 6px;text-align:center;">0.029 <span style="color:#888;font-size:10px">(#17)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.85</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.176 <span style="color:#888;font-size:10px">(#16)</span></td></tr><tr title="马英九执政8年期间，基于“九二共识”与祖国大陆达成“外交休兵”默契。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">马英九执政8年期间，基于“九二共…</td><td style="padding:4px 6px;text-align:center;">0.324 <span style="color:#888;font-size:10px">(#12)</span></td><td style="padding:4px 6px;text-align:center;">0.015 <span style="color:#888;font-size:10px">(#18)</span><div style="color:#888;font-size:10px">丰 0.13 / 稀 0.25</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.169 <span style="color:#888;font-size:10px">(#17)</span></td></tr><tr title="台湾地区与基里巴斯于9月20日断交，这是一起涉及台湾地区的外交事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区与基里巴斯于9月20日断…</td><td style="padding:4px 6px;text-align:center;">0.036 <span style="color:#888;font-size:10px">(#18)</span></td><td style="padding:4px 6px;text-align:center;">0.245 <span style="color:#888;font-size:10px">(#15)</span><div style="color:#888;font-size:10px">丰 0.38 / 稀 0.01</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.141 <span style="color:#888;font-size:10px">(#18)</span></td></tr><tr title="在蔡英文政府任内，台湾地区与圣多美普林西比、巴拿马、多米尼加、布基纳法索、萨尔瓦多、所罗门群岛、基里巴斯、尼加拉瓜、洪都巴斯、诺鲁共10个国家断交，导致其邦交国数量减少。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E19</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">在蔡英文政府任内，台湾地区与圣多…</td><td style="padding:4px 6px;text-align:center;">0.014 <span style="color:#888;font-size:10px">(#19)</span></td><td style="padding:4px 6px;text-align:center;">0.195 <span style="color:#888;font-size:10px">(#16)</span><div style="color:#888;font-size:10px">丰 0.31 / 稀 0.12</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.105 <span style="color:#888;font-size:10px">(#19)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

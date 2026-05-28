@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d99fa9", "border": "#e07b20", "highlight": {"background": "#d99fa9", "border": "#1a1a1a"}, "hover": {"background": "#d99fa9", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u53f0\u6e7e\u519b\u65b9\u901a\u8fc7\u8054\u5408\u60c5\u62a5\n\u3001\u76d1\u89c6\u548c\u4fa6\u5bdf\u624b\u6bb5\uff0c\u638c\u63e1\u53f0\u6d77\u5468\n\u8fb9\uff08\u4e3b\u8981\u662f\u89e3\u653e\u519b\uff09\u7684\u52a8\u6001\u3002\n\u25b2 0.40 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.240 (#4)\n\u8bed\u4e49\u5206: 0.552 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.437 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.396 (#3)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: 8\u670821\u65e5\uff0c\u793e\u4ea4\u5e73\u53f0\nX\uff08\u524d\u79f0\u201c\u63a8\u7279\u201d\uff09\u8d26\u53f7\u201c\u8def\u5fb7\n\u793e\u201d\u53d1\u5e03\u6d88\u606f\uff0c\u79f0\u89e3\u653e\u519b\u4e00\u82580\n93\u578b\u201c\u5546\u7ea7\u201d\u6838\u6f5c\u8247\u5728\u53f0\u6d77\u5931\n\u4e8b\uff0c\u4e14\u8230\u4e0a\u5b98\u5175\u201c\u5168\u6570\u4e27\u751f\u201d\uff1b\n\u7f8e\u56fd\u6d77\u519b\u6f5c\u8247\u4e13\u5bb6\u8428\u987f\uff08H I\n Sutton\uff09\u706b\u901f\u8f6c\u53d1\u8be5\u6d88\n\u606f\u3002\n\u25b2 1.04 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 1.037 (#1)"}, {"color": {"background": "#d9bdca", "border": "#3a7bd5", "highlight": {"background": "#d9bdca", "border": "#1a1a1a"}, "hover": {"background": "#d9bdca", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: 8\u670822\u65e5\uff0c\u53f0\u201c\u81ea\u7531\n\u65f6\u62a5\u201d\u62a5\u9053\u79f0\uff0c\u6f8e\u6e56\u6d77\u57df18\u65e5\n\u53d1\u73b0\u8eab\u7740\u201c\u4e2d\u56fd\u201d\u5b57\u6837\u77ed\u88e4\u7684\u201c\n\u4e0d\u660e\u7537\u5c38\u201d\uff0c\u5e76\u6307\u79f0\u201c\u9887\u50cf\u4e2d\u56fd\n\u519b\u4eba\u7684\u7a7f\u7740\u201d\u3002\n\u25b2 0.24 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.240 (#4)\n\u8bed\u4e49\u5206: 0.244 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.372 + 0.30\u00d7\u7a00\u7f3a\u6027 0.102\n\u7efc\u5408\u5206: 0.242 (#5)"}, {"color": {"background": "#dad0df", "border": "#3a7bd5", "highlight": {"background": "#dad0df", "border": "#1a1a1a"}, "hover": {"background": "#dad0df", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: 8\u670822\u65e5\uff0c\u53f0\u6e7e\u201c\u539f\n\u80fd\u4f1a\u201d\u53d1\u8a00\u4eba\u738b\u91cd\u5fb7\u8868\u793a\uff0c\u82e5\u6838\n\u6f5c\u8230\u6c89\u6ca1\u53ef\u80fd\u4f1a\u6709\u6838\u5b50\u5916\u6cc4\u60c5\u51b5\n\uff0c\u4f46\u5168\u53f063\u4e2a\u73af\u5883\u8f90\u5c04\u76d1\u6d4b\u7ad9\n\u53ca\u6d77\u57df\u8f90\u5c04\u80cc\u666f\u503c\u5747\u672a\u76d1\u6d4b\u5230\u5f02\n\u5e38\u3002\n\u25b2 0.15 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.240 (#4)\n\u8bed\u4e49\u5206: 0.055 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.205 + 0.30\u00d7\u7a00\u7f3a\u6027 0.176\n\u7efc\u5408\u5206: 0.148 (#6)"}, {"color": {"background": "#d8939d", "border": "#e07b20", "highlight": {"background": "#d8939d", "border": "#1a1a1a"}, "hover": {"background": "#d8939d", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u53f0\u6e7e\u9632\u52a1\u90e8\u95e8\u5b98\u65b9\u5426\u8ba4\n\u5e76\u6f84\u6e05\u4e86\u5173\u4e8e\u4e2d\u56fd\u5927\u9646\u6838\u6f5c\u8247\u5931\n\u4e8b\u7684\u4f20\u95fb\uff0c\u6307\u51fa\u6b64\u7c7b\u4fe1\u606f\u6e90\u81ea\u793e\n\u4ea4\u5a92\u4f53\uff0c\u76ee\u524d\u672a\u83b7\u8bc1\u5b9e\u3002\n\u25b2 0.45 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#2)\n\u8bed\u4e49\u5206: 0.500 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.575 + 0.30\u00d7\u7a00\u7f3a\u6027 0.114\n\u7efc\u5408\u5206: 0.454 (#2)"}, {"color": {"background": "#dad6e5", "border": "#3a7bd5", "highlight": {"background": "#dad6e5", "border": "#1a1a1a"}, "hover": {"background": "#dad6e5", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: 8\u670823\u65e5\u51cc\u666812\u70b9\n27\u5206\uff0c\u4e00\u67b6\u547c\u53f764-148\n31\u7684\u7f8e\u519bWC-135\u6838\u4fa6\u5bdf\n\u673a\u4ece\u9a6c\u6765\u897f\u4e9a\u5916\u6d77\u8d77\u98de\uff0c\u5317\u4e0a\u8fdb\n\u5165\u5357\u6d77\uff0c\u9014\u4e2d\u4e24\u5ea6\u5173\u95edADS-\nB\u7cfb\u7edf\uff0c\u63a5\u8fd1\u83f2\u5f8b\u5bbe\u540e\u91cd\u65b0\u5f00\u542f\n\uff0c\u53d6\u9053\u53f0\u6e7e\u4e1c\u90e8\u6d77\u57df\uff0c\u4e8e\u4e0a\u53487\n\u70b950\u5206\u964d\u843d\u5728\u7f8e\u519b\u51b2\u7ef3\u5609\u624b\u7eb3\n\u7a7a\u519b\u57fa\u5730\u3002\u6b64\u6b21\u98de\u884c\u88ab\u8bc6\u522b\u4e3a\u5728\n\u5357\u6d77\u53ca\u53f0\u6e7e\u4e1c\u90e8\u6d77\u57df\u5b9e\u65bd\u7684\u519b\u4e8b\n\u4fa6\u5bdf\u884c\u52a8\u3002\n\u25b2 0.12 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.240 (#4)\n\u8bed\u4e49\u5206: 0.000 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.969\n\u7efc\u5408\u5206: 0.120 (#7)"}, {"color": {"background": "#d9a9b4", "border": "#3a7bd5", "highlight": {"background": "#d9a9b4", "border": "#1a1a1a"}, "hover": {"background": "#d9a9b4", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u4e2d\u56fd\u56fd\u9632\u90e8\u65b0\u95fb\u53d1\u8a00\u4eba\n\u5434\u8c26\u5728\u4f8b\u884c\u8bb0\u8005\u4f1a\u4e0a\uff0c\u6b63\u5f0f\u5426\u8ba4\n\u4e86\u5173\u4e8e\u89e3\u653e\u519b093\u578b\u6838\u6f5c\u8247\u5728\n\u53f0\u6d77\u9644\u8fd1\u53d1\u751f\u4e25\u91cd\u610f\u5916\u7684\u4f20\u95fb\uff0c\n\u5c06\u5176\u5b9a\u6027\u4e3a\u7eaf\u5c5e\u8c23\u8a00\u3002\n\u25b2 0.35 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.273 (#3)\n\u8bed\u4e49\u5206: 0.418 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.507 + 0.30\u00d7\u7a00\u7f3a\u6027 0.126\n\u7efc\u5408\u5206: 0.345 (#4)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "\u8c23\u8a00\u4fc3\u4f7f\u53f0\u6e7e\u9632\u52a1\u90e8\u95e8\u51fa\u9762\u5426\u8ba4", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c1", "title": "\u8c23\u8a00\u76f4\u63a5\u5bfc\u81f4\u4e2d\u56fd\u56fd\u9632\u90e8\u6b63\u5f0f\u8f9f\u8c23", "to": "E7", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t0", "title": "WC-135\u98de\u884c\u662f\u72ec\u7acb\u519b\u4e8b\u884c\u52a8\uff0c\u4e0e\u8c23\u8a00\u65e0\u76f4\u63a5\u56e0\u679c\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t1", "title": "\u8c23\u8a00\u5f15\u53d1\u5b98\u65b9\u4f8b\u884c\u76d1\u6d4b\u8bf4\u660e\uff0c\u65e0\u76f4\u63a5\u4fc3\u53d1", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.785\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t3", "title": "\u7eff\u5a92\u62a5\u9053\u6f8e\u6e56\u7537\u5c38\u662f\u72ec\u7acb\u4e8b\u4ef6\uff0c\u975e\u8c23\u8a00\u76f4\u63a5\u4fc3\u53d1\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t4", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE1 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E2 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E2", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "台湾军方通过联合情报、监视和侦察手段，掌握台海周边（主要是解放军）的动态。"}, {"id": "E2", "text": "8月21日，社交平台X（前称“推特”）账号“路德社”发布消息，称解放军一艘093型“商级”核潜艇在台海失事，且舰上官兵“全数丧生”；美国海军潜艇专家萨顿（H I Sutton）火速转发该消息。"}, {"id": "E3", "text": "8月22日，台“自由时报”报道称，澎湖海域18日发现身着“中国”字样短裤的“不明男尸”，并指称“颇像中国军人的穿着”。"}, {"id": "E4", "text": "8月22日，台湾“原能会”发言人王重德表示，若核潜舰沉没可能会有核子外泄情况，但全台63个环境辐射监测站及海域辐射背景值均未监测到异常。"}, {"id": "E5", "text": "台湾防务部门官方否认并澄清了关于中国大陆核潜艇失事的传闻，指出此类信息源自社交媒体，目前未获证实。"}, {"id": "E6", "text": "8月23日凌晨12点27分，一架呼号64-14831的美军WC-135核侦察机从马来西亚外海起飞，北上进入南海，途中两度关闭ADS-B系统，接近菲律宾后重新开启，取道台湾东部海域，于上午7点50分降落在美军冲绳嘉手纳空军基地。此次飞行被识别为在南海及台湾东部海域实施的军事侦察行动。"}, {"id": "E7", "text": "中国国防部新闻发言人吴谦在例行记者会上，正式否认了关于解放军093型核潜艇在台海附近发生严重意外的传闻，将其定性为纯属谣言。"}];var _pyCausal=[{"from": "E2", "to": "E5", "reason": "谣言促使台湾防务部门出面否认"}, {"from": "E2", "to": "E7", "reason": "谣言直接导致中国国防部正式辟谣"}];var _pyTemporal=[{"from": "E2", "to": "E6", "reason": "WC-135飞行是独立军事行动，与谣言无直接因果。"}, {"from": "E2", "to": "E4", "reason": "谣言引发官方例行监测说明，无直接促发"}, {"from": "E5", "to": "E7", "reason": "语义嵌入相似度 0.785，按事件编号 E5 在 E7 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E3", "reason": "绿媒报道澎湖男尸是独立事件，非谣言直接促发。"}, {"from": "E1", "to": "E2", "reason": "孤立点消除：E1 与前一事件 E2 构成时序关系，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 0.24030813574790955, "topo_rank": 4, "semantic": 0.551533, "semantic_rank": 2, "semantic_rich": 0.436764, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3959205678739548, "combined_rank": 3}, "E2": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.036820650100708, "combined_rank": 1}, "E3": {"topo": 0.24030813574790955, "topo_rank": 4, "semantic": 0.243602, "semantic_rank": 5, "semantic_rich": 0.37158, "semantic_rare": 0.102145, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.24195506787395477, "combined_rank": 5}, "E4": {"topo": 0.24030813574790955, "topo_rank": 4, "semantic": 0.05546, "semantic_rank": 6, "semantic_rich": 0.205437, "semantic_rare": 0.176011, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.14788406787395478, "combined_rank": 6}, "E5": {"topo": 0.40697476267814636, "topo_rank": 2, "semantic": 0.500108, "semantic_rank": 3, "semantic_rich": 0.575245, "semantic_rare": 0.114035, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4535413813390732, "combined_rank": 2}, "E6": {"topo": 0.24030813574790955, "topo_rank": 4, "semantic": 0.0, "semantic_rank": 7, "semantic_rich": 0.0, "semantic_rare": 0.968771, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.12015406787395477, "combined_rank": 7}, "E7": {"topo": 0.27256497740745544, "topo_rank": 3, "semantic": 0.417945, "semantic_rank": 4, "semantic_rich": 0.506819, "semantic_rare": 0.12594, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3452549887037277, "combined_rank": 4}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">NM038 解放军核潜艇（093型）疑在台湾周边水下事故（2023）</div><div>因果边：<b>2</b> 条&emsp;时序边：<b>5</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.11 / T- 0.23</div><div>C+ 0.33 / C- 0.33</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="8月21日，社交平台X（前称“推特”）账号“路德社”发布消息，称解放军一艘093型“商级”核潜艇在台海失事，且舰上官兵“全数丧生”；美国海军潜艇专家萨顿（H I Sutton）火速转发该消息。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">8月21日，社交平台X（前称“推…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.037 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="台湾防务部门官方否认并澄清了关于中国大陆核潜艇失事的传闻，指出此类信息源自社交媒体，目前未获证实。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾防务部门官方否认并澄清了关于…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.500 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.58 / 稀 0.11</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.454 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="台湾军方通过联合情报、监视和侦察手段，掌握台海周边（主要是解放军）的动态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾军方通过联合情报、监视和侦察…</td><td style="padding:4px 6px;text-align:center;">0.240 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.552 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.44 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.396 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="中国国防部新闻发言人吴谦在例行记者会上，正式否认了关于解放军093型核潜艇在台海附近发生严重意外的传闻，将其定性为纯属谣言。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国国防部新闻发言人吴谦在例行记…</td><td style="padding:4px 6px;text-align:center;">0.273 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.418 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.51 / 稀 0.13</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.345 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="8月22日，台“自由时报”报道称，澎湖海域18日发现身着“中国”字样短裤的“不明男尸”，并指称“颇像中国军人的穿着”。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">8月22日，台“自由时报”报道称…</td><td style="padding:4px 6px;text-align:center;">0.240 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.244 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.37 / 稀 0.10</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.242 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="8月22日，台湾“原能会”发言人王重德表示，若核潜舰沉没可能会有核子外泄情况，但全台63个环境辐射监测站及海域辐射背景值均未监测到异常。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">8月22日，台湾“原能会”发言人…</td><td style="padding:4px 6px;text-align:center;">0.240 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.055 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.21 / 稀 0.18</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.148 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="8月23日凌晨12点27分，一架呼号64-14831的美军WC-135核侦察机从马来西亚外海起飞，北上进入南海，途中两度关闭ADS-B系统，接近菲律宾后重新开启，取道台湾东部海域，于上午7点50分降落在美军冲绳嘉手纳空军基地。此次飞行被识别为在南海及台湾东部海域实施的军事侦察行动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">8月23日凌晨12点27分，一架…</td><td style="padding:4px 6px;text-align:center;">0.240 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.97</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.120 <span style="color:#888;font-size:10px">(#7)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

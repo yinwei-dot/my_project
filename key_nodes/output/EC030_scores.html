@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d9c0ce", "border": "#3a7bd5", "highlight": {"background": "#d9c0ce", "border": "#1a1a1a"}, "hover": {"background": "#d9c0ce", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: 2017\u5e74\uff0c\u53f0\u6e7e\u8521\u82f1\n\u6587\u653f\u5e9c\u4ee5\u6cd5\u5f8b\u786e\u7acb2025\u5e74\u5e9f\n\u9664\u6838\u7535\u7684\u201c\u975e\u6838\u5bb6\u56ed\u201d\u653f\u7b56\u3002\n\u25b2 0.23 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.240 (#9)\n\u8bed\u4e49\u5206: 0.215 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.206 + 0.30\u00d7\u7a00\u7f3a\u6027 0.569\n\u7efc\u5408\u5206: 0.228 (#10)"}, {"color": {"background": "#d9a4af", "border": "#3a7bd5", "highlight": {"background": "#d9a4af", "border": "#1a1a1a"}, "hover": {"background": "#d9a4af", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u6b64\u6b21\u505c\u7535\u8087\u56e0\u4e8e\u53f0\u6e7e\u4e2d\n\u6cb9\u5bf9\u53f0\u7535\u5927\u6f6d\u53d1\u7535\u5382\u7684\u5929\u7136\u6c14\u4f9b\n\u5e94\u7ba1\u7ebf\u56e0\u66f4\u6362\u5361\u7247\u3001\u64cd\u4f5c\u4e0d\u5f53\uff0c\n\u9020\u6210\u610f\u5916\u505c\u6b62\u8fd0\u4f5c\uff0c\u5bfc\u81f4\u5927\u6f6d\u53d1\n\u7535\u53826\u90e8\u673a\u7ec4\u5168\u90e8\u8df3\u505c\uff0c\u8fdb\u800c\u9020\n\u6210\u5168\u53f0\u7535\u529b\u5907\u8f6c\u5bb9\u91cf\u4e0d\u8db3\uff0c\u4f9b\u7535\n\u7cfb\u7edf\u542f\u52a8\u5206\u533a\u505c\u7535\u3002\n\u25b2 0.37 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#6)\n\u8bed\u4e49\u5206: 0.334 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.339 + 0.30\u00d7\u7a00\u7f3a\u6027 0.239\n\u7efc\u5408\u5206: 0.371 (#6)"}, {"color": {"background": "#d88f98", "border": "#e07b20", "highlight": {"background": "#d88f98", "border": "#1a1a1a"}, "hover": {"background": "#d88f98", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: 2017\u5e748\u670815\u65e5\n16\u65f651\u5206\u8d77\uff0c\u53f0\u6e7e\u672c\u5c9b\u5404\u5730\n\u53d1\u751f\u5927\u89c4\u6a21\u65e0\u9884\u8b66\u505c\u7535\u4e8b\u4ef6\uff0c\u5373\n\u516b\u4e00\u4e94\u5168\u53f0\u5927\u505c\u7535\u3002\n\u25b2 0.47 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#2)\n\u8bed\u4e49\u5206: 0.376 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.375 + 0.30\u00d7\u7a00\u7f3a\u6027 0.344\n\u7efc\u5408\u5206: 0.475 (#3)"}, {"color": {"background": "#d9b7c3", "border": "#3a7bd5", "highlight": {"background": "#d9b7c3", "border": "#1a1a1a"}, "hover": {"background": "#d9b7c3", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u516b\u4e00\u4e94\u5168\u53f0\u5927\u505c\u7535\u4e8e\u540c\n\u65e523\u65f6\u59cb\u6062\u590d\u6b63\u5e38\u4f9b\u7535\uff0c\u5e76\u4e8e\n\u7fcc\u65e50\u65f650\u5206\uff0c\u5927\u6f6d\u53d1\u7535\u53826\n\u90e8\u673a\u7ec4\u5168\u90e8\u6062\u590d\u5e76\u8054\u53d1\u7535\u3002\n\u25b2 0.28 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#6)\n\u8bed\u4e49\u5206: 0.145 (#12)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.150 + 0.30\u00d7\u7a00\u7f3a\u6027 0.331\n\u7efc\u5408\u5206: 0.276 (#8)"}, {"color": {"background": "#d8929c", "border": "#3a7bd5", "highlight": {"background": "#d8929c", "border": "#1a1a1a"}, "hover": {"background": "#d8929c", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u7b2c\u4e00\u6b21\u8d77\u56e0\u4e3a\u9ad8\u96c4\u5e02\u8def\n\u7af9\u533a\u8def\u5317\u8d85\u9ad8\u538b\u53d8\u7535\u6240\u5de5\u4f5c\u4eba\u5458\n\u4e8e\u9a8c\u6536\u8bbe\u5907\u65f6\u8bef\u64cd\u4f5c\u9694\u79bb\u5f00\u5173\uff0c\n\u9020\u6210\u8f93\u7535\u8bbe\u5907\u603b\u7ebf\u63a5\u5730\u6545\u969c\uff0c\u5bfc\n\u81f4\u7535\u538b\u9aa4\u964d\uff0c\u8fdb\u800c\u9020\u6210\u5174\u8fbe\u53d1\u7535\n\u5382\u56db\u90e8\u71c3\u7164\u673a\u7ec4\u8df3\u673a\uff0c\u635f\u5931\u4f9b\u7535\n\u91cf\u7ea6220\u4e07\u74e9\u3002\n\u25b2 0.46 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#2)\n\u8bed\u4e49\u5206: 0.347 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.360 + 0.30\u00d7\u7a00\u7f3a\u6027 0.086\n\u7efc\u5408\u5206: 0.460 (#4)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: 5\u670813\u65e5\u4e0b\u5348\uff0c\u53f0\u6e7e\n\u6700\u5927\u7684\u53d1\u7535\u5382\u53f0\u7535\u53d1\u8868\u516c\u544a\uff0c\u4f4d\n\u4e8e\u9ad8\u96c4\u7684\u5174\u8fbe\u7535\u5382\u4e0b\u53482\u70b937\n\u5206\u56e0\u4e8b\u6545\u5168\u5382\u505c\u673a\uff0c\u7cfb\u7edf\u4f9b\u7535\u80fd\n\u529b\u4e0d\u8db3\uff0c\u4e8e3\u70b9\u5f00\u59cb\u6267\u884c\u7d27\u6025\u5206\n\u533a\u8f6e\u6d41\u505c\u7535\u3002\n\u25b2 1.02 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.038 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.030\n\u7efc\u5408\u5206: 1.019 (#1)"}, {"color": {"background": "#d8838b", "border": "#e07b20", "highlight": {"background": "#d8838b", "border": "#1a1a1a"}, "hover": {"background": "#d8838b", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: 2021\u5e745\u670813\u65e5\n\uff0c\u53f0\u6e7e\u53d1\u751f\u505c\u7535\u4e8b\u4ef6\uff0c\u5373513\n\u505c\u7535\u4e8b\u6545\u6216513\u5168\u53f0\u5927\u505c\u7535\u3002\n\u25b2 0.54 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.504 (#4)\n\u8bed\u4e49\u5206: 0.571 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.580 + 0.30\u00d7\u7a00\u7f3a\u6027 0.057\n\u7efc\u5408\u5206: 0.538 (#2)"}, {"color": {"background": "#dac7d5", "border": "#3a7bd5", "highlight": {"background": "#dac7d5", "border": "#1a1a1a"}, "hover": {"background": "#dac7d5", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u53f0\u6e7e\u7535\u529b\u516c\u53f8\u8bc4\u4f30\u77ed\u65f6\n\u95f4\u5185\u65e0\u6cd5\u7acb\u5373\u590d\u7535\uff0c\u4e3a\u7ef4\u7cfb\u7535\u529b\n\u7cfb\u7edf\u5b89\u5168\u7a33\u5b9a\uff0c\u81ea\u4e0b\u53483\u65f6\u8d77\u6267\n\u884c\u7d27\u6025\u5206\u533a\u8f6e\u6d41\u505c\u7535\uff0c\u4e8e\u665a\u95f48\n\u70b9\u6062\u590d\u3002\n\u25b2 0.19 (#12)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.115 (#11)\n\u8bed\u4e49\u5206: 0.274 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.283 + 0.30\u00d7\u7a00\u7f3a\u6027 0.187\n\u7efc\u5408\u5206: 0.194 (#12)"}, {"color": {"background": "#d9c2cf", "border": "#3a7bd5", "highlight": {"background": "#d9c2cf", "border": "#1a1a1a"}, "hover": {"background": "#d9c2cf", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u53d7\u6b64\u5f71\u54cd\uff0c\u53f0\u6e7e\u591a\u4e2a\u5730\n\u533a\u88ab\u8feb\u505c\u7535\uff0c\u5305\u62ec\u65b0\u5317\u4e09\u91cd\u4e0e\u4e2d\n\u548c\u3001\u53f0\u5317\u5357\u6e2f\uff0c\u4ee5\u53ca\u6843\u56ed\u3001\u53f0\u4e2d\n\u3001\u82d7\u6817\u7b49\u5730\u3002\n\u25b2 0.22 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.115 (#11)\n\u8bed\u4e49\u5206: 0.326 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.327 + 0.30\u00d7\u7a00\u7f3a\u6027 0.331\n\u7efc\u5408\u5206: 0.220 (#11)"}, {"color": {"background": "#d9a2ad", "border": "#3a7bd5", "highlight": {"background": "#d9a2ad", "border": "#1a1a1a"}, "hover": {"background": "#d9a2ad", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u53f0\u79ef\u7535\u516c\u53f8\u968f\u540e\u53d1\u8868\n\u516c\u544a\u79f0\uff0c\u56e0\u5174\u8fbe\u7535\u5382\u5168\u5382\u505c\u673a\uff0c\n\u4f7f\u90e8\u5206\u5382\u533a\u4ea7\u751f\u77ed\u6682\u538b\u964d\u73b0\u8c61\uff0c\n\u76ee\u524d\u4f9b\u7535\u6b63\u5e38\uff0c\u5df2\u91c7\u53d6\u7d27\u6025\u5e94\u53d8\n\u63aa\u65bd\u53ca\u53d1\u7535\u673a\u5907\u63f4\u51c6\u5907\u3002\n\u25b2 0.38 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.489 (#5)\n\u8bed\u4e49\u5206: 0.268 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.287 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.379 (#5)"}, {"color": {"background": "#dae4f5", "border": "#3a7bd5", "highlight": {"background": "#dae4f5", "border": "#1a1a1a"}, "hover": {"background": "#dae4f5", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u53e6\u4e00\u5bb6\u6676\u5706\u4ee3\u5de5\u5927\u5382\n\u8054\u7535\u4e5f\u53d1\u8868\u516c\u544a\uff0c\u79f0\u5357\u79d1\u5382\u533a\u867d\n\u6709\u51fa\u73b0\u538b\u964d\u60c5\u51b5\uff0c\u4f46UPS\u7cfb\u7edf\n\u968f\u5373\u63a5\u4e0a\uff0c\u751f\u4ea7\u8425\u8fd0\u4e0d\u53d7\u5f71\u54cd\u3002\n\u25b2 0.05 (#13)", "shape": "box", "title": "\u62d3\u6251\u5206: -0.020 (#13)\n\u8bed\u4e49\u5206: 0.113 (#13)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.084 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.047 (#13)"}, {"color": {"background": "#d9a8b4", "border": "#3a7bd5", "highlight": {"background": "#d9a8b4", "border": "#1a1a1a"}, "hover": {"background": "#d9a8b4", "border": "#1a1a1a"}}, "id": "E12", "label": "E12: 517\u505c\u7535\u4e8b\u6545\u8d77\u56e0\n\u662f\u5174\u8fbe\u7535\u5382\u4e00\u53f7\u673a\u56e0\u71c3\u70e7\u5668\u7ba1\u7406\n\u7cfb\u7edf\u63a7\u5236\u6a21\u7ec4\u6545\u969c\uff0c\u6240\u6709\u7c89\u5a92\u673a\n\u8df3\u8131\uff0c\u673a\u7ec4\u4e8e12\u65f654\u5206\u8df3\u673a\n\uff0c\u4f9b\u7535\u77ac\u65f6\u51cf\u5c1150\u4e07\u74e9\uff0c\u800c\u5bfc\n\u81f4\u505c\u7535\u3002\n\u25b2 0.35 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#8)\n\u8bed\u4e49\u5206: 0.289 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.294 + 0.30\u00d7\u7a00\u7f3a\u6027 0.263\n\u7efc\u5408\u5206: 0.348 (#7)"}, {"color": {"background": "#d9bdca", "border": "#3a7bd5", "highlight": {"background": "#d9bdca", "border": "#1a1a1a"}, "hover": {"background": "#d9bdca", "border": "#1a1a1a"}}, "id": "E13", "label": "E13: 5\u670817\u65e5\u53d1\u751f\u53e6\u4e00\n\u6b21\u505c\u7535\uff0c\u5373517\u505c\u7535\u4e8b\u6545\u62165\n17\u5168\u53f0\u5927\u505c\u7535\u3002\n\u25b2 0.25 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.130 (#10)\n\u8bed\u4e49\u5206: 0.362 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.377 + 0.30\u00d7\u7a00\u7f3a\u6027 0.053\n\u7efc\u5408\u5206: 0.246 (#9)"}, {"color": {"background": "#dbeeff", "border": "#3a7bd5", "highlight": {"background": "#dbeeff", "border": "#1a1a1a"}, "hover": {"background": "#dbeeff", "border": "#1a1a1a"}}, "id": "E14", "label": "E14: \u7ecf\u6d4e\u90e8\u8ba4\u4e3a\u6b64\u6b2151\n7\u505c\u7535\u7cfb\u56e0\u6c14\u5019\u5f02\u5e38\u3001\u5c45\u5bb6\u529e\u516c\n\u7528\u7535\u589e\u52a0\u3001\u6c34\u60c5\u4e0d\u4f73\u53ca\u5927\u4fee\u673a\u7ec4\n\u672a\u5f52\u961f\u8bf8\u591a\u56e0\u7d20\u53e0\u52a0\u9020\u6210\u4f9b\u7535\u4e8b\n\u6545\u3002\n\u25b2 -0.01 (#14)", "shape": "box", "title": "\u62d3\u6251\u5206: -0.022 (#14)\n\u8bed\u4e49\u5206: 0.000 (#14)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.498\n\u7efc\u5408\u5206: -0.011 (#14)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "\u5929\u7136\u6c14\u4f9b\u5e94\u4e2d\u65ad\u5bfc\u81f4\u5927\u6f6d\u7535\u5382\u8df3\u673a\uff0c\u5f15\u53d1\u5168\u53f0\u5927\u505c\u7535", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E5", "id": "c1", "title": "\u8bef\u64cd\u4f5c\u5bfc\u81f4\u5174\u8fbe\u7535\u5382\u673a\u7ec4\u8df3\u673a\uff0c\u53f0\u7535\u516c\u544a\u5168\u5382\u505c\u673a", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E5", "id": "c2", "title": "\u8bef\u64cd\u4f5c\u5bfc\u81f4\u673a\u7ec4\u8df3\u673a\uff0c\u662f513\u505c\u7535\u4e8b\u6545\u7684\u76f4\u63a5\u539f\u56e0", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c3", "title": "\u5174\u8fbe\u7535\u5382\u505c\u673a\u5bfc\u81f4\u4f9b\u7535\u4e0d\u8db3\uff0c\u53f0\u7535\u6267\u884c\u5206\u533a\u505c\u7535", "to": "E8", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c4", "title": "\u5174\u8fbe\u7535\u5382\u505c\u673a\u5bfc\u81f4\u7cfb\u7edf\u4f9b\u7535\u4e0d\u8db3\uff0c\u5f15\u53d1\u591a\u5730\u533a\u505c\u7535", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c5", "title": "\u5174\u8fbe\u7535\u5382\u505c\u673a\u5bfc\u81f4\u53f0\u79ef\u7535\u5382\u533a\u51fa\u73b0\u538b\u964d\u73b0\u8c61", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E12", "id": "c6", "title": "\u673a\u7ec4\u6545\u969c\u8df3\u673a\u76f4\u63a5\u5bfc\u81f4517\u505c\u7535\u4e8b\u6545\u53d1\u751f", "to": "E13", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.745\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E7 \u5728 E13 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E13", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.728\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E5 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t2", "title": "\u653f\u7b56\u786e\u7acb\u4e0e\u505c\u7535\u4e8b\u4ef6\u65e0\u76f4\u63a5\u4fc3\u53d1\u5173\u7cfb\uff0c\u4ec5\u4e3a\u65f6\u95f4\u80cc\u666f\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E12", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.798\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E12 \u5728 E14 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E14", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t4", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.718\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t5", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.705\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E10 \u5728 E12 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E12", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t6", "title": "E6\u662fE7\u7684\u5177\u4f53\u516c\u544a\uff0c\u662f\u4e8b\u4ef6\u63cf\u8ff0\u800c\u975e\u56e0\u679c", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t7", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.740\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E4 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t8", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.705\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E10 \u5728 E11 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E11", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "2017年，台湾蔡英文政府以法律确立2025年废除核电的“非核家园”政策。"}, {"id": "E2", "text": "此次停电肇因于台湾中油对台电大潭发电厂的天然气供应管线因更换卡片、操作不当，造成意外停止运作，导致大潭发电厂6部机组全部跳停，进而造成全台电力备转容量不足，供电系统启动分区停电。"}, {"id": "E3", "text": "2017年8月15日16时51分起，台湾本岛各地发生大规模无预警停电事件，即八一五全台大停电。"}, {"id": "E4", "text": "八一五全台大停电于同日23时始恢复正常供电，并于翌日0时50分，大潭发电厂6部机组全部恢复并联发电。"}, {"id": "E5", "text": "第一次起因为高雄市路竹区路北超高压变电所工作人员于验收设备时误操作隔离开关，造成输电设备总线接地故障，导致电压骤降，进而造成兴达发电厂四部燃煤机组跳机，损失供电量约220万瓩。"}, {"id": "E6", "text": "5月13日下午，台湾最大的发电厂台电发表公告，位于高雄的兴达电厂下午2点37分因事故全厂停机，系统供电能力不足，于3点开始执行紧急分区轮流停电。"}, {"id": "E7", "text": "2021年5月13日，台湾发生停电事件，即513停电事故或513全台大停电。"}, {"id": "E8", "text": "台湾电力公司评估短时间内无法立即复电，为维系电力系统安全稳定，自下午3时起执行紧急分区轮流停电，于晚间8点恢复。"}, {"id": "E9", "text": "受此影响，台湾多个地区被迫停电，包括新北三重与中和、台北南港，以及桃园、台中、苗栗等地。"}, {"id": "E10", "text": "台积电公司随后发表公告称，因兴达电厂全厂停机，使部分厂区产生短暂压降现象，目前供电正常，已采取紧急应变措施及发电机备援准备。"}, {"id": "E11", "text": "另一家晶圆代工大厂联电也发表公告，称南科厂区虽有出现压降情况，但UPS系统随即接上，生产营运不受影响。"}, {"id": "E12", "text": "517停电事故起因是兴达电厂一号机因燃烧器管理系统控制模组故障，所有粉媒机跳脱，机组于12时54分跳机，供电瞬时减少50万瓩，而导致停电。"}, {"id": "E13", "text": "5月17日发生另一次停电，即517停电事故或517全台大停电。"}, {"id": "E14", "text": "经济部认为此次517停电系因气候异常、居家办公用电增加、水情不佳及大修机组未归队诸多因素叠加造成供电事故。"}];var _pyCausal=[{"from": "E2", "to": "E3", "reason": "天然气供应中断导致大潭电厂跳机，引发全台大停电"}, {"from": "E5", "to": "E6", "reason": "误操作导致兴达电厂机组跳机，台电公告全厂停机"}, {"from": "E5", "to": "E7", "reason": "误操作导致机组跳机，是513停电事故的直接原因"}, {"from": "E6", "to": "E8", "reason": "兴达电厂停机导致供电不足，台电执行分区停电"}, {"from": "E6", "to": "E9", "reason": "兴达电厂停机导致系统供电不足，引发多地区停电"}, {"from": "E6", "to": "E10", "reason": "兴达电厂停机导致台积电厂区出现压降现象"}, {"from": "E12", "to": "E13", "reason": "机组故障跳机直接导致517停电事故发生"}];var _pyTemporal=[{"from": "E7", "to": "E13", "reason": "语义嵌入相似度 0.745，按事件编号 E7 在 E13 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E5", "reason": "语义嵌入相似度 0.728，按事件编号 E2 在 E5 之前，补一条仅表达时序的边。"}, {"from": "E1", "to": "E3", "reason": "政策确立与停电事件无直接促发关系，仅为时间背景。"}, {"from": "E12", "to": "E14", "reason": "语义嵌入相似度 0.798，按事件编号 E12 在 E14 之前，补一条仅表达时序的边。"}, {"from": "E4", "to": "E6", "reason": "语义嵌入相似度 0.718，按事件编号 E4 在 E6 之前，补一条仅表达时序的边。"}, {"from": "E10", "to": "E12", "reason": "语义嵌入相似度 0.705，按事件编号 E10 在 E12 之前，补一条仅表达时序的边。"}, {"from": "E6", "to": "E7", "reason": "E6是E7的具体公告，是事件描述而非因果"}, {"from": "E3", "to": "E4", "reason": "语义嵌入相似度 0.740，按事件编号 E3 在 E4 之前，补一条仅表达时序的边。"}, {"from": "E10", "to": "E11", "reason": "语义嵌入相似度 0.705，按事件编号 E10 在 E11 之前，补一条仅表达时序的边。"}];var _pyScores={"E1": {"topo": 0.24030813574790955, "topo_rank": 9, "semantic": 0.214735, "semantic_rank": 11, "semantic_rich": 0.205978, "semantic_rare": 0.568745, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.22752156787395478, "combined_rank": 10}, "E10": {"topo": 0.48945334553718567, "topo_rank": 5, "semantic": 0.267655, "semantic_rank": 10, "semantic_rich": 0.286728, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3785541727685928, "combined_rank": 5}, "E11": {"topo": -0.019822925329208374, "topo_rank": 13, "semantic": 0.112842, "semantic_rank": 13, "semantic_rich": 0.084459, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.04650953733539581, "combined_rank": 13}, "E12": {"topo": 0.4068218171596527, "topo_rank": 8, "semantic": 0.288619, "semantic_rank": 8, "semantic_rich": 0.29374, "semantic_rare": 0.262916, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.34772040857982633, "combined_rank": 7}, "E13": {"topo": 0.12951642274856567, "topo_rank": 10, "semantic": 0.362421, "semantic_rank": 4, "semantic_rich": 0.376534, "semantic_rare": 0.052614, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.24596871137428283, "combined_rank": 9}, "E14": {"topo": -0.02163153886795044, "topo_rank": 14, "semantic": 0.0, "semantic_rank": 14, "semantic_rich": 0.0, "semantic_rare": 0.498033, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": -0.01081576943397522, "combined_rank": 14}, "E2": {"topo": 0.40697476267814636, "topo_rank": 6, "semantic": 0.334205, "semantic_rank": 6, "semantic_rich": 0.339455, "semantic_rare": 0.23906, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.37058988133907317, "combined_rank": 6}, "E3": {"topo": 0.5736414194107056, "topo_rank": 2, "semantic": 0.376307, "semantic_rank": 3, "semantic_rich": 0.375198, "semantic_rare": 0.34365, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.47497420970535276, "combined_rank": 3}, "E4": {"topo": 0.40697476267814636, "topo_rank": 6, "semantic": 0.145264, "semantic_rank": 12, "semantic_rich": 0.150341, "semantic_rare": 0.330844, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2761193813390732, "combined_rank": 8}, "E5": {"topo": 0.5736414194107056, "topo_rank": 2, "semantic": 0.346842, "semantic_rank": 5, "semantic_rich": 0.359602, "semantic_rare": 0.086366, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4602417097053528, "combined_rank": 4}, "E6": {"topo": 1.0383838415145874, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.030172, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.0191919207572937, "combined_rank": 1}, "E7": {"topo": 0.5037630796432495, "topo_rank": 4, "semantic": 0.571425, "semantic_rank": 2, "semantic_rich": 0.580333, "semantic_rare": 0.056567, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5375940398216248, "combined_rank": 2}, "E8": {"topo": 0.11470023542642593, "topo_rank": 11, "semantic": 0.274166, "semantic_rank": 9, "semantic_rich": 0.283499, "semantic_rare": 0.187348, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.19443311771321298, "combined_rank": 12}, "E9": {"topo": 0.11470023542642593, "topo_rank": 11, "semantic": 0.326042, "semantic_rank": 7, "semantic_rich": 0.326771, "semantic_rare": 0.331236, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.22037111771321297, "combined_rank": 11}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">EC030 台湾能源安全困境——废核与缺电危机</div><div>因果边：<b>7</b> 条&emsp;时序边：<b>9</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.18 / T- 0.24</div><div>C+ 0.35 / C- 0.23</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="5月13日下午，台湾最大的发电厂台电发表公告，位于高雄的兴达电厂下午2点37分因事故全厂停机，系统供电能力不足，于3点开始执行紧急分区轮流停电。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">5月13日下午，台湾最大的发电厂…</td><td style="padding:4px 6px;text-align:center;">1.038 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.03</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.019 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="2021年5月13日，台湾发生停电事件，即513停电事故或513全台大停电。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2021年5月13日，台湾发生停…</td><td style="padding:4px 6px;text-align:center;">0.504 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.571 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.58 / 稀 0.06</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.538 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="2017年8月15日16时51分起，台湾本岛各地发生大规模无预警停电事件，即八一五全台大停电。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2017年8月15日16时51分…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.376 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.38 / 稀 0.34</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.475 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="第一次起因为高雄市路竹区路北超高压变电所工作人员于验收设备时误操作隔离开关，造成输电设备总线接地故障，导致电压骤降，进而造成兴达发电厂四部燃煤机组跳机，损失供电量约220万瓩。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">第一次起因为高雄市路竹区路北超高…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.347 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.36 / 稀 0.09</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.460 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="台积电公司随后发表公告称，因兴达电厂全厂停机，使部分厂区产生短暂压降现象，目前供电正常，已采取紧急应变措施及发电机备援准备。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台积电公司随后发表公告称，因兴达…</td><td style="padding:4px 6px;text-align:center;">0.489 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.268 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.29 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.379 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="此次停电肇因于台湾中油对台电大潭发电厂的天然气供应管线因更换卡片、操作不当，造成意外停止运作，导致大潭发电厂6部机组全部跳停，进而造成全台电力备转容量不足，供电系统启动分区停电。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">此次停电肇因于台湾中油对台电大潭…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.334 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.34 / 稀 0.24</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.371 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="517停电事故起因是兴达电厂一号机因燃烧器管理系统控制模组故障，所有粉媒机跳脱，机组于12时54分跳机，供电瞬时减少50万瓩，而导致停电。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E12</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">517停电事故起因是兴达电厂一号…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.289 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.29 / 稀 0.26</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.348 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="八一五全台大停电于同日23时始恢复正常供电，并于翌日0时50分，大潭发电厂6部机组全部恢复并联发电。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">八一五全台大停电于同日23时始恢…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.145 <span style="color:#888;font-size:10px">(#12)</span><div style="color:#888;font-size:10px">丰 0.15 / 稀 0.33</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.276 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="5月17日发生另一次停电，即517停电事故或517全台大停电。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E13</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">5月17日发生另一次停电，即51…</td><td style="padding:4px 6px;text-align:center;">0.130 <span style="color:#888;font-size:10px">(#10)</span></td><td style="padding:4px 6px;text-align:center;">0.362 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.38 / 稀 0.05</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.246 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="2017年，台湾蔡英文政府以法律确立2025年废除核电的“非核家园”政策。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2017年，台湾蔡英文政府以法律…</td><td style="padding:4px 6px;text-align:center;">0.240 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.215 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.21 / 稀 0.57</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.228 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="受此影响，台湾多个地区被迫停电，包括新北三重与中和、台北南港，以及桃园、台中、苗栗等地。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">受此影响，台湾多个地区被迫停电，…</td><td style="padding:4px 6px;text-align:center;">0.115 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.326 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.33 / 稀 0.33</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.220 <span style="color:#888;font-size:10px">(#11)</span></td></tr><tr title="台湾电力公司评估短时间内无法立即复电，为维系电力系统安全稳定，自下午3时起执行紧急分区轮流停电，于晚间8点恢复。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾电力公司评估短时间内无法立即…</td><td style="padding:4px 6px;text-align:center;">0.115 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.274 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.28 / 稀 0.19</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.194 <span style="color:#888;font-size:10px">(#12)</span></td></tr><tr title="另一家晶圆代工大厂联电也发表公告，称南科厂区虽有出现压降情况，但UPS系统随即接上，生产营运不受影响。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">另一家晶圆代工大厂联电也发表公告…</td><td style="padding:4px 6px;text-align:center;">-0.020 <span style="color:#888;font-size:10px">(#13)</span></td><td style="padding:4px 6px;text-align:center;">0.113 <span style="color:#888;font-size:10px">(#13)</span><div style="color:#888;font-size:10px">丰 0.08 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.047 <span style="color:#888;font-size:10px">(#13)</span></td></tr><tr title="经济部认为此次517停电系因气候异常、居家办公用电增加、水情不佳及大修机组未归队诸多因素叠加造成供电事故。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E14</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">经济部认为此次517停电系因气候…</td><td style="padding:4px 6px;text-align:center;">-0.022 <span style="color:#888;font-size:10px">(#14)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#14)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.50</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">-0.011 <span style="color:#888;font-size:10px">(#14)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d64245", "border": "#e07b20", "highlight": {"background": "#d64245", "border": "#1a1a1a"}, "hover": {"background": "#d64245", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u5361\u7279\u653f\u5e9c\u63a5\u53d7\u4e2d\u56fd\u63d0\u51fa\n\u7684\u5efa\u4ea4\u4e09\u539f\u5219\uff0c\u5373\u5728\u53f0\u6e7e\u95ee\u9898\u4e0a\n\u2018\u65ad\u4ea4\u3001\u64a4\u519b\u3001\u5e9f\u7ea6\u2019\uff0c\u8fd9\u662f\u7f8e\n\u56fd\u653f\u5e9c\u5728\u4e2d\u7f8e\u5efa\u4ea4\u8fc7\u7a0b\u4e2d\uff0c\u4e3a\u8fbe\n\u6210\u5916\u4ea4\u5173\u7cfb\u6b63\u5e38\u5316\u800c\u91c7\u53d6\u7684\u5173\u952e\n\u653f\u6cbb\u51b3\u7b56\u548c\u5916\u4ea4\u8ba9\u6b65\u52a8\u4f5c\u3002\n\u25b2 0.86 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.648 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.456 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.861 (#2)"}, {"color": {"background": "#d9c5d3", "border": "#3a7bd5", "highlight": {"background": "#d9c5d3", "border": "#1a1a1a"}, "hover": {"background": "#d9c5d3", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u7f8e\u519b\u987e\u95ee\u56e2\u4f59\u4e0b\u7684\u51e0\u4eba\n\u9646\u7eed\u79bb\u5f00\u53f0\u6e7e\uff0c\u8fd9\u662f\u7f8e\u56fd\u5c65\u884c\u5efa\n\u4ea4\u4e09\u539f\u5219\u4e2d\u2018\u64a4\u519b\u2019\u627f\u8bfa\u7684\u5177\u4f53\n\u5b9e\u65bd\u6b65\u9aa4\uff0c\u6807\u5fd7\u7740\u7f8e\u56fd\u5728\u53f0\u6e7e\u519b\n\u4e8b\u5b58\u5728\u7684\u7ed3\u675f\uff0c\u662f\u4e00\u4e2a\u660e\u786e\u7684\u5916\n\u4ea4\u548c\u519b\u4e8b\u64a4\u79bb\u52a8\u4f5c\u3002\n\u25b2 0.20 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#6)\n\u8bed\u4e49\u5206: 0.000 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.322\n\u7efc\u5408\u5206: 0.203 (#8)"}, {"color": {"background": "#d76066", "border": "#3a7bd5", "highlight": {"background": "#d76066", "border": "#1a1a1a"}, "hover": {"background": "#d76066", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u7f8e\u519b\u4eba\u5458\u5728\u53f0\u6e7e\u9a7b\u7559\u6216\n\u6d3b\u52a8\uff0c\u6784\u6210\u519b\u4e8b\u5b58\u5728\u4e8b\u5b9e\u3002\n\u25b2 0.71 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#2)\n\u8bed\u4e49\u5206: 0.682 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.686 + 0.30\u00d7\u7a00\u7f3a\u6027 0.082\n\u7efc\u5408\u5206: 0.711 (#4)"}, {"color": {"background": "#d64d51", "border": "#e07b20", "highlight": {"background": "#d64d51", "border": "#1a1a1a"}, "hover": {"background": "#d64d51", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u7f8e\u519b\u5728\u53f0\u6e7e\u5bf9\u53f0\u519b\u8fdb\u884c\n\u519b\u4e8b\u8bad\u7ec3\uff0c\u4eba\u6570\u7ea630\u4eba\u3002\n\u25b2 0.81 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#2)\n\u8bed\u4e49\u5206: 0.877 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.816 + 0.30\u00d7\u7a00\u7f3a\u6027 0.322\n\u7efc\u5408\u5206: 0.809 (#3)"}, {"color": {"background": "#d77077", "border": "#3a7bd5", "highlight": {"background": "#d77077", "border": "#1a1a1a"}, "hover": {"background": "#d77077", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u8521\u82f1\u6587\n\u5728\u63a5\u53d7\u7f8e\u56fd\u6709\u7ebf\u7535\u89c6\u65b0\u95fb\u7f51\u91c7\u8bbf\n\u65f6\uff0c\u9996\u6b21\u516c\u5f00\u8bc1\u5b9e\u7f8e\u519b\u4eba\u5458\u5728\u53f0\n\u6e7e\u7684\u5b58\u5728\u3002\n\u25b2 0.63 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.357 (#7)\n\u8bed\u4e49\u5206: 0.907 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.905 + 0.30\u00d7\u7a00\u7f3a\u6027 0.042\n\u7efc\u5408\u5206: 0.632 (#5)"}, {"color": {"background": "#d8929b", "border": "#3a7bd5", "highlight": {"background": "#d8929b", "border": "#1a1a1a"}, "hover": {"background": "#d8929b", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u7f8e\u56fd\u524d\u767d\u5bab\u56fd\u5b89\u987e\u95ee\u535a\n\u5c14\u987f\u57282022\u5e744\u6708\u7684\u4e00\u6b21\u89c6\n\u9891\u6f14\u8bb2\u4e2d\uff0c\u516c\u5f00\u9f13\u52a8\u7f8e\u519b\u5e94\u6062\u590d\n1979\u5e74\u524d\u5728\u53f0\u6e7e\u9a7b\u519b\u7684\u505a\u6cd5\n\u3002\n\u25b2 0.46 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#2)\n\u8bed\u4e49\u5206: 0.183 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.237 + 0.30\u00d7\u7a00\u7f3a\u6027 0.013\n\u7efc\u5408\u5206: 0.462 (#7)"}, {"color": {"background": "#d64043", "border": "#c0910a", "highlight": {"background": "#d64043", "border": "#1a1a1a"}, "hover": {"background": "#d64043", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u7f8e\u56fd\u8ba1\u5212\u589e\u52a0\u5728\u53f0\u6e7e\u7684\n\u519b\u4e8b\u5b58\u5728\uff0c\u4ee5\u5e94\u5bf9\u4e2d\u56fd\u5927\u9646\u7684\u6240\n\u8c13\u201c\u5a01\u80c1\u201d\uff0c\u8fd9\u88ab\u62a5\u9053\u4e3a\u7f8e\u56fd\u6570\n\u5341\u5e74\u6765\u5728\u53f0\u6e7e\u6700\u5927\u7684\u5175\u529b\u90e8\u7f72\u3002\n\u25b2 0.87 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#2)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.870 (#1)"}, {"color": {"background": "#d88c95", "border": "#3a7bd5", "highlight": {"background": "#d88c95", "border": "#1a1a1a"}, "hover": {"background": "#d88c95", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u7f8e\u56fd\u8ba1\u5212\u5728\u672a\u6765\u51e0\u4e2a\u6708\n\u5185\uff0c\u5c06\u90e8\u7f72\u5728\u53f0\u6e7e\u7684\u7f8e\u519b\u6570\u91cf\u589e\n\u52a0\u8d85\u8fc7\u56db\u500d\u3002\n\u25b2 0.49 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.357 (#7)\n\u8bed\u4e49\u5206: 0.622 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.608 + 0.30\u00d7\u7a00\u7f3a\u6027 0.185\n\u7efc\u5408\u5206: 0.489 (#6)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u63a5\u53d7\u5efa\u4ea4\u4e09\u539f\u5219\u76f4\u63a5\u5bfc\u81f4\u7f8e\u519b\u64a4\u79bb", "to": "E2", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c1", "title": "\u6269\u5927\u519b\u4e8b\u5b58\u5728\u7684\u8ba1\u5212\u5305\u542b\u5177\u4f53\u589e\u5175\u90e8\u7f72", "to": "E8", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t0", "title": "\u8bad\u7ec3\u5b58\u5728\u662f\u8bc1\u5b9e\u7684\u524d\u63d0\uff0c\u975e\u76f4\u63a5\u4fc3\u53d1", "to": "E5", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t1", "title": "\u519b\u4e8b\u5b58\u5728\u4e0e\u8bad\u7ec3\u662f\u540c\u4e00\u4e8b\u5b9e\u7684\u5e76\u5217\u63cf\u8ff0\u3002", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t2", "title": "\u535a\u5c14\u987f\u9f13\u52a8\u662f\u80cc\u666f\u8bc4\u8bba\uff0c\u975e\u76f4\u63a5\u4fc3\u6210\u90e8\u7f72\u8ba1\u5212\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t3", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E3 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t4", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E6 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E6", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "卡特政府接受中国提出的建交三原则，即在台湾问题上‘断交、撤军、废约’，这是美国政府在中美建交过程中，为达成外交关系正常化而采取的关键政治决策和外交让步动作。"}, {"id": "E2", "text": "美军顾问团余下的几人陆续离开台湾，这是美国履行建交三原则中‘撤军’承诺的具体实施步骤，标志着美国在台湾军事存在的结束，是一个明确的外交和军事撤离动作。"}, {"id": "E3", "text": "美军人员在台湾驻留或活动，构成军事存在事实。"}, {"id": "E4", "text": "美军在台湾对台军进行军事训练，人数约30人。"}, {"id": "E5", "text": "台湾地区领导人蔡英文在接受美国有线电视新闻网采访时，首次公开证实美军人员在台湾的存在。"}, {"id": "E6", "text": "美国前白宫国安顾问博尔顿在2022年4月的一次视频演讲中，公开鼓动美军应恢复1979年前在台湾驻军的做法。"}, {"id": "E7", "text": "美国计划增加在台湾的军事存在，以应对中国大陆的所谓“威胁”，这被报道为美国数十年来在台湾最大的兵力部署。"}, {"id": "E8", "text": "美国计划在未来几个月内，将部署在台湾的美军数量增加超过四倍。"}];var _pyCausal=[{"from": "E1", "to": "E2", "reason": "接受建交三原则直接导致美军撤离"}, {"from": "E7", "to": "E8", "reason": "扩大军事存在的计划包含具体增兵部署"}];var _pyTemporal=[{"from": "E4", "to": "E5", "reason": "训练存在是证实的前提，非直接促发"}, {"from": "E3", "to": "E4", "reason": "军事存在与训练是同一事实的并列描述。"}, {"from": "E6", "to": "E7", "reason": "博尔顿鼓动是背景评论，非直接促成部署计划。"}, {"from": "E1", "to": "E3", "reason": "子图桥接：E1 → E3 为跨连通分量最小跨度对，仅表达时序，不表达因果。"}, {"from": "E1", "to": "E6", "reason": "子图桥接：E1 → E6 为跨连通分量最小跨度对，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.647565, "semantic_rank": 5, "semantic_rich": 0.456466, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8606030904960632, "combined_rank": 2}, "E2": {"topo": 0.4069747030735016, "topo_rank": 6, "semantic": 0.0, "semantic_rank": 8, "semantic_rich": 0.0, "semantic_rare": 0.321599, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2034873515367508, "combined_rank": 8}, "E3": {"topo": 0.7403079271316528, "topo_rank": 2, "semantic": 0.681767, "semantic_rank": 4, "semantic_rich": 0.686205, "semantic_rare": 0.081753, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.7110374635658264, "combined_rank": 4}, "E4": {"topo": 0.7403079271316528, "topo_rank": 2, "semantic": 0.877029, "semantic_rank": 3, "semantic_rich": 0.816076, "semantic_rare": 0.322359, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8086684635658263, "combined_rank": 3}, "E5": {"topo": 0.35659733414649963, "topo_rank": 7, "semantic": 0.907457, "semantic_rank": 2, "semantic_rich": 0.904731, "semantic_rare": 0.042411, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6320271670732498, "combined_rank": 5}, "E6": {"topo": 0.7403079271316528, "topo_rank": 2, "semantic": 0.18346, "semantic_rank": 7, "semantic_rich": 0.237342, "semantic_rare": 0.012601, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4618839635658264, "combined_rank": 7}, "E7": {"topo": 0.7403079271316528, "topo_rank": 2, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8701539635658264, "combined_rank": 1}, "E8": {"topo": 0.35659733414649963, "topo_rank": 7, "semantic": 0.621935, "semantic_rank": 6, "semantic_rich": 0.608358, "semantic_rare": 0.184579, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4892661670732498, "combined_rank": 6}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">NE001 美军驻台军事顾问人数从30人扩至200人（2022-2023）</div><div>因果边：<b>2</b> 条&emsp;时序边：<b>5</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.13 / T- 0.20</div><div>C+ 0.36 / C- 0.30</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="美国计划增加在台湾的军事存在，以应对中国大陆的所谓“威胁”，这被报道为美国数十年来在台湾最大的兵力部署。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国计划增加在台湾的军事存在，以…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.870 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="卡特政府接受中国提出的建交三原则，即在台湾问题上‘断交、撤军、废约’，这是美国政府在中美建交过程中，为达成外交关系正常化而采取的关键政治决策和外交让步动作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">卡特政府接受中国提出的建交三原则…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.648 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.46 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.861 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="美军在台湾对台军进行军事训练，人数约30人。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美军在台湾对台军进行军事训练，人…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.877 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.82 / 稀 0.32</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.809 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="美军人员在台湾驻留或活动，构成军事存在事实。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美军人员在台湾驻留或活动，构成军…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.682 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.69 / 稀 0.08</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.711 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="台湾地区领导人蔡英文在接受美国有线电视新闻网采访时，首次公开证实美军人员在台湾的存在。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区领导人蔡英文在接受美国有…</td><td style="padding:4px 6px;text-align:center;">0.357 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.907 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.90 / 稀 0.04</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.632 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="美国计划在未来几个月内，将部署在台湾的美军数量增加超过四倍。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国计划在未来几个月内，将部署在…</td><td style="padding:4px 6px;text-align:center;">0.357 <span style="color:#888;font-size:10px">(#7)</span></td><td style="padding:4px 6px;text-align:center;">0.622 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.61 / 稀 0.18</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.489 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="美国前白宫国安顾问博尔顿在2022年4月的一次视频演讲中，公开鼓动美军应恢复1979年前在台湾驻军的做法。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国前白宫国安顾问博尔顿在202…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.183 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.24 / 稀 0.01</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.462 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="美军顾问团余下的几人陆续离开台湾，这是美国履行建交三原则中‘撤军’承诺的具体实施步骤，标志着美国在台湾军事存在的结束，是一个明确的外交和军事撤离动作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美军顾问团余下的几人陆续离开台湾…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.32</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.203 <span style="color:#888;font-size:10px">(#8)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

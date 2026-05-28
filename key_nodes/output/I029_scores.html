@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d7686e", "border": "#e07b20", "highlight": {"background": "#d7686e", "border": "#1a1a1a"}, "hover": {"background": "#d7686e", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u56fd\u53f0\u529e\u9488\u5bf9\u53f0\u6e7e\u5730\u533a\u53c2\n\u4e0eAPEC\u6d3b\u52a8\u8bbe\u5b9a\u4e86\u660e\u786e\u7684\u653f\n\u6cbb\u524d\u63d0\uff0c\u5373\u5fc5\u987b\u5728\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\n\u4e0b\uff0c\u4ee5\u201c\u4e2d\u56fd\u53f0\u5317\u201d\u540d\u4e49\u3001\u5730\u533a\n\u7ecf\u6d4e\u4f53\u8eab\u4efd\u53c2\u4e0e\uff0c\u5e76\u9075\u5faa\u76f8\u5173\u5907\n\u5fd8\u5f55\uff0c\u8fd9\u4ee3\u8868\u4e86\u5b98\u65b9\u7684\u6b63\u5f0f\u7acb\u573a\n\u8868\u6001\u3002\n\u25b2 0.67 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.270 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.401 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.672 (#3)"}, {"color": {"background": "#d88f98", "border": "#3a7bd5", "highlight": {"background": "#d88f98", "border": "#1a1a1a"}, "hover": {"background": "#d88f98", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u53f0\u5f53\u5c40\u53d1\u5e03\u9488\u5bf9\u5927\u9646\u7684\n\u653f\u6cbb\u62b9\u9ed1\u8a00\u8bba\uff0c\u58f0\u79f0\u82e5\u53f0\u6e7e\u4ee3\u8868\n\u53c2\u52a0\u6b64\u6b21\u4f1a\u8bae\uff0c\u53ef\u80fd\u4f1a\u9762\u4e34\u5b89\u5168\n\u9690\u60a3\uff0c\u4ee5\u53ca\u5927\u9646\u7684\u963b\u62e6\u548c\u6253\u538b\u3002\n\u25b2 0.48 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#4)\n\u8bed\u4e49\u5206: 0.545 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.496 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.476 (#6)"}, {"color": {"background": "#d6383a", "border": "#c0910a", "highlight": {"background": "#d6383a", "border": "#1a1a1a"}, "hover": {"background": "#d6383a", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u53f0\u5f53\u5c40\u6307\u8d23\u5927\u9646\u8981\u6c42\u53f0\n\u6e7e\u5728\u201c\u4e00\u4e2a\u4e2d\u56fd\u201d\u524d\u63d0\u4e0b\u624d\u80fd\u51fa\n\u5e2d\u4f1a\u8bae\u662f\u201c\u9644\u52a0\u6761\u4ef6\u201d\uff0c\u5e76\u79f0\u6b64\n\u4e3e\u8fdd\u53cd\u627f\u8bfa\u3002\n\u25b2 0.91 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.754 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.805 + 0.30\u00d7\u7a00\u7f3a\u6027 0.441\n\u7efc\u5408\u5206: 0.914 (#1)"}, {"color": {"background": "#d9c5d3", "border": "#3a7bd5", "highlight": {"background": "#d9c5d3", "border": "#1a1a1a"}, "hover": {"background": "#d9c5d3", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u4e9a\u592a\u7ecf\u5408\u7ec4\u7ec7\uff08APE\nC\uff09\u7b2c\u4e00\u6b21\u9ad8\u5b98\u4f1a\u5728\u5e7f\u5dde\u6b63\u5f0f\u62c9\n\u5f00\u5e37\u5e55\uff0c\u4e2d\u56fd\u62c5\u4efbAPEC\u8f6e\u503c\n\u4e3b\u5e2d\u56fd\u7cfb\u5217\u6d3b\u52a8\u6b63\u5f0f\u542f\u52a8\u3002\n\u25b2 0.20 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#4)\n\u8bed\u4e49\u5206: 0.000 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.729\n\u7efc\u5408\u5206: 0.203 (#7)"}, {"color": {"background": "#d64043", "border": "#e07b20", "highlight": {"background": "#d64043", "border": "#1a1a1a"}, "hover": {"background": "#d64043", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u4e2d\u56fd\u5916\u957f\u738b\u6bc5\u51fa\u5e2dAP\nEC\u9ad8\u5b98\u4f1a\u5f00\u5e55\u5f0f\u3002\n\u25b2 0.87 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.740 (#3)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.728\n\u7efc\u5408\u5206: 0.870 (#2)"}, {"color": {"background": "#d87981", "border": "#3a7bd5", "highlight": {"background": "#d87981", "border": "#1a1a1a"}, "hover": {"background": "#d87981", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u4e2d\u56fd\u5916\u957f\u738b\u6bc5\u5728\u81f4\u8f9e\u4e2d\n\u8868\u793a\uff0c\u4e2d\u56fd\u4e3b\u529eAPEC\u4f1a\u8bae\u81f4\n\u529b\u4e8e\u63a8\u52a8\u6784\u5efa\u4e9a\u592a\u5171\u540c\u4f53\u3001\u4fc3\u8fdb\n\u5171\u540c\u7e41\u8363\uff0c\u5e76\u53cd\u5bf9\u8131\u94a9\u65ad\u94fe\u548c\u9635\n\u8425\u5bf9\u6297\u3002\n\u25b2 0.58 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#4)\n\u8bed\u4e49\u5206: 0.761 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.814 + 0.30\u00d7\u7a00\u7f3a\u6027 0.436\n\u7efc\u5408\u5206: 0.584 (#4)"}, {"color": {"background": "#d8838c", "border": "#3a7bd5", "highlight": {"background": "#d8838c", "border": "#1a1a1a"}, "hover": {"background": "#d8838c", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u5728\u4f1a\u573a\u4e2d\uff0c\u53f0\u6e7e\u4ee3\u8868\u9762\n\u524d\u7684\u684c\u724c\u6e05\u6670\u6807\u6ce8\u7740\u201c\u4e2d\u534e\u53f0\u5317\n\u201d\u3002\n\u25b2 0.53 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.407 (#4)\n\u8bed\u4e49\u5206: 0.660 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.612 + 0.30\u00d7\u7a00\u7f3a\u6027 0.998\n\u7efc\u5408\u5206: 0.534 (#5)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u56fd\u53f0\u529e\u8bbe\u5b9a\u653f\u6cbb\u524d\u63d0\uff0c\u5bfc\u81f4\u53f0\u6e7e\u4ee3\u8868\u684c\u724c\u6807\u6ce8\u4e3a\u4e2d\u534e\u53f0\u5317", "to": "E7", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t0", "title": "E3\u662fE1\u7684\u56de\u5e94\u4e0e\u6307\u8d23\uff0c\u5c5e\u8868\u6001\u4e0e\u56de\u5e94\u94fe\uff0c\u975e\u5f3a\u56e0\u679c\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.733\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.704\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E3 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t3", "title": "\u5b64\u7acb\u70b9\u6d88\u9664\uff1aE4 \u4e0e\u524d\u4e00\u4e8b\u4ef6 E3 \u6784\u6210\u65f6\u5e8f\u5173\u7cfb\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E4", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t4", "title": "\u5b50\u56fe\u6865\u63a5\uff1aE1 \u2192 E5 \u4e3a\u8de8\u8fde\u901a\u5206\u91cf\u6700\u5c0f\u8de8\u5ea6\u5bf9\uff0c\u4ec5\u8868\u8fbe\u65f6\u5e8f\uff0c\u4e0d\u8868\u8fbe\u56e0\u679c\u3002", "to": "E5", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "国台办针对台湾地区参与APEC活动设定了明确的政治前提，即必须在一个中国原则下，以“中国台北”名义、地区经济体身份参与，并遵循相关备忘录，这代表了官方的正式立场表态。"}, {"id": "E2", "text": "台当局发布针对大陆的政治抹黑言论，声称若台湾代表参加此次会议，可能会面临安全隐患，以及大陆的阻拦和打压。"}, {"id": "E3", "text": "台当局指责大陆要求台湾在“一个中国”前提下才能出席会议是“附加条件”，并称此举违反承诺。"}, {"id": "E4", "text": "亚太经合组织（APEC）第一次高官会在广州正式拉开帷幕，中国担任APEC轮值主席国系列活动正式启动。"}, {"id": "E5", "text": "中国外长王毅出席APEC高官会开幕式。"}, {"id": "E6", "text": "中国外长王毅在致辞中表示，中国主办APEC会议致力于推动构建亚太共同体、促进共同繁荣，并反对脱钩断链和阵营对抗。"}, {"id": "E7", "text": "在会场中，台湾代表面前的桌牌清晰标注着“中华台北”。"}];var _pyCausal=[{"from": "E1", "to": "E7", "reason": "国台办设定政治前提，导致台湾代表桌牌标注为中华台北"}];var _pyTemporal=[{"from": "E1", "to": "E3", "reason": "E3是E1的回应与指责，属表态与回应链，非强因果。"}, {"from": "E5", "to": "E6", "reason": "语义嵌入相似度 0.733，按事件编号 E5 在 E6 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E3", "reason": "语义嵌入相似度 0.704，按事件编号 E2 在 E3 之前，补一条仅表达时序的边。"}, {"from": "E3", "to": "E4", "reason": "孤立点消除：E4 与前一事件 E3 构成时序关系，仅表达时序，不表达因果。"}, {"from": "E1", "to": "E5", "reason": "子图桥接：E1 → E5 为跨连通分量最小跨度对，仅表达时序，不表达因果。"}];var _pyScores={"E1": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.269811, "semantic_rank": 6, "semantic_rich": 0.400676, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6717260904960632, "combined_rank": 3}, "E2": {"topo": 0.4069747030735016, "topo_rank": 4, "semantic": 0.544915, "semantic_rank": 5, "semantic_rich": 0.496134, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4759448515367508, "combined_rank": 6}, "E3": {"topo": 1.0736411809921265, "topo_rank": 1, "semantic": 0.753586, "semantic_rank": 3, "semantic_rich": 0.80515, "semantic_rare": 0.441138, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.9136135904960632, "combined_rank": 1}, "E4": {"topo": 0.4069747030735016, "topo_rank": 4, "semantic": 0.0, "semantic_rank": 7, "semantic_rich": 0.0, "semantic_rare": 0.728837, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.2034873515367508, "combined_rank": 7}, "E5": {"topo": 0.7403079271316528, "topo_rank": 3, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.728033, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8701539635658264, "combined_rank": 2}, "E6": {"topo": 0.4069747030735016, "topo_rank": 4, "semantic": 0.761394, "semantic_rank": 2, "semantic_rich": 0.813846, "semantic_rare": 0.43619, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5841843515367509, "combined_rank": 4}, "E7": {"topo": 0.4069747030735016, "topo_rank": 4, "semantic": 0.660027, "semantic_rank": 4, "semantic_rich": 0.611567, "semantic_rare": 0.99812, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5335008515367508, "combined_rank": 5}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">I029 台湾参与APEC受到压制——名称主权争议（2016-2025）</div><div>因果边：<b>1</b> 条&emsp;时序边：<b>5</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.15 / T- 0.18</div><div>C+ 0.34 / C- 0.32</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="台当局指责大陆要求台湾在“一个中国”前提下才能出席会议是“附加条件”，并称此举违反承诺。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局指责大陆要求台湾在“一个中…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.754 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.81 / 稀 0.44</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.914 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="中国外长王毅出席APEC高官会开幕式。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国外长王毅出席APEC高官会开…</td><td style="padding:4px 6px;text-align:center;">0.740 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.73</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.870 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="国台办针对台湾地区参与APEC活动设定了明确的政治前提，即必须在一个中国原则下，以“中国台北”名义、地区经济体身份参与，并遵循相关备忘录，这代表了官方的正式立场表态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">国台办针对台湾地区参与APEC活…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.270 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.40 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.672 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="中国外长王毅在致辞中表示，中国主办APEC会议致力于推动构建亚太共同体、促进共同繁荣，并反对脱钩断链和阵营对抗。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国外长王毅在致辞中表示，中国主…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.761 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.81 / 稀 0.44</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.584 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="在会场中，台湾代表面前的桌牌清晰标注着“中华台北”。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">在会场中，台湾代表面前的桌牌清晰…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.660 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.61 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.534 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="台当局发布针对大陆的政治抹黑言论，声称若台湾代表参加此次会议，可能会面临安全隐患，以及大陆的阻拦和打压。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台当局发布针对大陆的政治抹黑言论…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.545 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.50 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.476 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="亚太经合组织（APEC）第一次高官会在广州正式拉开帷幕，中国担任APEC轮值主席国系列活动正式启动。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">亚太经合组织（APEC）第一次高…</td><td style="padding:4px 6px;text-align:center;">0.407 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.73</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.203 <span style="color:#888;font-size:10px">(#7)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

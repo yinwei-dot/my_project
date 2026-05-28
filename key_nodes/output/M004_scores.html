@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d7737a", "border": "#e07b20", "highlight": {"background": "#d7737a", "border": "#1a1a1a"}, "hover": {"background": "#d7737a", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u9648\u6c34\u6241\u4e0a\u53f0\u540e\u63a8\u884c\u201c\u6e10\n\u8fdb\u5f0f\u53f0\u72ec\u201d\uff0c\u8fd9\u662f\u4e00\u79cd\u65e8\u5728\u9010\u6b65\n\u63a8\u52a8\u53f0\u6e7e\u4e0e\u4e2d\u56fd\u5927\u9646\u5206\u88c2\u7684\u653f\u6cbb\n\u8def\u7ebf\u3002\n\u25b2 0.62 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.907 (#3)\n\u8bed\u4e49\u5206: 0.329 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.348 + 0.30\u00d7\u7a00\u7f3a\u6027 0.061\n\u7efc\u5408\u5206: 0.618 (#3)"}, {"color": {"background": "#d6393b", "border": "#e07b20", "highlight": {"background": "#d6393b", "border": "#1a1a1a"}, "hover": {"background": "#d6393b", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: 2003\u5e74\uff0c\u9648\u6c34\u6241\u5f53\n\u5c40\u5927\u641e\u201c\u516c\u6295\u5236\u5baa\u201d\uff0c\u8bd5\u56fe\u901a\u8fc7\n\u516c\u6c11\u6295\u7968\u7684\u65b9\u5f0f\u4fee\u6539\u5baa\u6cd5\uff0c\u8fdb\u4e00\n\u6b65\u63a8\u52a8\u5176\u5206\u88c2\u56fd\u5bb6\u7684\u653f\u6cbb\u52a8\u4f5c\u3002\n\u25b2 0.91 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 0.743 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.749 + 0.30\u00d7\u7a00\u7f3a\u6027 0.052\n\u7efc\u5408\u5206: 0.908 (#2)"}, {"color": {"background": "#d8787f", "border": "#3a7bd5", "highlight": {"background": "#d8787f", "border": "#1a1a1a"}, "hover": {"background": "#d8787f", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u9648\u6c34\u6241\u63d0\u51fa\u5206\u88c2\u56fd\u5bb6\u7684\n\u65b0\u653f\u6cbb\u8bba\u8c03\uff0c\u629b\u51fa\u201c\u4e24\u8fb9\u4e09\u56fd\u201d\n\u4e3b\u5f20\u3002\n\u25b2 0.59 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#6)\n\u8bed\u4e49\u5206: 0.610 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.623 + 0.30\u00d7\u7a00\u7f3a\u6027 0.002\n\u7efc\u5408\u5206: 0.592 (#4)"}, {"color": {"background": "#d8848c", "border": "#3a7bd5", "highlight": {"background": "#d8848c", "border": "#1a1a1a"}, "hover": {"background": "#d8848c", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u9648\u6c34\u6241\u5355\u65b9\u9762\u6495\u6bc1\u653f\u6cbb\n\u627f\u8bfa\uff0c\u591a\u6b21\u626c\u8a00\u201c\u56db\u4e0d\u4e00\u6ca1\u6709\u5df2\n\u7ecf\u4e0d\u5b58\u5728\u4e86\u201d\u3002\n\u25b2 0.53 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#6)\n\u8bed\u4e49\u5206: 0.490 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.501 + 0.30\u00d7\u7a00\u7f3a\u6027 0.107\n\u7efc\u5408\u5206: 0.532 (#6)"}, {"color": {"background": "#d87f87", "border": "#3a7bd5", "highlight": {"background": "#d87f87", "border": "#1a1a1a"}, "hover": {"background": "#d87f87", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u9648\u6c34\u6241\u5c06\u9009\u4e3e\u653f\u6cbb\u5316\u3001\n\u5bf9\u6297\u5316\uff0c\u53eb\u56a32004\u5e74\u9009\u4e3e\u662f\n\u201c\u53f0\u6e7e\u5bf9\u4e2d\u56fd\u5171\u4ea7\u515a\u7684\u5723\u6218\u201d\uff0c\n\u6784\u6210\u6781\u7aef\u6311\u8845\u8868\u6001\u3002\n\u25b2 0.56 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.574 (#6)\n\u8bed\u4e49\u5206: 0.542 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.547 + 0.30\u00d7\u7a00\u7f3a\u6027 0.187\n\u7efc\u5408\u5206: 0.558 (#5)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u9648\u6c34\u6241\u53d1\u8868\u653f\u6cbb\u8868\u6001\uff0c\n\u717d\u52a8\u63a8\u52a8\u201c\u516c\u6295\u201d\u53ca\u201c\u516c\u6295\u95ee\u9898\n\u56fd\u9645\u5316\u201d\uff0c\u58f0\u79f0\u82e5\u65e0\u516c\u6295\u5219\u53f0\u6e7e\n\u5728\u56fd\u9645\u793e\u4f1a\u6d88\u5931\uff0c\u5e76\u5f3a\u8c03\u516c\u6295\u975e\n\u529e\u4e0d\u53ef\u3002\n\u25b2 1.04 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 1.037 (#1)"}, {"color": {"background": "#d8848c", "border": "#3a7bd5", "highlight": {"background": "#d8848c", "border": "#1a1a1a"}, "hover": {"background": "#d8848c", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u7f8e\u56fd\u603b\u7edf\u5e03\u4ec0\u9488\u5bf9\u53f0\u6e7e\n\u5730\u533a\u9886\u5bfc\u4eba\u53ef\u80fd\u7247\u9762\u6539\u53d8\u53f0\u6d77\u73b0\n\u72b6\u7684\u8a00\u884c\uff0c\u591a\u6b21\u8868\u793a\u53cd\u5bf9\u3002\n\u25b2 0.53 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.729 (#4)\n\u8bed\u4e49\u5206: 0.332 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.351 + 0.30\u00d7\u7a00\u7f3a\u6027 0.082\n\u7efc\u5408\u5206: 0.530 (#7)"}, {"color": {"background": "#d89aa4", "border": "#3a7bd5", "highlight": {"background": "#d89aa4", "border": "#1a1a1a"}, "hover": {"background": "#d89aa4", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u6b27\u76df\u9488\u5bf9\u53f0\u6e7e\u4e3e\u884c\u6240\u8c13\n\u201c\u9632\u536b\u6027\u516c\u6295\u201d\u7684\u8bae\u9898\uff0c\u53d1\u51fa\u4e86\n\u8868\u793a\u201c\u5f3a\u70c8\u5173\u5207\u201d\u7684\u5916\u4ea4\u4fe1\u53f7\u3002\n\u25b2 0.42 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.564 (#9)\n\u8bed\u4e49\u5206: 0.280 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.291 + 0.30\u00d7\u7a00\u7f3a\u6027 0.249\n\u7efc\u5408\u5206: 0.422 (#9)"}, {"color": {"background": "#d896a0", "border": "#3a7bd5", "highlight": {"background": "#d896a0", "border": "#1a1a1a"}, "hover": {"background": "#d896a0", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u65e5\u672c\u5916\u52a1\u7701\u5bf9\u65f6\u4efb\u53f0\u6e7e\n\u5730\u533a\u9886\u5bfc\u4eba\u9648\u6c34\u6241\u53d1\u51fa\u5916\u4ea4\u529d\u544a\n\uff0c\u5e0c\u671b\u5176\u575a\u6301\u6240\u8c13\u201c\u56db\u4e0d\u4e00\u6ca1\u6709\n\u201d\u7684\u627f\u8bfa\uff0c\u5e76\u5bf9\u201c\u516c\u6295\u201d\u4e8b\u5b9c\u91c7\n\u53d6\u8c28\u614e\u5904\u7406\u7684\u6001\u5ea6\u3002\n\u25b2 0.44 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.564 (#9)\n\u8bed\u4e49\u5206: 0.319 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.316 + 0.30\u00d7\u7a00\u7f3a\u6027 0.493\n\u7efc\u5408\u5206: 0.441 (#8)"}, {"color": {"background": "#d9a1ac", "border": "#3a7bd5", "highlight": {"background": "#d9a1ac", "border": "#1a1a1a"}, "hover": {"background": "#d9a1ac", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u9648\u6c34\n\u6241\u4e8e2004\u5e741\u67081\u65e5\u53d1\u8868\u5143\n\u65e6\u8bb2\u8bdd\uff0c\u91cd\u7533\u4e86\u6240\u8c13\u201c\u56db\u4e0d\u4e00\u6ca1\n\u6709\u201d\u7684\u653f\u6cbb\u7acb\u573a\uff0c\u5e76\u58f0\u79f0\u8ffd\u6c42\u4e24\n\u5cb8\u201c\u6c38\u4e45\u548c\u5e73\u201d\u3002\n\u25b2 0.38 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.674 (#5)\n\u8bed\u4e49\u5206: 0.094 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.071 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.384 (#10)"}, {"color": {"background": "#dac6d4", "border": "#3a7bd5", "highlight": {"background": "#dac6d4", "border": "#1a1a1a"}, "hover": {"background": "#dac6d4", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u9648\u6c34\u6241\u5728\u201c\u9648\u5415\u914d\u201d\n\u82d7\u6817\u7ade\u9009\u603b\u90e8\u6210\u7acb\u65f6\u5ba3\u5e03\uff0c\u5c06\u4e8e\n3\u670820\u65e5\u4e3e\u884c\u53f0\u6e7e\u5386\u53f2\u4e0a\u7b2c\u4e00\n\u6b21\u201c\u548c\u5e73\u516c\u6295\u201d\u7684\u653f\u6cbb\u8ba1\u5212\u3002\n\u25b2 0.20 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.396 (#11)\n\u8bed\u4e49\u5206: 0.000 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.636\n\u7efc\u5408\u5206: 0.198 (#11)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u6e10\u8fdb\u5f0f\u53f0\u72ec\u8def\u7ebf\u63a8\u52a8\u516c\u6295\u5236\u5baa", "to": "E2", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E1", "id": "c1", "title": "\u6e10\u8fdb\u5f0f\u53f0\u72ec\u8def\u7ebf\u50ac\u751f\u4e24\u8fb9\u4e09\u56fd\u8bba\u8c03", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E1", "id": "c2", "title": "\u6e10\u8fdb\u5f0f\u53f0\u72ec\u5bfc\u81f4\u6495\u6bc1\u56db\u4e0d\u4e00\u6ca1\u6709\u627f\u8bfa", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E1", "id": "c3", "title": "\u6e10\u8fdb\u5f0f\u53f0\u72ec\u8def\u7ebf\u5bfc\u81f4\u9009\u4e3e\u5723\u6218\u53eb\u56a3", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E1", "id": "c4", "title": "\u6e10\u8fdb\u5f0f\u53f0\u72ec\u8def\u7ebf\u63a8\u52a8\u516c\u6295\u53ca\u56fd\u9645\u5316\u717d\u52a8", "to": "E6", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c5", "title": "\u516c\u6295\u5236\u5baa\u5f15\u53d1\u7f8e\u56fd\u53cd\u5bf9\u6539\u53d8\u73b0\u72b6", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c6", "title": "\u516c\u6295\u5236\u5baa\u5f15\u53d1\u6b27\u76df\u5f3a\u70c8\u5173\u5207", "to": "E8", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c7", "title": "\u516c\u6295\u5236\u5baa\u5f15\u53d1\u65e5\u672c\u5916\u4ea4\u529d\u544a", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E2", "id": "c8", "title": "\u516c\u6295\u5236\u5baa\u8ba1\u5212\u63a8\u52a8\u5ba3\u5e03\u548c\u5e73\u516c\u6295", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c9", "title": "\u4e24\u8fb9\u4e09\u56fd\u8bba\u8c03\u5bfc\u81f4\u626c\u8a00\u56db\u4e0d\u4e00\u6ca1\u6709\u4e0d\u5b58\u5728", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c10", "title": "\u4e24\u8fb9\u4e09\u56fd\u8bba\u8c03\u5bfc\u81f4\u9009\u4e3e\u5723\u6218\u53eb\u56a3", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c11", "title": "\u6495\u6bc1\u627f\u8bfa\u540e\u4e3a\u7f13\u89e3\u538b\u529b\u91cd\u63d0\u56db\u4e0d\u4e00\u6ca1\u6709", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E5", "id": "c12", "title": "\u9009\u4e3e\u5723\u6218\u53eb\u56a3\u5f15\u53d1\u7f8e\u56fd\u53cd\u5bf9\u8868\u6001", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c13", "title": "\u717d\u52a8\u516c\u6295\u56fd\u9645\u5316\u5f15\u53d1\u7f8e\u56fd\u53cd\u5bf9\u8868\u6001", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c14", "title": "\u717d\u52a8\u516c\u6295\u56fd\u9645\u5316\u5f15\u53d1\u6b27\u76df\u5f3a\u70c8\u5173\u5207", "to": "E8", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c15", "title": "\u717d\u52a8\u516c\u6295\u56fd\u9645\u5316\u5f15\u53d1\u65e5\u672c\u5916\u4ea4\u529d\u544a", "to": "E9", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c16", "title": "\u717d\u52a8\u516c\u6295\u63a8\u52a8\u5ba3\u5e03\u548c\u5e73\u516c\u6295\u8ba1\u5212", "to": "E11", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E7", "id": "c17", "title": "\u7f8e\u56fd\u53cd\u5bf9\u538b\u529b\u4fc3\u4f7f\u5176\u91cd\u63d0\u56db\u4e0d\u4e00\u6ca1\u6709", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E8", "id": "c18", "title": "\u6b27\u76df\u5173\u5207\u538b\u529b\u4fc3\u4f7f\u5176\u91cd\u63d0\u56db\u4e0d\u4e00\u6ca1\u6709", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E9", "id": "c19", "title": "\u65e5\u672c\u529d\u544a\u538b\u529b\u4fc3\u4f7f\u5176\u91cd\u63d0\u56db\u4e0d\u4e00\u6ca1\u6709", "to": "E10", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.745\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "陈水扁上台后推行“渐进式台独”，这是一种旨在逐步推动台湾与中国大陆分裂的政治路线。"}, {"id": "E2", "text": "2003年，陈水扁当局大搞“公投制宪”，试图通过公民投票的方式修改宪法，进一步推动其分裂国家的政治动作。"}, {"id": "E3", "text": "陈水扁提出分裂国家的新政治论调，抛出“两边三国”主张。"}, {"id": "E4", "text": "陈水扁单方面撕毁政治承诺，多次扬言“四不一没有已经不存在了”。"}, {"id": "E5", "text": "陈水扁将选举政治化、对抗化，叫嚣2004年选举是“台湾对中国共产党的圣战”，构成极端挑衅表态。"}, {"id": "E6", "text": "陈水扁发表政治表态，煽动推动“公投”及“公投问题国际化”，声称若无公投则台湾在国际社会消失，并强调公投非办不可。"}, {"id": "E7", "text": "美国总统布什针对台湾地区领导人可能片面改变台海现状的言行，多次表示反对。"}, {"id": "E8", "text": "欧盟针对台湾举行所谓“防卫性公投”的议题，发出了表示“强烈关切”的外交信号。"}, {"id": "E9", "text": "日本外务省对时任台湾地区领导人陈水扁发出外交劝告，希望其坚持所谓“四不一没有”的承诺，并对“公投”事宜采取谨慎处理的态度。"}, {"id": "E10", "text": "台湾地区领导人陈水扁于2004年1月1日发表元旦讲话，重申了所谓“四不一没有”的政治立场，并声称追求两岸“永久和平”。"}, {"id": "E11", "text": "陈水扁在“陈吕配”苗栗竞选总部成立时宣布，将于3月20日举行台湾历史上第一次“和平公投”的政治计划。"}];var _pyCausal=[{"from": "E1", "to": "E2", "reason": "渐进式台独路线推动公投制宪"}, {"from": "E1", "to": "E3", "reason": "渐进式台独路线催生两边三国论调"}, {"from": "E1", "to": "E4", "reason": "渐进式台独导致撕毁四不一没有承诺"}, {"from": "E1", "to": "E5", "reason": "渐进式台独路线导致选举圣战叫嚣"}, {"from": "E1", "to": "E6", "reason": "渐进式台独路线推动公投及国际化煽动"}, {"from": "E2", "to": "E7", "reason": "公投制宪引发美国反对改变现状"}, {"from": "E2", "to": "E8", "reason": "公投制宪引发欧盟强烈关切"}, {"from": "E2", "to": "E9", "reason": "公投制宪引发日本外交劝告"}, {"from": "E2", "to": "E11", "reason": "公投制宪计划推动宣布和平公投"}, {"from": "E3", "to": "E4", "reason": "两边三国论调导致扬言四不一没有不存在"}, {"from": "E3", "to": "E5", "reason": "两边三国论调导致选举圣战叫嚣"}, {"from": "E4", "to": "E10", "reason": "撕毁承诺后为缓解压力重提四不一没有"}, {"from": "E5", "to": "E7", "reason": "选举圣战叫嚣引发美国反对表态"}, {"from": "E6", "to": "E7", "reason": "煽动公投国际化引发美国反对表态"}, {"from": "E6", "to": "E8", "reason": "煽动公投国际化引发欧盟强烈关切"}, {"from": "E6", "to": "E9", "reason": "煽动公投国际化引发日本外交劝告"}, {"from": "E6", "to": "E11", "reason": "煽动公投推动宣布和平公投计划"}, {"from": "E7", "to": "E10", "reason": "美国反对压力促使其重提四不一没有"}, {"from": "E8", "to": "E10", "reason": "欧盟关切压力促使其重提四不一没有"}, {"from": "E9", "to": "E10", "reason": "日本劝告压力促使其重提四不一没有"}];var _pyTemporal=[{"from": "E2", "to": "E6", "reason": "语义嵌入相似度 0.745，按事件编号 E2 在 E6 之前，补一条仅表达时序的边。"}];var _pyScores={"E1": {"topo": 0.9069746732711792, "topo_rank": 3, "semantic": 0.328924, "semantic_rank": 7, "semantic_rich": 0.348409, "semantic_rare": 0.060697, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6179493366355896, "combined_rank": 3}, "E10": {"topo": 0.6739380359649658, "topo_rank": 5, "semantic": 0.093681, "semantic_rank": 10, "semantic_rich": 0.07113, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3838095179824829, "combined_rank": 10}, "E11": {"topo": 0.395626962184906, "topo_rank": 11, "semantic": 0.0, "semantic_rank": 11, "semantic_rich": 0.0, "semantic_rare": 0.635915, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.197813481092453, "combined_rank": 11}, "E2": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 0.743299, "semantic_rank": 2, "semantic_rich": 0.749228, "semantic_rare": 0.05185, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.908470150100708, "combined_rank": 2}, "E3": {"topo": 0.5736414194107056, "topo_rank": 6, "semantic": 0.609795, "semantic_rank": 3, "semantic_rich": 0.622898, "semantic_rare": 0.001986, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5917182097053528, "combined_rank": 4}, "E4": {"topo": 0.5736414194107056, "topo_rank": 6, "semantic": 0.48955, "semantic_rank": 5, "semantic_rich": 0.50113, "semantic_rare": 0.107061, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5315957097053527, "combined_rank": 6}, "E5": {"topo": 0.5736414194107056, "topo_rank": 6, "semantic": 0.541855, "semantic_rank": 4, "semantic_rich": 0.54742, "semantic_rare": 0.186797, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5577482097053528, "combined_rank": 5}, "E6": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.036820650100708, "combined_rank": 1}, "E7": {"topo": 0.7286199331283569, "topo_rank": 4, "semantic": 0.332327, "semantic_rank": 6, "semantic_rich": 0.350571, "semantic_rare": 0.081848, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.5304734665641785, "combined_rank": 7}, "E8": {"topo": 0.5638139247894287, "topo_rank": 9, "semantic": 0.279897, "semantic_rank": 9, "semantic_rich": 0.291021, "semantic_rare": 0.24895, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4218554623947144, "combined_rank": 9}, "E9": {"topo": 0.5638139247894287, "topo_rank": 9, "semantic": 0.318928, "semantic_rank": 8, "semantic_rich": 0.315762, "semantic_rare": 0.492585, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.44137096239471435, "combined_rank": 8}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">M004 陈水扁当选后解放军军事部署升级（2000.3）</div><div>因果边：<b>20</b> 条&emsp;时序边：<b>1</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.29 / T- 0.41</div><div>C+ 0.13 / C- 0.17</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="陈水扁发表政治表态，煽动推动“公投”及“公投问题国际化”，声称若无公投则台湾在国际社会消失，并强调公投非办不可。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">陈水扁发表政治表态，煽动推动“公…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.037 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="2003年，陈水扁当局大搞“公投制宪”，试图通过公民投票的方式修改宪法，进一步推动其分裂国家的政治动作。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2003年，陈水扁当局大搞“公投…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.743 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.75 / 稀 0.05</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.908 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="陈水扁上台后推行“渐进式台独”，这是一种旨在逐步推动台湾与中国大陆分裂的政治路线。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">陈水扁上台后推行“渐进式台独”，…</td><td style="padding:4px 6px;text-align:center;">0.907 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.329 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.35 / 稀 0.06</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.618 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="陈水扁提出分裂国家的新政治论调，抛出“两边三国”主张。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">陈水扁提出分裂国家的新政治论调，…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.610 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.62 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.592 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="陈水扁将选举政治化、对抗化，叫嚣2004年选举是“台湾对中国共产党的圣战”，构成极端挑衅表态。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">陈水扁将选举政治化、对抗化，叫嚣…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.542 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.55 / 稀 0.19</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.558 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="陈水扁单方面撕毁政治承诺，多次扬言“四不一没有已经不存在了”。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">陈水扁单方面撕毁政治承诺，多次扬…</td><td style="padding:4px 6px;text-align:center;">0.574 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.490 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.50 / 稀 0.11</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.532 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="美国总统布什针对台湾地区领导人可能片面改变台海现状的言行，多次表示反对。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国总统布什针对台湾地区领导人可…</td><td style="padding:4px 6px;text-align:center;">0.729 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.332 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.35 / 稀 0.08</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.530 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="日本外务省对时任台湾地区领导人陈水扁发出外交劝告，希望其坚持所谓“四不一没有”的承诺，并对“公投”事宜采取谨慎处理的态度。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">日本外务省对时任台湾地区领导人陈…</td><td style="padding:4px 6px;text-align:center;">0.564 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.319 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.32 / 稀 0.49</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.441 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="欧盟针对台湾举行所谓“防卫性公投”的议题，发出了表示“强烈关切”的外交信号。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">欧盟针对台湾举行所谓“防卫性公投…</td><td style="padding:4px 6px;text-align:center;">0.564 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.280 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.29 / 稀 0.25</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.422 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="台湾地区领导人陈水扁于2004年1月1日发表元旦讲话，重申了所谓“四不一没有”的政治立场，并声称追求两岸“永久和平”。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区领导人陈水扁于2004年…</td><td style="padding:4px 6px;text-align:center;">0.674 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.094 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.07 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.384 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="陈水扁在“陈吕配”苗栗竞选总部成立时宣布，将于3月20日举行台湾历史上第一次“和平公投”的政治计划。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">陈水扁在“陈吕配”苗栗竞选总部成…</td><td style="padding:4px 6px;text-align:center;">0.396 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.64</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.198 <span style="color:#888;font-size:10px">(#11)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

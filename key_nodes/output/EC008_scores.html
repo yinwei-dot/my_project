@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d9acb8", "border": "#3a7bd5", "highlight": {"background": "#d9acb8", "border": "#1a1a1a"}, "hover": {"background": "#d9acb8", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: 2020\u5e74\u4ee5\u6765\uff0c\u5927\u9646\n\u6d77\u5173\u591a\u6b21\u4ece\u53f0\u6e7e\u5730\u533a\u8f93\u5165\u5927\u9646\u7684\n\u83e0\u841d\u4e2d\u622a\u83b7\u68c0\u75ab\u6027\u6709\u5bb3\u751f\u7269\u3002\n\u25b2 0.33 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.474 (#4)\n\u8bed\u4e49\u5206: 0.186 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.144 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.330 (#5)"}, {"color": {"background": "#dad2e1", "border": "#3a7bd5", "highlight": {"background": "#dad2e1", "border": "#1a1a1a"}, "hover": {"background": "#dad2e1", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: \u4e2d\u56fd/\u4e2d\u65b9\u5bf9\u53f0\u6e7e\u51e4\u68a8\n\u5b9e\u65bd\u6682\u505c\u8f93\u5165\u7684\u653f\u7b56\u884c\u52a8\uff0c\u5177\u4f53\n\u4e3a\u4ece3\u67081\u65e5\u8d77\u6682\u505c\u8f93\u5165\u53f0\u6e7e\u51e4\n\u68a8\u3002\n\u25b2 0.14 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.274 (#6)\n\u8bed\u4e49\u5206: 0.000 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.202\n\u7efc\u5408\u5206: 0.137 (#6)"}, {"color": {"background": "#d62728", "border": "#c0910a", "highlight": {"background": "#d62728", "border": "#1a1a1a"}, "hover": {"background": "#d62728", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u5927\u9646\u5b98\u65b9\u4e3a\u9632\u8303\u690d\u7269\u75ab\n\u60c5\u98ce\u9669\uff0c\u7531\u6d77\u5173\u603b\u7f72\u51b3\u5b9a\u81ea20\n21\u5e743\u67081\u65e5\u8d77\u6682\u505c\u53f0\u6e7e\u5730\u533a\n\u83e0\u841d\u8f93\u5165\u5927\u9646\uff0c\u6b64\u52a8\u4f5c\u4e3a\u5bf9\u53f0\u6e7e\n\u5730\u533a\u5b9e\u65bd\u7684\u8d38\u6613\u9650\u5236\u63aa\u65bd\u3002\n\u25b2 1.04 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 1.074 (#1)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 1.037 (#1)"}, {"color": {"background": "#d8959f", "border": "#3a7bd5", "highlight": {"background": "#d8959f", "border": "#1a1a1a"}, "hover": {"background": "#d8959f", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: \u4e2d\u56fd\u5b98\u65b9\u9488\u5bf9\u6682\u505c\u53f0\u6e7e\n\u83e0\u841d\u8fdb\u53e3\u4e3e\u63aa\u53d1\u5e03\u7684\u6b63\u5f53\u6027\u89e3\u91ca\n\u548c\u7acb\u573a\u58f0\u660e\uff0c\u5f3a\u8c03\u8be5\u4e3e\u63aa\u662f\u6b63\u5e38\n\u7684\u751f\u7269\u5b89\u5168\u9632\u8303\uff0c\u79d1\u5b66\u5408\u7406\u4e14\u7b26\n\u5408\u5927\u9646\u76f8\u5173\u6cd5\u5f8b\u6cd5\u89c4\u548c\u6807\u51c6\u3002\n\u25b2 0.44 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.674 (#2)\n\u8bed\u4e49\u5206: 0.214 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.216 + 0.30\u00d7\u7a00\u7f3a\u6027 0.113\n\u7efc\u5408\u5206: 0.444 (#4)"}, {"color": {"background": "#d8949e", "border": "#e07b20", "highlight": {"background": "#d8949e", "border": "#1a1a1a"}, "hover": {"background": "#d8949e", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u53f0\u6e7e\u519c\u59d4\u4f1a\u5b98\u5458\u9648\u5409\u4ef2\n\u9488\u5bf9\u4e2d\u65b9\u6682\u505c\u8fdb\u53e3\u51b3\u5b9a\u53d1\u8868\u6297\u8bae\n\u548c\u53cd\u5bf9\u8868\u6001\uff0c\u8868\u793a\u6240\u6709\u53f0\u6e7e\u51e4\u68a8\n\u8f93\u51fa\u5747\u4f9d\u636e\u4e16\u754c\u8d38\u6613\u7ec4\u7ec7\u89c4\u5b9a\u8fdb\n\u884c\uff0c\u65e0\u6cd5\u63a5\u53d7\u8be5\u901a\u77e5\u3002\n\u25b2 0.45 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.474 (#4)\n\u8bed\u4e49\u5206: 0.421 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.419 + 0.30\u00d7\u7a00\u7f3a\u6027 0.148\n\u7efc\u5408\u5206: 0.447 (#3)"}, {"color": {"background": "#d8949d", "border": "#e07b20", "highlight": {"background": "#d8949d", "border": "#1a1a1a"}, "hover": {"background": "#d8949d", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u53f0\u6e7e\u5730\u533a\u9886\u5bfc\u4eba\u8521\u82f1\u6587\n\u5728\u5176\u4e2a\u4eba\u793e\u4ea4\u5a92\u4f53\u5e73\u53f0\u8138\u4e66\u4e0a\u53d1\n\u6587\uff0c\u5bf9\u4e2d\u56fd\u5927\u9646\u65b9\u9762\u4ee5\u7a81\u88ad\u5f0f\u901a\n\u77e5\u3001\u5355\u65b9\u9762\u6682\u505c\u8f93\u5165\u53f0\u6e7e\u51e4\u68a8\u7684\n\u8d38\u6613\u63aa\u65bd\u8fdb\u884c\u516c\u5f00\u8c34\u8d23\uff0c\u5e76\u8ba4\u4e3a\n\u6b64\u4e3e\u663e\u975e\u6b63\u5e38\u7684\u8d38\u6613\u8003\u91cf\uff0c\u8868\u8fbe\n\u4e86\u5176\u5b98\u65b9\u6297\u8bae\u7acb\u573a\u3002\n\u25b2 0.45 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.615 (#3)\n\u8bed\u4e49\u5206: 0.288 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.291 + 0.30\u00d7\u7a00\u7f3a\u6027 0.096\n\u7efc\u5408\u5206: 0.452 (#2)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E1", "id": "c0", "title": "\u622a\u83b7\u6709\u5bb3\u751f\u7269\u662f\u6682\u505c\u8fdb\u53e3\u7684\u76f4\u63a5\u539f\u56e0", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E1", "id": "c1", "title": "\u622a\u83b7\u6709\u5bb3\u751f\u7269\u662f\u5b98\u65b9\u89e3\u91ca\u7684\u76f4\u63a5\u4f9d\u636e", "to": "E4", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c2", "title": "\u6682\u505c\u8fdb\u53e3\u51b3\u5b9a\u5f15\u53d1\u53f0\u6e7e\u5b98\u5458\u6297\u8bae", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E3", "id": "c3", "title": "\u6682\u505c\u8fdb\u53e3\u51b3\u5b9a\u5f15\u53d1\u53f0\u6e7e\u9886\u5bfc\u4eba\u8c34\u8d23", "to": "E6", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E4", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.707\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E4 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.809\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E3 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E3", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t2", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.797\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E5 \u5728 E6 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.785\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E4 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E4", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "2020年以来，大陆海关多次从台湾地区输入大陆的菠萝中截获检疫性有害生物。"}, {"id": "E2", "text": "中国/中方对台湾凤梨实施暂停输入的政策行动，具体为从3月1日起暂停输入台湾凤梨。"}, {"id": "E3", "text": "大陆官方为防范植物疫情风险，由海关总署决定自2021年3月1日起暂停台湾地区菠萝输入大陆，此动作为对台湾地区实施的贸易限制措施。"}, {"id": "E4", "text": "中国官方针对暂停台湾菠萝进口举措发布的正当性解释和立场声明，强调该举措是正常的生物安全防范，科学合理且符合大陆相关法律法规和标准。"}, {"id": "E5", "text": "台湾农委会官员陈吉仲针对中方暂停进口决定发表抗议和反对表态，表示所有台湾凤梨输出均依据世界贸易组织规定进行，无法接受该通知。"}, {"id": "E6", "text": "台湾地区领导人蔡英文在其个人社交媒体平台脸书上发文，对中国大陆方面以突袭式通知、单方面暂停输入台湾凤梨的贸易措施进行公开谴责，并认为此举显非正常的贸易考量，表达了其官方抗议立场。"}];var _pyCausal=[{"from": "E1", "to": "E3", "reason": "截获有害生物是暂停进口的直接原因"}, {"from": "E1", "to": "E4", "reason": "截获有害生物是官方解释的直接依据"}, {"from": "E3", "to": "E5", "reason": "暂停进口决定引发台湾官员抗议"}, {"from": "E3", "to": "E6", "reason": "暂停进口决定引发台湾领导人谴责"}];var _pyTemporal=[{"from": "E4", "to": "E6", "reason": "语义嵌入相似度 0.707，按事件编号 E4 在 E6 之前，补一条仅表达时序的边。"}, {"from": "E2", "to": "E3", "reason": "语义嵌入相似度 0.809，按事件编号 E2 在 E3 之前，补一条仅表达时序的边。"}, {"from": "E5", "to": "E6", "reason": "语义嵌入相似度 0.797，按事件编号 E5 在 E6 之前，补一条仅表达时序的边。"}, {"from": "E3", "to": "E4", "reason": "语义嵌入相似度 0.785，按事件编号 E3 在 E4 之前，补一条仅表达时序的边。"}];var _pyScores={"E1": {"topo": 0.47364139556884766, "topo_rank": 4, "semantic": 0.186386, "semantic_rank": 5, "semantic_rich": 0.143536, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3300136977844238, "combined_rank": 5}, "E2": {"topo": 0.273641437292099, "topo_rank": 6, "semantic": 0.0, "semantic_rank": 6, "semantic_rich": 0.0, "semantic_rare": 0.202392, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.1368207186460495, "combined_rank": 6}, "E3": {"topo": 1.073641300201416, "topo_rank": 1, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 1.036820650100708, "combined_rank": 1}, "E4": {"topo": 0.6736413836479187, "topo_rank": 2, "semantic": 0.213682, "semantic_rank": 4, "semantic_rich": 0.216043, "semantic_rare": 0.113115, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.44366169182395937, "combined_rank": 4}, "E5": {"topo": 0.47364139556884766, "topo_rank": 4, "semantic": 0.420867, "semantic_rank": 2, "semantic_rich": 0.419282, "semantic_rare": 0.148095, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4472541977844238, "combined_rank": 3}, "E6": {"topo": 0.6153720617294312, "topo_rank": 3, "semantic": 0.288211, "semantic_rank": 3, "semantic_rich": 0.290688, "semantic_rare": 0.095775, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4517915308647156, "combined_rank": 2}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">EC008 大陆暂停进口台湾凤梨（菠萝）——首张农产品禁令</div><div>因果边：<b>4</b> 条&emsp;时序边：<b>4</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.22 / T- 0.24</div><div>C+ 0.23 / C- 0.31</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="大陆官方为防范植物疫情风险，由海关总署决定自2021年3月1日起暂停台湾地区菠萝输入大陆，此动作为对台湾地区实施的贸易限制措施。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">大陆官方为防范植物疫情风险，由海…</td><td style="padding:4px 6px;text-align:center;">1.074 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">1.037 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="台湾地区领导人蔡英文在其个人社交媒体平台脸书上发文，对中国大陆方面以突袭式通知、单方面暂停输入台湾凤梨的贸易措施进行公开谴责，并认为此举显非正常的贸易考量，表达了其官方抗议立场。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾地区领导人蔡英文在其个人社交…</td><td style="padding:4px 6px;text-align:center;">0.615 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">0.288 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.29 / 稀 0.10</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.452 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="台湾农委会官员陈吉仲针对中方暂停进口决定发表抗议和反对表态，表示所有台湾凤梨输出均依据世界贸易组织规定进行，无法接受该通知。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">台湾农委会官员陈吉仲针对中方暂停…</td><td style="padding:4px 6px;text-align:center;">0.474 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.421 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.42 / 稀 0.15</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.447 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="中国官方针对暂停台湾菠萝进口举措发布的正当性解释和立场声明，强调该举措是正常的生物安全防范，科学合理且符合大陆相关法律法规和标准。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国官方针对暂停台湾菠萝进口举措…</td><td style="padding:4px 6px;text-align:center;">0.674 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.214 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.22 / 稀 0.11</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.444 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="2020年以来，大陆海关多次从台湾地区输入大陆的菠萝中截获检疫性有害生物。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2020年以来，大陆海关多次从台…</td><td style="padding:4px 6px;text-align:center;">0.474 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.186 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.14 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.330 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="中国/中方对台湾凤梨实施暂停输入的政策行动，具体为从3月1日起暂停输入台湾凤梨。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国/中方对台湾凤梨实施暂停输入…</td><td style="padding:4px 6px;text-align:center;">0.274 <span style="color:#888;font-size:10px">(#6)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.20</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.137 <span style="color:#888;font-size:10px">(#6)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>

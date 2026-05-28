@@ -1,0 +1,289 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 100vh;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    <style>html,body{margin:0;padding:0;overflow:hidden}#config,div.vis-configuration-wrapper{display:none!important}#mynetwork{border:none!important;height:100vh!important}hr{display:none!important}</style></head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": {"background": "#d9aab5", "border": "#3a7bd5", "highlight": {"background": "#d9aab5", "border": "#1a1a1a"}, "hover": {"background": "#d9aab5", "border": "#1a1a1a"}}, "id": "E1", "label": "E1: \u4e2d\u56fd\u4e0e\u5c3c\u52a0\u62c9\u74dc\u5efa\u7acb\u5916\n\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.34 (#9)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.274 (#9)\n\u8bed\u4e49\u5206: 0.406 (#7)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.388 + 0.30\u00d7\u7a00\u7f3a\u6027 1.000\n\u7efc\u5408\u5206: 0.340 (#9)"}, {"color": {"background": "#d99faa", "border": "#3a7bd5", "highlight": {"background": "#d99faa", "border": "#1a1a1a"}, "hover": {"background": "#d99faa", "border": "#1a1a1a"}}, "id": "E2", "label": "E2: 1990\u5e7411\u67086\u65e5\n\uff0c\u5c3c\u52a0\u62c9\u74dc\u4e0e\u53f0\u6e7e\u6062\u590d\u5916\u4ea4\u5173\u7cfb\n\u7684\u5916\u4ea4\u4e8b\u4ef6\u3002\n\u25b2 0.39 (#7)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.474 (#5)\n\u8bed\u4e49\u5206: 0.313 (#8)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.300 + 0.30\u00d7\u7a00\u7f3a\u6027 0.966\n\u7efc\u5408\u5206: 0.393 (#7)"}, {"color": {"background": "#d88c95", "border": "#3a7bd5", "highlight": {"background": "#d88c95", "border": "#1a1a1a"}, "hover": {"background": "#d88c95", "border": "#1a1a1a"}}, "id": "E3", "label": "E3: \u4e2d\u56fd\u653f\u5e9c\u9488\u5bf9\u5c3c\u52a0\u62c9\u74dc\n\u53d1\u51fa\u5b98\u65b9\u58f0\u660e\uff0c\u5ba3\u5e03\u4e2d\u6b62\u4e24\u56fd\u5916\n\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.49 (#5)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.474 (#5)\n\u8bed\u4e49\u5206: 0.507 (#5)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.513 + 0.30\u00d7\u7a00\u7f3a\u6027 0.471\n\u7efc\u5408\u5206: 0.490 (#5)"}, {"color": {"background": "#dad2e1", "border": "#3a7bd5", "highlight": {"background": "#dad2e1", "border": "#1a1a1a"}, "hover": {"background": "#dad2e1", "border": "#1a1a1a"}}, "id": "E4", "label": "E4: 2021\u5e7411\u6708\uff0c\u5c3c\n\u52a0\u62c9\u74dc\u603b\u7edf\u4e39\u5c3c\u5c14\u00b7\u5965\u5c14\u7279\u52a0\u5728\n\u5927\u9009\u4e2d\u83b7\u80dc\uff0c\u6210\u529f\u8fde\u4efb\uff0c\u7b2c\u4e94\u5ea6\n\u6267\u653f\u3002\n\u25b2 0.14 (#11)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.274 (#9)\n\u8bed\u4e49\u5206: 0.000 (#11)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.872\n\u7efc\u5408\u5206: 0.137 (#11)"}, {"color": {"background": "#d9a8b4", "border": "#3a7bd5", "highlight": {"background": "#d9a8b4", "border": "#1a1a1a"}, "hover": {"background": "#d9a8b4", "border": "#1a1a1a"}}, "id": "E5", "label": "E5: \u7f8e\u56fd\u603b\u7edf\u62dc\u767b\u53d1\u8868\u5b98\u65b9\n\u58f0\u660e\uff0c\u62a8\u51fb\u5c3c\u52a0\u62c9\u74dc\u56fd\u5185\u9009\u4e3e\u4e0d\n\u516c\uff0c\u5e76\u5ba3\u5e03\u5bf9\u5c3c\u52a0\u62c9\u74dc\u653f\u5e9c\u5b98\u5458\n\u5b9e\u65bd\u7981\u6b62\u8fdb\u5165\u7f8e\u56fd\u7684\u5236\u88c1\u63aa\u65bd\u3002\n\u25b2 0.35 (#8)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.474 (#5)\n\u8bed\u4e49\u5206: 0.222 (#10)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.261 + 0.30\u00d7\u7a00\u7f3a\u6027 0.000\n\u7efc\u5408\u5206: 0.348 (#8)"}, {"color": {"background": "#d64649", "border": "#e07b20", "highlight": {"background": "#d64649", "border": "#1a1a1a"}, "hover": {"background": "#d64649", "border": "#1a1a1a"}}, "id": "E6", "label": "E6: \u5c3c\u52a0\u62c9\u74dc\u5916\u4ea4\u90e8\u957f\u4e39\u5c3c\n\u65af\u00b7\u8499\u5361\u8fbe\u00b7\u79d1\u6797\u5fb7\u83b1\u65af\u4e8e20\n21\u5e7412\u67089\u65e5\u53d1\u8868\u5b98\u65b9\u58f0\u660e\n\uff0c\u6b63\u5f0f\u627f\u8ba4\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\uff0c\u660e\u786e\n\u8868\u793a\u4e2d\u534e\u4eba\u6c11\u5171\u548c\u56fd\u662f\u4ee3\u8868\u5168\u4e2d\n\u56fd\u7684\u552f\u4e00\u5408\u6cd5\u653f\u5e9c\uff0c\u5e76\u91cd\u7533\u53f0\u6e7e\n\u662f\u4e2d\u56fd\u9886\u571f\u4e0d\u53ef\u5206\u5272\u7684\u4e00\u90e8\u5206\u3002\n\u25b2 0.84 (#2)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.874 (#2)\n\u8bed\u4e49\u5206: 0.813 (#2)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.827 + 0.30\u00d7\u7a00\u7f3a\u6027 0.161\n\u7efc\u5408\u5206: 0.844 (#2)"}, {"color": {"background": "#d76268", "border": "#3a7bd5", "highlight": {"background": "#d76268", "border": "#1a1a1a"}, "hover": {"background": "#d76268", "border": "#1a1a1a"}}, "id": "E7", "label": "E7: \u5c3c\u52a0\u62c9\u74dc\u653f\u5e9c\u6b63\u5f0f\u5ba3\u5e03\n\uff0c\u81ea\u5373\u65e5\u8d77\u4e0e\u53f0\u6e7e\u65ad\u7edd\u5916\u4ea4\u5173\u7cfb\n\uff0c\u5e76\u7ec8\u6b62\u4e00\u5207\u63a5\u89e6\u548c\u5b98\u65b9\u5f80\u6765\u3002\n\u25b2 0.70 (#4)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.633 (#4)\n\u8bed\u4e49\u5206: 0.765 (#3)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.739 + 0.30\u00d7\u7a00\u7f3a\u6027 0.972\n\u7efc\u5408\u5206: 0.699 (#4)"}, {"color": {"background": "#d63739", "border": "#c0910a", "highlight": {"background": "#d63739", "border": "#1a1a1a"}, "hover": {"background": "#d63739", "border": "#1a1a1a"}}, "id": "E8", "label": "E8: \u5c3c\u52a0\u62c9\u74dc\u653f\u5e9c\u5bf9\u4e2d\u56fd\u6838\n\u5fc3\u5229\u76ca\u4f5c\u51fa\u653f\u6cbb\u8868\u6001\uff0c\u627f\u8ba4\u5e76\u627f\n\u8bfa\u606a\u5b88\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\u3002\n\u25b2 0.92 (#1)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.838 (#3)\n\u8bed\u4e49\u5206: 1.000 (#1)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 1.000 + 0.30\u00d7\u7a00\u7f3a\u6027 0.326\n\u7efc\u5408\u5206: 0.919 (#1)"}, {"color": {"background": "#d89ea8", "border": "#3a7bd5", "highlight": {"background": "#d89ea8", "border": "#1a1a1a"}, "hover": {"background": "#d89ea8", "border": "#1a1a1a"}}, "id": "E9", "label": "E9: \u4e2d\u56fd\u5e38\u9a7b\u8054\u5408\u56fd\u4ee3\u8868\u5f20\n\u519b\u5728\u793e\u4ea4\u7f51\u7ad9\u53d1\u6587\uff0c\u516c\u5f00\u8d5e\u8d4f\u5c3c\n\u52a0\u62c9\u74dc\u653f\u5e9c\u7684\u5916\u4ea4\u8f6c\u5411\u51b3\u5b9a\u987a\u5e94\n\u5927\u52bf\u3001\u5408\u4e4e\u6c11\u5fc3\uff0c\u5e76\u91cd\u7533\u4e00\u4e2a\u4e2d\n\u56fd\u539f\u5219\u662f\u56fd\u9645\u793e\u4f1a\u666e\u904d\u5171\u8bc6\u3002\n\u25b2 0.40 (#6)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.342 (#8)\n\u8bed\u4e49\u5206: 0.462 (#6)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.445 + 0.30\u00d7\u7a00\u7f3a\u6027 0.949\n\u7efc\u5408\u5206: 0.402 (#6)"}, {"color": {"background": "#d75b60", "border": "#e07b20", "highlight": {"background": "#d75b60", "border": "#1a1a1a"}, "hover": {"background": "#d75b60", "border": "#1a1a1a"}}, "id": "E10", "label": "E10: \u4e2d\u56fd\u4e0e\u5c3c\u52a0\u62c9\u74dc\u7b7e\u7f72\n\u5173\u4e8e\u6062\u590d\u5916\u4ea4\u5173\u7cfb\u7684\u8054\u5408\u516c\u62a5\uff0c\n\u4e24\u56fd\u653f\u5e9c\u51b3\u5b9a\u81ea\u7b7e\u7f72\u4e4b\u65e5\u8d77\u76f8\u4e92\n\u627f\u8ba4\u5e76\u6062\u590d\u5927\u4f7f\u7ea7\u5916\u4ea4\u5173\u7cfb\u3002\n\u25b2 0.74 (#3)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.910 (#1)\n\u8bed\u4e49\u5206: 0.562 (#4)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.572 + 0.30\u00d7\u7a00\u7f3a\u6027 0.368\n\u7efc\u5408\u5206: 0.736 (#3)"}, {"color": {"background": "#d9becb", "border": "#3a7bd5", "highlight": {"background": "#d9becb", "border": "#1a1a1a"}, "hover": {"background": "#d9becb", "border": "#1a1a1a"}}, "id": "E11", "label": "E11: \u5c3c\u52a0\u62c9\u74dc\u653f\u5e9c\u6267\u884c\u4e86\n\u4e0e\u53f0\u6e7e\u65ad\u7edd\u6240\u8c13\u201c\u5916\u4ea4\u5173\u7cfb\u201d\u5e76\n\u4e0e\u4e2d\u534e\u4eba\u6c11\u5171\u548c\u56fd\u6062\u590d\u5916\u4ea4\u5173\u7cfb\n\u7684\u5916\u4ea4\u4e8b\u5b9e\u52a8\u4f5c\uff0c\u540c\u65f6\u627f\u8bfa\u672a\u6765\n\u4e0d\u518d\u4e0e\u53f0\u6e7e\u53d1\u751f\u4efb\u4f55\u5b98\u65b9\u5173\u7cfb\u548c\n\u5f80\u6765\u3002\n\u25b2 0.24 (#10)", "shape": "box", "title": "\u62d3\u6251\u5206: 0.220 (#11)\n\u8bed\u4e49\u5206: 0.258 (#9)\n  = 1.00\u00d7\u4e30\u5bcc\u6027 0.264 + 0.30\u00d7\u7a00\u7f3a\u6027 0.610\n\u7efc\u5408\u5206: 0.239 (#10)"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "color": "#d62728", "from": "E2", "id": "c0", "title": "\u5c3c\u53f0\u590d\u4ea4\u76f4\u63a5\u5bfc\u81f4\u4e2d\u56fd\u4e2d\u6b62\u4e0e\u5c3c\u5916\u4ea4\u5173\u7cfb", "to": "E3", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E4", "id": "c1", "title": "\u5965\u5c14\u7279\u52a0\u8fde\u4efb\u540e\uff0c\u7f8e\u56fd\u4ee5\u9009\u4e3e\u4e0d\u516c\u4e3a\u7531\u5ba3\u5e03\u5236\u88c1", "to": "E5", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c2", "title": "\u627f\u8ba4\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\u540e\uff0c\u7acb\u5373\u5ba3\u5e03\u4e0e\u53f0\u6e7e\u65ad\u4ea4", "to": "E7", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E6", "id": "c3", "title": "\u5c3c\u65b9\u627f\u8ba4\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\u662f\u4e24\u56fd\u590d\u4ea4\u7684\u76f4\u63a5\u524d\u63d0", "to": "E10", "width": 3}, {"arrows": "to", "color": "#d62728", "from": "E8", "id": "c4", "title": "\u5c3c\u653f\u5e9c\u627f\u8bfa\u606a\u5b88\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\u662f\u53cc\u65b9\u7b7e\u7f72\u590d\u4ea4\u516c\u62a5\u7684\u57fa\u7840", "to": "E10", "width": 3}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E2", "id": "t0", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.732\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E2 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E1", "id": "t1", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.770\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E1 \u5728 E8 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E7", "id": "t2", "title": "E7\u662f\u65ad\u4ea4\u58f0\u660e\uff0cE11\u662f\u6267\u884c\u4e0e\u627f\u8bfa\uff0c\u540e\u8005\u662f\u524d\u8005\u7684\u5177\u4f53\u5316", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E3", "id": "t3", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.758\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E3 \u5728 E7 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E7", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E6", "id": "t4", "title": "E6\u5df2\u5305\u542b\u627f\u8ba4\u5e76\u627f\u8bfa\u606a\u5b88\u4e00\u4e2a\u4e2d\u56fd\u539f\u5219\uff0cE8\u662f\u91cd\u590d\u63cf\u8ff0", "to": "E8", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E10", "id": "t5", "title": "\u7b7e\u7f72\u8054\u5408\u516c\u62a5\u6062\u590d\u5916\u4ea4\u5173\u7cfb\u540e\uff0c\u6267\u884c\u65ad\u4ea4\u5e76\u627f\u8bfa\u4e0d\u5f80\u6765\u662f\u540e\u7eed\u52a8\u4f5c", "to": "E11", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E5", "id": "t6", "title": "\u539f\u6587\u672a\u8868\u660e\u7f8e\u56fd\u5236\u88c1\u76f4\u63a5\u5bfc\u81f4\u5c3c\u65b9\u53d1\u8868\u627f\u8ba4\u4e00\u4e2d\u58f0\u660e\u3002", "to": "E6", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E8", "id": "t7", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.760\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E8 \u5728 E9 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E9", "width": 1.6}, {"arrows": "to", "color": "#1f77b4", "dashes": true, "from": "E9", "id": "t8", "title": "\u8bed\u4e49\u5d4c\u5165\u76f8\u4f3c\u5ea6 0.703\uff0c\u6309\u4e8b\u4ef6\u7f16\u53f7 E9 \u5728 E10 \u4e4b\u524d\uff0c\u8865\u4e00\u6761\u4ec5\u8868\u8fbe\u65f6\u5e8f\u7684\u8fb9\u3002", "to": "E10", "width": 1.6}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"physics": {"enabled": true, "stabilization": {"iterations": 200, "fit": true}, "barnesHut": {"gravitationalConstant": -14000, "springLength": 220, "springConstant": 0.006, "damping": 0.92}}, "edges": {"smooth": {"type": "cubicBezier"}}, "interaction": {"hover": true, "tooltipDelay": 120, "dragNodes": true}, "nodes": {"shape": "box", "borderWidth": 2, "font": {"size": 12, "color": "#222", "multi": false}, "margin": 8}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    <script>var _pyEvents=[{"id": "E1", "text": "中国与尼加拉瓜建立外交关系。"}, {"id": "E2", "text": "1990年11月6日，尼加拉瓜与台湾恢复外交关系的外交事件。"}, {"id": "E3", "text": "中国政府针对尼加拉瓜发出官方声明，宣布中止两国外交关系。"}, {"id": "E4", "text": "2021年11月，尼加拉瓜总统丹尼尔·奥尔特加在大选中获胜，成功连任，第五度执政。"}, {"id": "E5", "text": "美国总统拜登发表官方声明，抨击尼加拉瓜国内选举不公，并宣布对尼加拉瓜政府官员实施禁止进入美国的制裁措施。"}, {"id": "E6", "text": "尼加拉瓜外交部长丹尼斯·蒙卡达·科林德莱斯于2021年12月9日发表官方声明，正式承认一个中国原则，明确表示中华人民共和国是代表全中国的唯一合法政府，并重申台湾是中国领土不可分割的一部分。"}, {"id": "E7", "text": "尼加拉瓜政府正式宣布，自即日起与台湾断绝外交关系，并终止一切接触和官方往来。"}, {"id": "E8", "text": "尼加拉瓜政府对中国核心利益作出政治表态，承认并承诺恪守一个中国原则。"}, {"id": "E9", "text": "中国常驻联合国代表张军在社交网站发文，公开赞赏尼加拉瓜政府的外交转向决定顺应大势、合乎民心，并重申一个中国原则是国际社会普遍共识。"}, {"id": "E10", "text": "中国与尼加拉瓜签署关于恢复外交关系的联合公报，两国政府决定自签署之日起相互承认并恢复大使级外交关系。"}, {"id": "E11", "text": "尼加拉瓜政府执行了与台湾断绝所谓“外交关系”并与中华人民共和国恢复外交关系的外交事实动作，同时承诺未来不再与台湾发生任何官方关系和往来。"}];var _pyCausal=[{"from": "E2", "to": "E3", "reason": "尼台复交直接导致中国中止与尼外交关系"}, {"from": "E4", "to": "E5", "reason": "奥尔特加连任后，美国以选举不公为由宣布制裁"}, {"from": "E6", "to": "E7", "reason": "承认一个中国原则后，立即宣布与台湾断交"}, {"from": "E6", "to": "E10", "reason": "尼方承认一个中国原则是两国复交的直接前提"}, {"from": "E8", "to": "E10", "reason": "尼政府承诺恪守一个中国原则是双方签署复交公报的基础"}];var _pyTemporal=[{"from": "E2", "to": "E10", "reason": "语义嵌入相似度 0.732，按事件编号 E2 在 E10 之前，补一条仅表达时序的边。"}, {"from": "E1", "to": "E8", "reason": "语义嵌入相似度 0.770，按事件编号 E1 在 E8 之前，补一条仅表达时序的边。"}, {"from": "E7", "to": "E11", "reason": "E7是断交声明，E11是执行与承诺，后者是前者的具体化"}, {"from": "E3", "to": "E7", "reason": "语义嵌入相似度 0.758，按事件编号 E3 在 E7 之前，补一条仅表达时序的边。"}, {"from": "E6", "to": "E8", "reason": "E6已包含承认并承诺恪守一个中国原则，E8是重复描述"}, {"from": "E10", "to": "E11", "reason": "签署联合公报恢复外交关系后，执行断交并承诺不往来是后续动作"}, {"from": "E5", "to": "E6", "reason": "原文未表明美国制裁直接导致尼方发表承认一中声明。"}, {"from": "E8", "to": "E9", "reason": "语义嵌入相似度 0.760，按事件编号 E8 在 E9 之前，补一条仅表达时序的边。"}, {"from": "E9", "to": "E10", "reason": "语义嵌入相似度 0.703，按事件编号 E9 在 E10 之前，补一条仅表达时序的边。"}];var _pyScores={"E1": {"topo": 0.273641437292099, "topo_rank": 9, "semantic": 0.406153, "semantic_rank": 7, "semantic_rich": 0.388351, "semantic_rare": 1.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3398972186460495, "combined_rank": 9}, "E10": {"topo": 0.9104655981063843, "topo_rank": 1, "semantic": 0.562171, "semantic_rank": 4, "semantic_rich": 0.572244, "semantic_rare": 0.367827, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.7363182990531921, "combined_rank": 3}, "E11": {"topo": 0.22024467587471008, "topo_rank": 11, "semantic": 0.25796, "semantic_rank": 9, "semantic_rich": 0.264171, "semantic_rare": 0.609699, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.23910233793735505, "combined_rank": 10}, "E2": {"topo": 0.47364139556884766, "topo_rank": 5, "semantic": 0.313175, "semantic_rank": 8, "semantic_rich": 0.299696, "semantic_rare": 0.965945, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.3934081977844238, "combined_rank": 7}, "E3": {"topo": 0.47364139556884766, "topo_rank": 5, "semantic": 0.507052, "semantic_rank": 5, "semantic_rich": 0.513425, "semantic_rare": 0.47052, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4903466977844238, "combined_rank": 5}, "E4": {"topo": 0.273641437292099, "topo_rank": 9, "semantic": 0.0, "semantic_rank": 11, "semantic_rich": 0.0, "semantic_rare": 0.872428, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.1368207186460495, "combined_rank": 11}, "E5": {"topo": 0.47364139556884766, "topo_rank": 5, "semantic": 0.222477, "semantic_rank": 10, "semantic_rich": 0.260747, "semantic_rare": 0.0, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.34805919778442385, "combined_rank": 8}, "E6": {"topo": 0.873641312122345, "topo_rank": 2, "semantic": 0.813466, "semantic_rank": 2, "semantic_rich": 0.827094, "semantic_rare": 0.160867, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.8435536560611725, "combined_rank": 2}, "E7": {"topo": 0.6332497000694275, "topo_rank": 4, "semantic": 0.765485, "semantic_rank": 3, "semantic_rich": 0.73909, "semantic_rare": 0.972422, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.6993673500347137, "combined_rank": 4}, "E8": {"topo": 0.8375139236450195, "topo_rank": 3, "semantic": 1.0, "semantic_rank": 1, "semantic_rich": 1.0, "semantic_rare": 0.326439, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.9187569618225098, "combined_rank": 1}, "E9": {"topo": 0.3420132100582123, "topo_rank": 8, "semantic": 0.461892, "semantic_rank": 6, "semantic_rich": 0.445135, "semantic_rare": 0.949071, "semantic_w_rich": 1.0, "semantic_w_rare": 0.3, "combined": 0.4019526050291061, "combined_rank": 6}};</script><script>
+var _simpActive = false;
+var _simpOrig = {};
+var _currentWTopo = 0.5;
+var _currentCombined = {};
+var _currentRanks = {};
+
+function _esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* 颜色插值：0→#dbeeff，1→#d62728 */
+function _scoreToColor(score) {
+    var t = Math.max(0, Math.min(1, parseFloat(score) || 0));
+    var r = Math.round(219 + t * (214 - 219));
+    var g = Math.round(238 + t * (39  - 238));
+    var b = Math.round(255 + t * (40  - 255));
+    return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+/* 详细模式节点标签 */
+function _nodeLabelFull(eid, text, combined, rank) {
+    var wrap = 14;
+    var raw = eid + ': ' + (text || '').replace(/\n/g, ' ');
+    var lines = [];
+    while (raw.length > wrap) { lines.push(raw.slice(0, wrap)); raw = raw.slice(wrap); }
+    if (raw) lines.push(raw);
+    lines.push('\u25b2 ' + combined.toFixed(2) + ' (#' + rank + ')');
+    return lines.join('\n');
+}
+
+/* 根据当前权重初始化 _currentCombined / _currentRanks（页面加载时调用） */
+function _initCurrentScores() {
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = _currentWTopo * sc.topo + (1 - _currentWTopo) * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+}
+
+/* 重新计算并更新节点颜色/标签/排名表 */
+function _recomputeAndUpdate(wTopo) {
+    _currentWTopo = wTopo;
+    var wSem = 1.0 - wTopo;
+    var scores = _pyScores || {};
+    var combined = {};
+    Object.keys(scores).forEach(function(nid) {
+        var sc = scores[nid];
+        combined[nid] = wTopo * sc.topo + wSem * sc.semantic;
+    });
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var ranks = {};
+    sorted.forEach(function(nid, i) { ranks[nid] = i + 1; });
+    _currentCombined = combined;
+    _currentRanks = ranks;
+
+    if (typeof network !== 'undefined') {
+        var upd = [];
+        Object.keys(combined).forEach(function(nid) {
+            var sc = scores[nid];
+            var comb = combined[nid];
+            var rank = ranks[nid];
+            var color = _scoreToColor(comb);
+            var border = rank === 1 ? '#c0910a' : (rank <= 3 ? '#e07b20' : '#3a7bd5');
+            var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+            var text = ev ? ev.text : '';
+            var title = '\u62d3\u6251\u5206: ' + sc.topo.toFixed(3) + ' (#' + sc.topo_rank + ')\n'
+                      + '\u8bed\u4e49\u5206: ' + sc.semantic.toFixed(3) + ' (#' + sc.semantic_rank + ')\n'
+                      + '  = ' + sc.semantic_w_rich.toFixed(2) + '×丰富性 ' + sc.semantic_rich.toFixed(3) + ' + '
+                      + sc.semantic_w_rare.toFixed(2) + '×稀缺性 ' + sc.semantic_rare.toFixed(3) + '\n'
+                      + '\u7efc\u5408\u5206: ' + comb.toFixed(3) + ' (#' + rank + ')';
+            var label = _simpActive
+                ? (nid + ' \u2605' + comb.toFixed(2))
+                : _nodeLabelFull(nid, text, comb, rank);
+            /* 简洁模式下同步更新 _simpOrig，以便切回详细时使用最新标签 */
+            if (_simpActive && _simpOrig[nid]) {
+                _simpOrig[nid] = {label: _nodeLabelFull(nid, text, comb, rank), title: title};
+            }
+            upd.push({
+                id: nid, label: label, title: title,
+                color: {background: color, border: border,
+                        highlight: {background: color, border: '#1a1a1a'},
+                        hover:     {background: color, border: '#1a1a1a'}}
+            });
+        });
+        network.body.data.nodes.update(upd);
+        network.redraw();
+    }
+    _updateScorePanel(combined, ranks);
+}
+
+/* 刷新右侧排名表 tbody */
+function _updateScorePanel(combined, ranks) {
+    var tbody = document.getElementById('score-tbody');
+    if (!tbody) return;
+    var scores = _pyScores || {};
+    var sorted = Object.keys(combined).sort(function(a, b) { return combined[b] - combined[a]; });
+    var html = '';
+    sorted.forEach(function(nid) {
+        var sc = scores[nid];
+        var comb = combined[nid];
+        var rank = ranks[nid];
+        var ev = (_pyEvents || []).find(function(e) { return e.id === nid; });
+        var text = ev ? ev.text : '';
+        var short = text.length > 16 ? text.slice(0, 16) + '\u2026' : text;
+        html += '<tr title="' + _esc(text) + '" style="border-bottom:1px solid #f0f0f0;">'
+              + '<td style="padding:4px 6px;font-weight:600;color:#333;">' + _esc(nid) + '</td>'
+              + '<td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + _esc(short) + '</td>'
+              + '<td style="padding:4px 6px;text-align:center;">' + sc.topo.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.topo_rank + ')</span></td>'
+              + '<td style="padding:4px 6px;text-align:center;line-height:1.35;">' + sc.semantic.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + sc.semantic_rank + ')</span><div style="color:#888;font-size:10px">丰 ' + sc.semantic_rich.toFixed(2) + ' / 稀 ' + sc.semantic_rare.toFixed(2) + '</div></td>'
+              + '<td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">' + comb.toFixed(3) + ' <span style="color:#888;font-size:10px">(#' + rank + ')</span></td>'
+              + '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+/* 权重滑块事件 */
+function onWeightChange() {
+    var slider = document.getElementById('slider-topo');
+    if (!slider) return;
+    var wTopo = parseInt(slider.value, 10) / 100;
+    var wSem  = 1.0 - wTopo;
+    var lblT = document.getElementById('label-topo');
+    var lblS = document.getElementById('label-sem');
+    if (lblT) lblT.textContent = wTopo.toFixed(2);
+    if (lblS) lblS.textContent = wSem.toFixed(2);
+    _recomputeAndUpdate(wTopo);
+}
+
+function toggleSimplifiedMode() {
+    _simpActive = !_simpActive;
+    var btn = document.getElementById('btn-mode');
+    if (typeof network === 'undefined') return;
+    var ids = network.body.data.nodes.getIds();
+    var upd = [];
+    if (_simpActive) {
+        ids.forEach(function(id) {
+            var n = network.body.data.nodes.get(id);
+            _simpOrig[id] = {label: n.label, title: n.title};
+            var comb = _currentCombined[id] !== undefined ? _currentCombined[id]
+                     : ((_pyScores[id] || {}).combined || 0);
+            upd.push({id: id, label: id + ' \u2605' + comb.toFixed(2)});
+        });
+        if (btn) btn.textContent = '\u7b80\u6d01\u6a21\u5f0f';
+    } else {
+        ids.forEach(function(id) {
+            var o = _simpOrig[id];
+            if (o) upd.push({id: id, label: o.label});
+        });
+        if (btn) btn.textContent = '\u8be6\u7ec6\u6a21\u5f0f';
+    }
+    network.body.data.nodes.update(upd);
+    network.redraw();
+}
+
+window.addEventListener('load', function() { _initCurrentScores(); });
+</script><div style="position:fixed;top:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.08);max-width:320px;"><div style="font-weight:600;font-size:14px;margin-bottom:4px;">I009 尼加拉瓜与台湾断交（2021.12.9）</div><div>因果边：<b>5</b> 条&emsp;时序边：<b>9</b> 条</div><div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;"><button id="btn-mode" onclick="toggleSimplifiedMode()" style="cursor:pointer;padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;">详细模式</button></div><div style="margin-top:8px;font-size:11px;color:#888;"><span style="display:inline-block;width:14px;height:3px;background:#d62728;vertical-align:middle;margin-right:4px;border-radius:1px;"></span>因果边&emsp;<span style="display:inline-block;width:14px;height:0;border-top:2px dashed #1f77b4;vertical-align:middle;margin-right:4px;"></span>时序边<div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>语义公式</b></div><div>语义分 = 1.00 × 丰富性 + 0.30 × 稀缺性</div></div><div style="margin-top:6px;font-size:11px;color:#666;line-height:1.5;"><div><b>关系权重</b></div><div>T+ 0.22 / T- 0.14</div><div>C+ 0.34 / C- 0.30</div></div></div></div><div style="position:fixed;top:14px;right:14px;bottom:14px;width:360px;z-index:9999;display:flex;flex-direction:column;"><div style="background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 14px;font-family:sans-serif;font-size:13px;line-height:1.5;box-shadow:0 2px 6px rgba(0,0,0,0.10);overflow-y:auto;flex:1;"><div style="font-weight:700;font-size:13px;color:#333;border-bottom:1px solid #e0e0e0;padding-bottom:6px;margin-bottom:8px;">关键节点得分排名</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#f5f8ff;font-size:11px;color:#555;"><th style="padding:4px 6px;text-align:left;">节点</th><th style="padding:4px 6px;text-align:left;">描述</th><th style="padding:4px 6px;text-align:center;">拓扑</th><th style="padding:4px 6px;text-align:center;">语义</th><th style="padding:4px 6px;text-align:center;">综合</th></tr></thead><tbody id="score-tbody"><tr title="尼加拉瓜政府对中国核心利益作出政治表态，承认并承诺恪守一个中国原则。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E8</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">尼加拉瓜政府对中国核心利益作出政…</td><td style="padding:4px 6px;text-align:center;">0.838 <span style="color:#888;font-size:10px">(#3)</span></td><td style="padding:4px 6px;text-align:center;">1.000 <span style="color:#888;font-size:10px">(#1)</span><div style="color:#888;font-size:10px">丰 1.00 / 稀 0.33</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.919 <span style="color:#888;font-size:10px">(#1)</span></td></tr><tr title="尼加拉瓜外交部长丹尼斯·蒙卡达·科林德莱斯于2021年12月9日发表官方声明，正式承认一个中国原则，明确表示中华人民共和国是代表全中国的唯一合法政府，并重申台湾是中国领土不可分割的一部分。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E6</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">尼加拉瓜外交部长丹尼斯·蒙卡达·…</td><td style="padding:4px 6px;text-align:center;">0.874 <span style="color:#888;font-size:10px">(#2)</span></td><td style="padding:4px 6px;text-align:center;">0.813 <span style="color:#888;font-size:10px">(#2)</span><div style="color:#888;font-size:10px">丰 0.83 / 稀 0.16</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.844 <span style="color:#888;font-size:10px">(#2)</span></td></tr><tr title="中国与尼加拉瓜签署关于恢复外交关系的联合公报，两国政府决定自签署之日起相互承认并恢复大使级外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E10</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国与尼加拉瓜签署关于恢复外交关…</td><td style="padding:4px 6px;text-align:center;">0.910 <span style="color:#888;font-size:10px">(#1)</span></td><td style="padding:4px 6px;text-align:center;">0.562 <span style="color:#888;font-size:10px">(#4)</span><div style="color:#888;font-size:10px">丰 0.57 / 稀 0.37</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.736 <span style="color:#888;font-size:10px">(#3)</span></td></tr><tr title="尼加拉瓜政府正式宣布，自即日起与台湾断绝外交关系，并终止一切接触和官方往来。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E7</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">尼加拉瓜政府正式宣布，自即日起与…</td><td style="padding:4px 6px;text-align:center;">0.633 <span style="color:#888;font-size:10px">(#4)</span></td><td style="padding:4px 6px;text-align:center;">0.765 <span style="color:#888;font-size:10px">(#3)</span><div style="color:#888;font-size:10px">丰 0.74 / 稀 0.97</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.699 <span style="color:#888;font-size:10px">(#4)</span></td></tr><tr title="中国政府针对尼加拉瓜发出官方声明，宣布中止两国外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E3</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国政府针对尼加拉瓜发出官方声明…</td><td style="padding:4px 6px;text-align:center;">0.474 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.507 <span style="color:#888;font-size:10px">(#5)</span><div style="color:#888;font-size:10px">丰 0.51 / 稀 0.47</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.490 <span style="color:#888;font-size:10px">(#5)</span></td></tr><tr title="中国常驻联合国代表张军在社交网站发文，公开赞赏尼加拉瓜政府的外交转向决定顺应大势、合乎民心，并重申一个中国原则是国际社会普遍共识。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E9</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国常驻联合国代表张军在社交网站…</td><td style="padding:4px 6px;text-align:center;">0.342 <span style="color:#888;font-size:10px">(#8)</span></td><td style="padding:4px 6px;text-align:center;">0.462 <span style="color:#888;font-size:10px">(#6)</span><div style="color:#888;font-size:10px">丰 0.45 / 稀 0.95</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.402 <span style="color:#888;font-size:10px">(#6)</span></td></tr><tr title="1990年11月6日，尼加拉瓜与台湾恢复外交关系的外交事件。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E2</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">1990年11月6日，尼加拉瓜与…</td><td style="padding:4px 6px;text-align:center;">0.474 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.313 <span style="color:#888;font-size:10px">(#8)</span><div style="color:#888;font-size:10px">丰 0.30 / 稀 0.97</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.393 <span style="color:#888;font-size:10px">(#7)</span></td></tr><tr title="美国总统拜登发表官方声明，抨击尼加拉瓜国内选举不公，并宣布对尼加拉瓜政府官员实施禁止进入美国的制裁措施。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E5</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">美国总统拜登发表官方声明，抨击尼…</td><td style="padding:4px 6px;text-align:center;">0.474 <span style="color:#888;font-size:10px">(#5)</span></td><td style="padding:4px 6px;text-align:center;">0.222 <span style="color:#888;font-size:10px">(#10)</span><div style="color:#888;font-size:10px">丰 0.26 / 稀 0.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.348 <span style="color:#888;font-size:10px">(#8)</span></td></tr><tr title="中国与尼加拉瓜建立外交关系。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E1</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">中国与尼加拉瓜建立外交关系。</td><td style="padding:4px 6px;text-align:center;">0.274 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.406 <span style="color:#888;font-size:10px">(#7)</span><div style="color:#888;font-size:10px">丰 0.39 / 稀 1.00</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.340 <span style="color:#888;font-size:10px">(#9)</span></td></tr><tr title="尼加拉瓜政府执行了与台湾断绝所谓“外交关系”并与中华人民共和国恢复外交关系的外交事实动作，同时承诺未来不再与台湾发生任何官方关系和往来。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E11</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">尼加拉瓜政府执行了与台湾断绝所谓…</td><td style="padding:4px 6px;text-align:center;">0.220 <span style="color:#888;font-size:10px">(#11)</span></td><td style="padding:4px 6px;text-align:center;">0.258 <span style="color:#888;font-size:10px">(#9)</span><div style="color:#888;font-size:10px">丰 0.26 / 稀 0.61</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.239 <span style="color:#888;font-size:10px">(#10)</span></td></tr><tr title="2021年11月，尼加拉瓜总统丹尼尔·奥尔特加在大选中获胜，成功连任，第五度执政。" style="border-bottom:1px solid #f0f0f0;"><td style="padding:4px 6px;font-weight:600;color:#333;">E4</td><td style="padding:4px 6px;font-size:11px;color:#555;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">2021年11月，尼加拉瓜总统丹…</td><td style="padding:4px 6px;text-align:center;">0.274 <span style="color:#888;font-size:10px">(#9)</span></td><td style="padding:4px 6px;text-align:center;">0.000 <span style="color:#888;font-size:10px">(#11)</span><div style="color:#888;font-size:10px">丰 0.00 / 稀 0.87</div></td><td style="padding:4px 6px;text-align:center;font-weight:600;color:#c0392b;">0.137 <span style="color:#888;font-size:10px">(#11)</span></td></tr></tbody></table></div></div><div style="position:fixed;bottom:14px;left:14px;z-index:9999;background:#ffffffcc;border:1px solid #c0c0c0;border-radius:8px;padding:8px 12px;font-family:sans-serif;font-size:11px;color:#555;box-shadow:0 2px 6px rgba(0,0,0,0.08);"><div style="margin-bottom:4px;font-weight:600;">节点得分（综合）</div><div style="display:flex;align-items:center;gap:2px;"><span style="margin-right:4px;">0.0</span><div style="width:16px;height:16px;background:#dbeeff;border-radius:2px;" title="0.0"></div> <div style="width:16px;height:16px;background:#dad7e7;border-radius:2px;" title="0.1"></div> <div style="width:16px;height:16px;background:#d9c1cf;border-radius:2px;" title="0.2"></div> <div style="width:16px;height:16px;background:#d9abb7;border-radius:2px;" title="0.3"></div> <div style="width:16px;height:16px;background:#d8959f;border-radius:2px;" title="0.4"></div> <div style="width:16px;height:16px;background:#d87f87;border-radius:2px;" title="0.6"></div> <div style="width:16px;height:16px;background:#d7696f;border-radius:2px;" title="0.7"></div> <div style="width:16px;height:16px;background:#d75357;border-radius:2px;" title="0.8"></div> <div style="width:16px;height:16px;background:#d63d3f;border-radius:2px;" title="0.9"></div> <div style="width:16px;height:16px;background:#d62728;border-radius:2px;" title="1.0"></div><span style="margin-left:4px;">1.0</span></div></div><div id="weight-panel" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#ffffffee;border:1px solid #c0c0c0;border-radius:8px;padding:10px 18px;font-family:sans-serif;font-size:13px;box-shadow:0 2px 6px rgba(0,0,0,0.10);min-width:360px;display:flex;flex-direction:column;gap:6px;"><div style="font-weight:700;font-size:12px;color:#555;margin-bottom:2px;">权重调节（拓扑 + 语义 = 1）</div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;">拓扑 <b id="label-topo">0.50</b></span><input type="range" id="slider-topo" min="0" max="100" value="50" step="1" style="flex:1;cursor:pointer;accent-color:#d62728;" oninput="onWeightChange()"><span style="font-size:12px;color:#333;white-space:nowrap;min-width:56px;text-align:right;"><b id="label-sem">0.50</b> 语义</span></div></div></body>
+</html>
