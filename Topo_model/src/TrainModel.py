@@ -52,117 +52,50 @@ def _kendall_tau(x: np.ndarray, y: np.ndarray) -> float:
     return (c - d) / (n * (n - 1) / 2)
 
 
-# ── Pairwise / ListNet Loss ───────────────────────────────────────────────────
-
-def _pairwise_rank_loss(
-    preds: torch.Tensor,
-    labels: torch.Tensor,
-    margin: float = 0.0,
-    pair_weights: torch.Tensor | None = None,
-) -> torch.Tensor:
-    """
-    RankNet 风格 hinge：对每个 label_i > label_j 的合法对，
-    loss_ij = relu(margin - (pred_i - pred_j))，可按 pair_weights 加权平均。
-    """
-    n = preds.numel()
-    if n < 2:
-        return preds.sum() * 0.0
-
-    diff_label = labels.unsqueeze(0) - labels.unsqueeze(1)
-    mask = diff_label > 0
-    if not mask.any():
-        return preds.sum() * 0.0
-
-    diff_pred = preds.unsqueeze(0) - preds.unsqueeze(1)
-    hinge = F.relu(margin - diff_pred)
-    if pair_weights is None:
-        return hinge[mask].mean()
-    w = pair_weights[mask]
-    return (hinge[mask] * w).sum() / w.sum().clamp(min=1e-8)
+def _graph_loss(rank_scores: torch.Tensor, labels: torch.Tensor) -> torch.Tensor:
+    """MSE 损失：直接回归台阶 rank_labels（输出无归一化，绝对值监督）。"""
+    return F.mse_loss(rank_scores, labels)
 
 
-def _cross_tier_pairwise_loss(
-    preds: torch.Tensor,
-    member: torch.Tensor,
-    margin: float,
-) -> torch.Tensor:
-    """i∈D, j∈ND：要求 pred_i > pred_j + margin。"""
-    n = preds.numel()
-    if n < 2:
-        return preds.sum() * 0.0
-    mi = member.unsqueeze(0) > 0.5
-    mj = member.unsqueeze(1) < 0.5
-    mask = mi & mj
-    if not mask.any():
-        return preds.sum() * 0.0
-    diff_pred = preds.unsqueeze(0) - preds.unsqueeze(1)
-    return F.relu(margin - diff_pred)[mask].mean()
-
-
-def _pairwise_pair_weights(
-    member: torch.Tensor,
-    cfg: TrainConfig,
-) -> torch.Tensor:
-    """D 内=1，ND 内=within_nd_pair_weight，跨层由 cross_tier 单独处理。"""
-    n = member.numel()
-    mi = member.unsqueeze(0) > 0.5
-    mj = member.unsqueeze(1) > 0.5
-    both_d = mi & mj
-    both_nd = (~mi) & (~mj)
-    w = torch.ones(n, n, device=member.device, dtype=member.dtype)
-    w = w.masked_fill(both_nd, cfg.within_nd_pair_weight)
-    w = w.masked_fill(both_d, 1.0)
-    cross = (mi & (~mj)) | ((~mi) & mj)
-    w = w.masked_fill(cross, 0.0)
-    return w
-
-
-def _graph_loss(
-    preds: torch.Tensor,
-    labels: torch.Tensor,
-    member: torch.Tensor,
-    cfg: TrainConfig,
-) -> torch.Tensor:
-    """成员 BCE + 排序 Pairwise（D/ND 组内加权）+ 跨层 hinge。"""
-    if cfg.listnet_temperature:
-        rank_loss = _listnet_loss(preds, labels, cfg.listnet_temperature)
-    elif cfg.label_weight > 0:
-        w = 1.0 + cfg.label_weight * labels
-        rank_loss = ((preds - labels).pow(2) * w).mean()
-    elif cfg.loss_type == "pairwise":
-        pair_w = _pairwise_pair_weights(member, cfg)
-        rank_loss = _pairwise_rank_loss(
-            preds, labels, cfg.pairwise_margin, pair_weights=pair_w,
-        )
-    else:
-        rank_loss = F.mse_loss(preds, labels)
-
-    mem_loss = F.binary_cross_entropy_with_logits(preds, member)
-    cross_loss = _cross_tier_pairwise_loss(
-        preds, member, cfg.cross_tier_margin,
-    )
+def _fmt_cm(tp: int, fp: int, fn: int, tn: int) -> str:
+    """格式化二分类混淆矩阵为可读字符串（D 节点 vs ND 节点）。"""
+    prec = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    rec  = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+    f1   = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0.0
+    w = max(len(str(v)) for v in (tp, fp, fn, tn))
     return (
-        cfg.member_loss_weight * mem_loss
-        + rank_loss
-        + cfg.cross_tier_weight * cross_loss
+        f"  混淆矩阵 (列=预测, 行=真实):\n"
+        f"  真实D    TP={tp:{w}d}  FN={fn:{w}d}\n"
+        f"  真实ND   FP={fp:{w}d}  TN={tn:{w}d}\n"
+        f"  P={prec:.3f}  R={rec:.3f}  F1={f1:.3f}"
     )
 
 
-def _listnet_loss(
-    preds: torch.Tensor, labels: torch.Tensor, temperature: float
-) -> torch.Tensor:
-    """
-    ListNet Loss（单图）。
+def _load_model_weights(
+    model: TopoModel,
+    checkpoint_path: Path,
+    device: torch.device,
+) -> tuple[list[str], list[str]]:
+    """兼容旧 checkpoint：允许缺少新增的双头参数。"""
+    state_dict = torch.load(checkpoint_path, map_location=device, weights_only=True)
+    incompatible = model.load_state_dict(state_dict, strict=False)
+    return list(incompatible.missing_keys), list(incompatible.unexpected_keys)
 
-    将真实标签 softmax(labels / T) 视为目标概率分布，
-    最小化其与 log_softmax(preds) 的交叉熵。
 
-    temperature 越小，目标分布越集中于高分节点（T→0 ≈ Top-1 对比）；
-    推荐 T=0.2：重点优化 Top 命中，对中间排名容忍。
-    """
-    p_true    = torch.softmax(labels / temperature, dim=0)  # [N] 目标概率
-    log_p_pred = torch.log_softmax(preds, dim=0)             # [N] 预测 log 概率
-    return -(p_true * log_p_pred).sum()
+def _best_set_hit_rate(
+    removal_sets: list[list[str]],
+    node_ids: list[str],
+    pred_scores: np.ndarray,
+) -> float:
+    if not removal_sets:
+        return 0.0
+    scores = {nid: float(pred_scores[i]) for i, nid in enumerate(node_ids)}
+    sorted_nids = sorted(scores, key=lambda x: -scores[x])
+    return max(
+        len(set(sorted_nids[: len(rs)]) & set(rs)) / len(rs)
+        for rs in removal_sets
+        if rs
+    )
 
 
 # ── Trainer ───────────────────────────────────────────────────────────────────
@@ -185,6 +118,7 @@ class Trainer:
         train_cfg: TrainConfig,
         output_dir: Path,
         logger: logging.Logger,
+        eval_label_root: Path | None = None,
         feat_dim: int = 8,
         run_name: str = "train",
         swanlab_dir: Path | None = None,
@@ -208,6 +142,7 @@ class Trainer:
         self.logger    = logger
         self.output_dir = output_dir
         self.feat_dim   = feat_dim
+        self.eval_label_root = eval_label_root
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # DataLoader：图大小不一，collate_fn 返回列表，batch_size=1 逐图处理
@@ -222,7 +157,8 @@ class Trainer:
 
         self.best_val_loss        = float("inf")
         self.best_val_tau         = float("-inf")
-        self.tau_no_improve_count = 0   # val τ 无改善，用于早停与 best 保存
+        self.best_val_hit_rate    = 0.0
+        self.monitor_no_improve_count = 0
 
         # checkpoint 路径（weights-only 友好：state_dict + JSON 元数据分开存）
         self.weights_path      = output_dir / "latest_weights.pth"
@@ -260,14 +196,8 @@ class Trainer:
                         "feature_out_activation": model.feature_encoder.out_activation_name,
                         "feature_out_leaky_slope": model.feature_encoder.out_leaky_slope,
                         "scorer_output_norm": model.scorer.scorer_output_norm,
-                        "loss_type": train_cfg.loss_type,
-                        "pairwise_margin": train_cfg.pairwise_margin,
-                        "label_weight": train_cfg.label_weight,
-                        "listnet_temperature": train_cfg.listnet_temperature,
-                        "member_loss_weight": train_cfg.member_loss_weight,
-                        "cross_tier_margin": train_cfg.cross_tier_margin,
-                        "cross_tier_weight": train_cfg.cross_tier_weight,
-                        "within_nd_pair_weight": train_cfg.within_nd_pair_weight,
+                        "loss_type":               "mse",
+                        "member_threshold":         train_cfg.member_threshold,
                     },
                     logdir=str(_sl_dir),
                     mode="local",
@@ -285,9 +215,20 @@ class Trainer:
         """加载最新 checkpoint，返回起始 epoch（0 表示从头训练）。"""
         if not (self.weights_path.exists() and self.meta_path.exists()):
             return 0
-        self.model.load_state_dict(
-            torch.load(self.weights_path, map_location=self.device, weights_only=True)
+        missing, unexpected = _load_model_weights(
+            self.model, self.weights_path, self.device,
         )
+        if missing or unexpected:
+            self.logger.info(
+                "checkpoint 与当前模型结构不完全兼容；按 warm start 处理，"
+                "不恢复优化器/调度器/epoch。missing=%s unexpected=%s",
+                missing, unexpected,
+            )
+            self.best_val_loss        = float("inf")
+            self.best_val_tau         = float("-inf")
+            self.best_val_hit_rate    = 0.0
+            self.monitor_no_improve_count = 0
+            return 0
         if self.optim_path.exists():
             self.optimizer.load_state_dict(
                 torch.load(self.optim_path, map_location=self.device, weights_only=True)
@@ -300,13 +241,16 @@ class Trainer:
             meta = json.load(f)
         self.best_val_loss        = float(meta.get("best_loss", float("inf")))
         self.best_val_tau         = float(meta.get("best_tau", float("-inf")))
-        self.tau_no_improve_count = int(
-            meta.get("tau_no_improve_count", meta.get("no_improve_count", 0))
+        self.best_val_hit_rate    = float(meta.get("best_hit_rate", 0.0))
+        self.monitor_no_improve_count = int(
+            meta.get("no_improve_count",
+                meta.get("monitor_no_improve_count",
+                    meta.get("tau_no_improve_count", 0)))
         )
         start = int(meta.get("epoch", -1)) + 1
         self.logger.info(
-            "断点续训：从 epoch %d 恢复，best_loss=%.4f best_tau=%.4f",
-            start, self.best_val_loss, self.best_val_tau,
+            "断点续训：从 epoch %d 恢复，best_loss=%.4f best_tau=%.4f best_hit=%.4f",
+            start, self.best_val_loss, self.best_val_tau, self.best_val_hit_rate,
         )
         return start
 
@@ -315,26 +259,28 @@ class Trainer:
         epoch: int,
         val_loss: float,
         *,
-        val_tau: float | None = None,
+        val_metrics: dict | None = None,
         is_best: bool = False,
     ) -> None:
         """保存 checkpoint（state_dict + JSON 元数据，weights_only 友好）。"""
         torch.save(self.model.state_dict(), self.weights_path)
         torch.save(self.optimizer.state_dict(), self.optim_path)
         torch.save(self.scheduler.state_dict(), self.sched_path)
+        val_tau      = None if val_metrics is None else val_metrics.get("mean_tau")
+        val_hit_rate = None if val_metrics is None else val_metrics.get("hit_rate")
         meta = {
-            "epoch":            int(epoch),
-            "feat_dim":         self.feat_dim,
-            "best_loss":            float(self.best_val_loss),
-            "best_tau":             float(self.best_val_tau),
-            "val_loss":             float(val_loss),
-            "val_tau":              None if val_tau is None else float(val_tau),
-            "tau_no_improve_count": int(self.tau_no_improve_count),
-            "feature_out_activation": self.model.feature_encoder.out_activation_name,
-            "feature_out_leaky_slope": self.model.feature_encoder.out_leaky_slope,
-            "scorer_output_norm": self.model.scorer.scorer_output_norm,
-            "loss_type": self.cfg.loss_type,
-            "pairwise_margin": self.cfg.pairwise_margin,
+            "epoch":             int(epoch),
+            "feat_dim":          self.feat_dim,
+            "best_loss":         float(self.best_val_loss),
+            "best_tau":          float(self.best_val_tau),
+            "best_hit_rate":     float(self.best_val_hit_rate),
+            "val_loss":          float(val_loss),
+            "val_tau":           None if val_tau is None else float(val_tau),
+            "val_hit_rate":      None if val_hit_rate is None else float(val_hit_rate),
+            "no_improve_count":  int(self.monitor_no_improve_count),
+            "loss_type":         "mse",
+            "feature_out_activation":  self.model.feature_encoder.out_activation_name,
+            "scorer_output_norm":      self.model.scorer.scorer_output_norm,
         }
         with open(self.meta_path, "w", encoding="utf-8") as f:
             json.dump(meta, f, indent=2)
@@ -342,11 +288,89 @@ class Trainer:
             torch.save(self.model.state_dict(), self.best_weights_path)
             with open(self.best_meta_path, "w", encoding="utf-8") as f:
                 json.dump(meta, f, indent=2)
-            tau_msg = f" tau={val_tau:.4f}" if val_tau is not None else ""
+            extra_parts: list[str] = []
+            if val_tau is not None:
+                extra_parts.append(f"tau={float(val_tau):.4f}")
+            if val_hit_rate is not None:
+                extra_parts.append(f"hit={float(val_hit_rate):.4f}")
+            suffix = (" | " + " | ".join(extra_parts)) if extra_parts else ""
             self.logger.info(
                 "Best model 更新 (epoch %d  loss=%.4f%s)",
-                epoch + 1, val_loss, tau_msg,
+                epoch + 1, val_loss, suffix,
             )
+
+    def _evaluate_loader(
+        self,
+        loader: DataLoader,
+        label_root: Path | None,
+    ) -> dict:
+        self.model.eval()
+        total_loss = 0.0
+        n_graphs = 0
+        tau_list: list[float] = []
+        n_total = n_hit = 0
+        tp = fp = fn = tn = 0
+
+        for batch in loader:
+            item       = batch[0]
+            features   = item["features"].to(self.device)
+            edge_index = item["edge_index"].to(self.device)
+            labels     = item["labels"].to(self.device)
+            member     = item["member"].to(self.device)
+            node_ids   = item["node_ids"]
+            doc_id     = item["doc_id"]
+
+            with torch.no_grad():
+                rank_scores = self.model(features, edge_index)
+                loss = _graph_loss(rank_scores, labels)
+
+            pred_np   = rank_scores.detach().cpu().numpy()
+            label_np  = labels.detach().cpu().numpy()
+            member_np = member.detach().cpu().numpy()
+
+            if len(pred_np) >= 2:
+                tau_list.append(_kendall_tau(pred_np, label_np))
+
+            # 二分类：预测分 > member_threshold → 预测为D节点
+            pred_m = (pred_np > self.cfg.member_threshold).astype(int)
+            true_m = (member_np > 0.5).astype(int)
+            tp += int(((pred_m == 1) & (true_m == 1)).sum())
+            fp += int(((pred_m == 1) & (true_m == 0)).sum())
+            fn += int(((pred_m == 0) & (true_m == 1)).sum())
+            tn += int(((pred_m == 0) & (true_m == 0)).sum())
+
+            if label_root is not None:
+                label_path = label_root / doc_id / "topo_labels.json"
+                if label_path.exists():
+                    with open(label_path, encoding="utf-8") as f:
+                        lbl = json.load(f)
+                    removal_sets = [s for s in lbl.get("removal_sets", []) if s]
+                    if removal_sets:
+                        best_rate = _best_set_hit_rate(removal_sets, node_ids, pred_np)
+                        n_total += 1
+                        if best_rate == 1.0:
+                            n_hit += 1
+
+            total_loss += loss.item()
+            n_graphs += 1
+
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall    = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        member_f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+        return {
+            "loss":             total_loss / n_graphs if n_graphs > 0 else 0.0,
+            "mean_tau":         float(np.mean(tau_list)) if tau_list else 0.0,
+            "n_hit":            n_hit,
+            "n_total":          n_total,
+            "hit_rate":         n_hit / n_total if n_total > 0 else 0.0,
+            "member_tp":        tp,
+            "member_fp":        fp,
+            "member_fn":        fn,
+            "member_tn":        tn,
+            "member_precision": precision,
+            "member_recall":    recall,
+            "member_f1":        member_f1,
+        }
 
     # ── val 集评估（命中率 + Kendall's τ，使用 best 权重）─────────────────────
 
@@ -357,7 +381,7 @@ class Trainer:
           - 平均 Kendall's τ（模型分数排序与 rank_label 的一致性）
 
         Returns:
-            {"mean_tau", "hit_rate", "n_hit", "n_total"}
+            {"mean_tau", "hit_rate", ...}
             val_loader 为 None 时返回 {}
         """
         if self.val_loader is None:
@@ -370,71 +394,27 @@ class Trainer:
             else self.weights_path
         )
         if best_w.exists():
-            self.model.load_state_dict(
-                torch.load(best_w, map_location=self.device, weights_only=True)
-            )
-
-        self.model.eval()
-        n_total = n_hit = 0
-        tau_list: list[float] = []
-
-        for batch in self.val_loader:
-            item       = batch[0]
-            features   = item["features"].to(self.device)
-            edge_index = item["edge_index"].to(self.device)
-            labels_np  = item["labels"].cpu().numpy()
-            node_ids   = item["node_ids"]
-            doc_id     = item["doc_id"]
-
-            with torch.no_grad():
-                preds = self.model(features, edge_index)
-            pred_np = preds.cpu().numpy()
-
-            # Kendall's τ（排序一致性）
-            if len(pred_np) >= 2:
-                tau_list.append(_kendall_tau(pred_np, labels_np))
-
-            # Best-Set 命中率
-            label_path = label_root / doc_id / "topo_labels.json"
-            if label_path.exists():
-                with open(label_path, encoding="utf-8") as f:
-                    lbl = json.load(f)
-                removal_sets = [s for s in lbl.get("removal_sets", []) if s]
-                if removal_sets:
-                    scores      = {nid: float(pred_np[i]) for i, nid in enumerate(node_ids)}
-                    sorted_nids = sorted(scores, key=lambda x: -scores[x])
-                    best_rate   = max(
-                        len(set(sorted_nids[: len(rs)]) & set(rs)) / len(rs)
-                        for rs in removal_sets
-                    )
-                    n_total += 1
-                    if best_rate == 1.0:
-                        n_hit += 1
-
-        return {
-            "mean_tau": float(np.mean(tau_list)) if tau_list else 0.0,
-            "hit_rate": n_hit / n_total if n_total > 0 else 0.0,
-            "n_hit":    n_hit,
-            "n_total":  n_total,
-        }
+            _load_model_weights(self.model, best_w, self.device)
+        return self._evaluate_loader(self.val_loader, label_root)
 
     # ── 单 epoch ──────────────────────────────────────────────────────────────
 
     def _run_epoch(
         self, loader: DataLoader, *, train: bool
-    ) -> tuple[float, float | None]:
+    ) -> dict:
         """
         单 epoch 前向（+ 反向）传播。
 
         Returns:
-            (avg_loss, mean_tau)
-            train=True  时 mean_tau=None（不计算排序指标）
-            train=False 时 mean_tau 为各图 Kendall's τ 的均值
+            train=True  时返回 {"loss": avg_loss}
+            train=False 时返回包含 loss / tau / hit / member_f1 的指标字典
         """
+        if not train:
+            return self._evaluate_loader(loader, self.eval_label_root)
+
         self.model.train(train)
         total_loss = 0.0
         n_graphs   = 0
-        tau_list: list[float] = []
 
         for batch in loader:
             item       = batch[0]                              # batch_size=1，取第 0 个
@@ -445,8 +425,8 @@ class Trainer:
 
             if train:
                 self.optimizer.zero_grad()
-                preds = self.model(features, edge_index)       # [N]
-                loss = _graph_loss(preds, labels, member, self.cfg)
+                rank_scores = self.model(features, edge_index)
+                loss = _graph_loss(rank_scores, labels)
                 loss.backward()
                 # 缓存梯度范数（仅训练步，供 SwanLab 读取最后一批均值）
                 grad_norm = sum(
@@ -456,22 +436,11 @@ class Trainer:
                 ) ** 0.5
                 self.model._last_grad_norm = grad_norm
                 self.optimizer.step()
-            else:
-                with torch.no_grad():
-                    preds = self.model(features, edge_index)
-                    loss = _graph_loss(preds, labels, member, self.cfg)
-                # 收集排序一致性
-                pred_np  = preds.detach().cpu().numpy()
-                label_np = labels.detach().cpu().numpy()
-                if len(pred_np) >= 2:
-                    tau_list.append(_kendall_tau(pred_np, label_np))
 
             total_loss += loss.item()
             n_graphs += 1
 
-        avg_loss = total_loss / n_graphs if n_graphs > 0 else 0.0
-        mean_tau = float(np.mean(tau_list)) if tau_list else None
-        return avg_loss, (None if train else mean_tau)
+        return {"loss": total_loss / n_graphs if n_graphs > 0 else 0.0}
 
     # ── 完整训练循环 ──────────────────────────────────────────────────────────
 
@@ -488,7 +457,6 @@ class Trainer:
         """
         start_epoch = self.load_checkpoint()
         history: list[dict] = []
-        use_tau_metric = self.val_loader is not None
 
         with tqdm(
             range(start_epoch, self.cfg.epochs),
@@ -496,57 +464,60 @@ class Trainer:
             dynamic_ncols=True,
         ) as pbar:
             for epoch in pbar:
-                train_loss, _ = self._run_epoch(self.train_loader, train=True)
+                train_metrics = self._run_epoch(self.train_loader, train=True)
+                train_loss = float(train_metrics["loss"])
 
                 if self.val_loader is not None:
-                    val_loss, val_tau = self._run_epoch(self.val_loader, train=False)
+                    val_metrics = self._run_epoch(self.val_loader, train=False)
                 else:
-                    val_loss = train_loss
-                    val_tau  = None
+                    val_metrics = {"loss": train_loss}
 
+                val_loss = float(val_metrics["loss"])
+                val_tau  = val_metrics.get("mean_tau")
+                val_hit  = val_metrics.get("hit_rate")
+                val_f1   = val_metrics.get("member_f1")
+
+                metric_parts = [
+                    f"Epoch {epoch + 1}/{self.cfg.epochs}",
+                    f"train loss={train_loss:.4f}",
+                    f"val loss={val_loss:.4f}",
+                ]
                 if val_tau is not None:
-                    self.logger.info(
-                        "Epoch %d/%d | train loss=%.4f | val loss=%.4f | val tau=%.4f",
-                        epoch + 1, self.cfg.epochs, train_loss, val_loss, val_tau,
-                    )
-                else:
-                    self.logger.info(
-                        "Epoch %d/%d | train loss=%.4f | val loss=%.4f",
-                        epoch + 1, self.cfg.epochs, train_loss, val_loss,
-                    )
+                    metric_parts.append(f"val tau={float(val_tau):.4f}")
+                if val_hit is not None and val_metrics.get("n_total", 0):
+                    metric_parts.append(f"val hit={float(val_hit):.4f}")
+                if val_f1 is not None:
+                    metric_parts.append(f"val f1={float(val_f1):.4f}")
+                self.logger.info(" | ".join(metric_parts))
 
                 postfix: dict[str, str] = {
                     "tL": f"{train_loss:.4f}",
                     "vL": f"{val_loss:.4f}",
                 }
                 if val_tau is not None:
-                    postfix["vτ"] = f"{val_tau:.3f}"
+                    postfix["vτ"] = f"{float(val_tau):.3f}"
+                if val_hit is not None and val_metrics.get("n_total", 0):
+                    postfix["vHit"] = f"{float(val_hit):.3f}"
+                if val_f1 is not None:
+                    postfix["vF1"] = f"{float(val_f1):.3f}"
                 pbar.set_postfix(**postfix)
 
-                # best 模型与早停：有验证集时看 τ，否则回退 val loss
-                if use_tau_metric and val_tau is not None:
-                    is_best = val_tau > self.best_val_tau
-                    if is_best:
-                        self.best_val_tau         = val_tau
-                        self.tau_no_improve_count = 0
-                    else:
-                        self.tau_no_improve_count += 1
-                    if val_loss < self.best_val_loss:
-                        self.best_val_loss = val_loss
+                # best 模型与早停： val_loss 下降则更新
+                is_best = val_loss < self.best_val_loss
+                if is_best:
+                    self.best_val_loss     = val_loss
+                    self.best_val_tau      = float(val_tau) if val_tau is not None else self.best_val_tau
+                    self.best_val_hit_rate = float(val_hit) if val_hit is not None else self.best_val_hit_rate
+                    self.monitor_no_improve_count = 0
                 else:
-                    is_best = val_loss < self.best_val_loss
-                    if is_best:
-                        self.best_val_loss        = val_loss
-                        self.tau_no_improve_count = 0
-                    else:
-                        self.tau_no_improve_count += 1
+                    self.monitor_no_improve_count += 1
 
                 # 学习率衰减仍用 val loss（更平滑）
                 self.scheduler.step(val_loss)
 
                 if is_best or (epoch + 1) % self.cfg.checkpoint_interval == 0:
                     self.save_checkpoint(
-                        epoch, val_loss, val_tau=val_tau, is_best=is_best
+                        epoch, val_loss, val_metrics=val_metrics, is_best=is_best
                     )
 
                 # ── SwanLab 记录 ───────────────────────────────────────────
@@ -558,8 +529,11 @@ class Trainer:
                         "train/lr":   current_lr,
                     }
                     if val_tau is not None:
-                        # Kendall's τ ∈ [-1,1]，衡量模型排序与真实排名的一致性
-                        log_dict["val/tau"] = val_tau
+                        log_dict["val/tau"] = float(val_tau)
+                    if val_hit is not None and val_metrics.get("n_total", 0):
+                        log_dict["val/hit_rate"] = float(val_hit)
+                    if val_f1 is not None:
+                        log_dict["val/member_f1"] = float(val_f1)
                     if hasattr(self.model, "_last_s_local_abs_mean"):
                         s_local  = self.model._last_s_local_abs_mean
                         s_global = self.model._last_s_global_abs_mean
@@ -606,31 +580,28 @@ class Trainer:
                         _sys_sl.stdout = _sl_old
 
                 # ── 早停（按 val τ；无验证集时按 val loss）────────────────
-                if self.tau_no_improve_count >= self.cfg.early_stop_patience:
-                    if use_tau_metric:
-                        self.logger.info(
-                            "早停触发：连续 %d 个 epoch val τ 无改善（best_tau=%.4f），训练终止",
-                            self.tau_no_improve_count, self.best_val_tau,
-                        )
-                    else:
-                        self.logger.info(
-                            "早停触发：连续 %d 个 epoch val loss 无改善（best_loss=%.4f），训练终止",
-                            self.tau_no_improve_count, self.best_val_loss,
-                        )
+                if self.monitor_no_improve_count >= self.cfg.early_stop_patience:
+                    self.logger.info(
+                        "早停触发：连续 %d 个 epoch val loss 无改善（best_loss=%.4f），训练终止",
+                        self.monitor_no_improve_count, self.best_val_loss,
+                    )
                     break
 
-                history.append({
-                    "epoch":      epoch + 1,
-                    "train_loss": train_loss,
-                    "val_loss":   val_loss,
-                    "val_tau":    val_tau,
-                })
+                history.append(
+                    {
+                        "epoch": epoch + 1,
+                        "train_loss": train_loss,
+                        "val_loss": val_loss,
+                        **val_metrics,
+                    }
+                )
 
         # 训练结束强制保存最后一个 checkpoint
         if history:
             self.save_checkpoint(
                 self.cfg.epochs - 1,
                 history[-1]["val_loss"],
+                val_metrics=history[-1],
             )
 
         if self._swanlab_on:
@@ -642,12 +613,12 @@ class Trainer:
                 _swanlab.finish()
             finally:
                 _sys.stdout = _old_stdout
-            tqdm.write(f"swanlab: \U0001f31f Run `swanlab watch {self._sl_dir}` to view SwanLab Experiment Dashboard")
 
         return {
-            "history":        history,
-            "best_val_loss":  self.best_val_loss,
-            "best_val_tau":   self.best_val_tau,
+            "history":           history,
+            "best_val_loss":     self.best_val_loss,
+            "best_val_tau":      self.best_val_tau,
+            "best_val_hit_rate": self.best_val_hit_rate,
         }
 
 
@@ -694,6 +665,7 @@ def run_kfold(
         trainer = Trainer(
             model, train_subset, val_subset, train_cfg,
             output_dir / f"fold_{fold_idx + 1}", logger,
+            eval_label_root=label_root,
             feat_dim=model_cfg.feat_dim,
             run_name=f"fold_{fold_idx + 1}",
             swanlab_dir=output_dir / "swanlab",   # 统一写入项目级目录
@@ -703,8 +675,6 @@ def run_kfold(
 
         # 每折评估汇总
         summary_parts = [f"best_loss={result['best_val_loss']:.4f}"]
-        if result.get("best_val_tau", float("-inf")) > float("-inf"):
-            summary_parts.append(f"best_tau={result['best_val_tau']:.3f}")
         fold_eval: dict = {}
         if label_root is not None:
             fold_eval = trainer.eval_on_val(label_root)
@@ -714,10 +684,17 @@ def run_kfold(
                     f"({fold_eval['hit_rate']*100:.0f}%)"
                 )
                 summary_parts.append(f"tau={fold_eval['mean_tau']:.3f}")
+                if fold_eval.get("member_f1") is not None:
+                    summary_parts.append(f"D-f1={fold_eval['member_f1']:.3f}")
         fold_results[-1]["eval"] = fold_eval
         tqdm.write(
             f"Fold {fold_idx + 1} 完成 | " + " | ".join(summary_parts)
         )
+        if fold_eval and all(k in fold_eval for k in ("member_tp", "member_fp", "member_fn", "member_tn")):
+            tqdm.write(_fmt_cm(
+                fold_eval["member_tp"], fold_eval["member_fp"],
+                fold_eval["member_fn"], fold_eval["member_tn"],
+            ))
 
     # 汇总
     losses    = [r["best_val_loss"] for r in fold_results]
@@ -725,18 +702,30 @@ def run_kfold(
     std_loss  = float(np.std(losses))
 
     summary_line = f"\nK-Fold 完成 | mean_loss={mean_loss:.4f} ± {std_loss:.4f}"
+    cm_agg: dict = {}
     if label_root is not None:
         evals = [r["eval"] for r in fold_results if r.get("eval")]
         if evals:
-            mean_tau_all = float(np.mean([e["mean_tau"] for e in evals]))
+            mean_tau_all = float(np.mean([e["mean_tau"] for e in evals if "mean_tau" in e]))
             total_hit    = sum(e["n_hit"]   for e in evals)
             total_docs   = sum(e["n_total"] for e in evals)
             hit_rate_all = total_hit / total_docs if total_docs > 0 else 0.0
+            f1_vals = [e["member_f1"] for e in evals if "member_f1" in e]
+            mean_f1_all = float(np.mean(f1_vals)) if f1_vals else 0.0
             summary_line += (
                 f" | hit={total_hit}/{total_docs}"
                 f"({hit_rate_all*100:.0f}%) | mean_tau={mean_tau_all:.3f}"
+                f" | mean_f1={mean_f1_all:.3f}"
             )
+            # 汇总混淡矩阵
+            agg_tp = sum(e.get("member_tp", 0) for e in evals)
+            agg_fp = sum(e.get("member_fp", 0) for e in evals)
+            agg_fn = sum(e.get("member_fn", 0) for e in evals)
+            agg_tn = sum(e.get("member_tn", 0) for e in evals)
+            cm_agg = {"tp": agg_tp, "fp": agg_fp, "fn": agg_fn, "tn": agg_tn}
     tqdm.write(summary_line)
+    if cm_agg:
+        tqdm.write(_fmt_cm(cm_agg["tp"], cm_agg["fp"], cm_agg["fn"], cm_agg["tn"]))
 
     logger.info(
         "K-Fold 完成 | loss 各折=%s | mean=%.4f ± %.4f",
@@ -745,17 +734,99 @@ def run_kfold(
 
     summary_path = output_dir / "kfold_summary.json"
     summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_data: dict = {
+        "mean_loss": mean_loss,
+        "std_loss":  std_loss,
+        "folds":     fold_results,
+    }
+    if cm_agg:
+        summary_data["cm_total"] = cm_agg
+    if label_root is not None:
+        evals_all = [r["eval"] for r in fold_results if r.get("eval")]
+        f1_vals_all = [e["member_f1"] for e in evals_all if "member_f1" in e]
+        if f1_vals_all:
+            summary_data["mean_f1"] = float(np.mean(f1_vals_all))
+            summary_data["std_f1"]  = float(np.std(f1_vals_all))
     with open(summary_path, "w", encoding="utf-8") as f:
-        json.dump(
-            {
-                "mean_loss": mean_loss,
-                "std_loss":  std_loss,
-                "folds":     fold_results,
-            },
-            f, indent=2, ensure_ascii=False,
-        )
+        json.dump(summary_data, f, indent=2, ensure_ascii=False)
     logger.info("K-Fold 汇总已保存 → %s", summary_path)
     return fold_results
+
+
+# ── 多 seed 稳定性验证 ────────────────────────────────────────────────────────
+
+def run_multiseed_kfold(
+    full_dataset: TopoDataset,
+    model_cfg: ModelConfig,
+    train_cfg: TrainConfig,
+    output_dir: Path,
+    logger: logging.Logger,
+    label_root: Path | None = None,
+) -> dict:
+    """
+    多 seed K-Fold：对 train_cfg.seed_list 中每个 seed 跑一次 K-Fold，
+    汇总 hit_rate / mean_tau / member_f1 的均值 ± 标准差，评估指标稳定性。
+    """
+    import dataclasses
+
+    _seed_pool = train_cfg.seed_list or [train_cfg.random_seed]
+    seeds = _seed_pool[: train_cfg.n_seeds] if train_cfg.n_seeds > 0 else _seed_pool
+    all_hit: list[float] = []
+    all_tau: list[float] = []
+    all_f1:  list[float] = []
+    all_tp = all_fp = all_fn = all_tn = 0
+
+    for i, seed in enumerate(seeds):
+        seed_cfg = dataclasses.replace(train_cfg, random_seed=seed)
+        seed_dir = output_dir / f"seed_{seed}"
+        tqdm.write(f"\n{'='*60}\n多seed实验 {i+1}/{len(seeds)} | seed={seed}\n{'='*60}")
+        fold_results = run_kfold(
+            full_dataset, model_cfg, seed_cfg, seed_dir, logger, label_root=label_root,
+        )
+        evals = [r.get("eval", {}) for r in fold_results if r.get("eval")]
+        if evals:
+            total_hit  = sum(e.get("n_hit", 0) for e in evals)
+            total_docs = sum(e.get("n_total", 0) for e in evals)
+            tau_vals   = [e["mean_tau"] for e in evals if "mean_tau" in e]
+            f1_vals    = [e["member_f1"] for e in evals if "member_f1" in e]
+            hit_rate   = total_hit / total_docs if total_docs > 0 else 0.0
+            mean_tau   = float(np.mean(tau_vals)) if tau_vals else 0.0
+            mean_f1    = float(np.mean(f1_vals))  if f1_vals  else 0.0
+            all_hit.append(hit_rate)
+            all_tau.append(mean_tau)
+            all_f1.append(mean_f1)
+            all_tp += sum(e.get("member_tp", 0) for e in evals)
+            all_fp += sum(e.get("member_fp", 0) for e in evals)
+            all_fn += sum(e.get("member_fn", 0) for e in evals)
+            all_tn += sum(e.get("member_tn", 0) for e in evals)
+
+    summary: dict = {}
+    if all_hit:
+        summary = {
+            "n_seeds":       len(seeds),
+            "seeds":         seeds,
+            "hit_rate_mean": float(np.mean(all_hit)),
+            "hit_rate_std":  float(np.std(all_hit)),
+            "tau_mean":      float(np.mean(all_tau)),
+            "tau_std":       float(np.std(all_tau)),
+            "f1_mean":       float(np.mean(all_f1)),
+            "f1_std":        float(np.std(all_f1)),
+            "cm_total":      {"tp": all_tp, "fp": all_fp, "fn": all_fn, "tn": all_tn},
+        }
+        if len(seeds) > 1:
+            tqdm.write(
+                f"\n{'='*60}\n多seed汇总 ({len(seeds)} seeds)\n{'='*60}\n"
+                f"  hit_rate : {summary['hit_rate_mean']:.3f} ± {summary['hit_rate_std']:.3f}\n"
+                f"  mean_tau : {summary['tau_mean']:.3f} ± {summary['tau_std']:.3f}\n"
+                f"  D-f1     : {summary['f1_mean']:.3f} ± {summary['f1_std']:.3f}"
+            )
+            tqdm.write(_fmt_cm(all_tp, all_fp, all_fn, all_tn))
+        summary_path = output_dir / "multiseed_summary.json"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        with open(summary_path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2, ensure_ascii=False)
+        logger.info("多seed汇总已保存 → %s", summary_path)
+    return summary
 
 
 # ── 全量训练（最终模型）──────────────────────────────────────────────────────
@@ -804,16 +875,26 @@ def eval_on_holdout_test(
     trainer.val_loader = None
 
     if result:
+        f1_str = f" | D-f1={result['member_f1']:.3f}" if result.get("member_f1") is not None else ""
         tqdm.write(
             f"\nHold-out Test（manifest 预留的 {len(test_dataset)} 张，"
             f"未参与 K 折与最终训练）| "
             f"hit={result['n_hit']}/{result['n_total']}"
-            f"({result['hit_rate']*100:.0f}%) | mean_tau={result['mean_tau']:.3f}"
+            f"({result['hit_rate']*100:.0f}%) | mean_tau={result['mean_tau']:.3f}{f1_str}"
         )
+        if all(k in result for k in ("member_tp", "member_fp", "member_fn", "member_tn")):
+            tqdm.write(_fmt_cm(
+                result["member_tp"], result["member_fp"],
+                result["member_fn"], result["member_tn"],
+            ))
         logger.info(
-            "Hold-out Test | hit=%d/%d (%.1f%%) | mean_tau=%.3f",
+            "Hold-out Test | hit=%d/%d (%.1f%%) | mean_tau=%.3f | member_f1=%.3f"
+            " | CM: TP=%d FP=%d FN=%d TN=%d",
             result["n_hit"], result["n_total"],
             result["hit_rate"] * 100, result["mean_tau"],
+            result.get("member_f1", 0.0),
+            result.get("member_tp", 0), result.get("member_fp", 0),
+            result.get("member_fn", 0), result.get("member_tn", 0),
         )
     return result
 

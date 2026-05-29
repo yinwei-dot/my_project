@@ -61,7 +61,8 @@ def load_model(
 
     model = TopoModel(cfg=model_cfg)
     model.load_state_dict(
-        torch.load(checkpoint_path, map_location=device, weights_only=True)
+        torch.load(checkpoint_path, map_location=device, weights_only=True),
+        strict=False,
     )
     model.to(device)
     model.eval()

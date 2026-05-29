@@ -31,7 +31,7 @@ from config import TopoConfig, ModelConfig, TrainConfig
 from FeatureEngineering import process_all as feat_process_all
 from CreateGroundTruth import process_all as gt_process_all
 from TrainModel import (
-    run_kfold, run_final, eval_on_holdout_test,
+    run_kfold, run_multiseed_kfold, run_final, eval_on_holdout_test,
     _setup_train_logging,
 )
 from Dataset import TopoDataset, _setup_logging as _setup_data_logging
@@ -393,8 +393,8 @@ def main() -> None:
             f"  最终模型: 用全部 train={n_train} 张训练；"
             f"hold-out test={n_test} 张仅用于最终评估"
         )
-        run_kfold(train_dataset, model_cfg, train_cfg, MODEL_ROOT, logger_train,
-                  label_root=LABEL_ROOT)
+        run_multiseed_kfold(train_dataset, model_cfg, train_cfg, MODEL_ROOT, logger_train,
+                            label_root=LABEL_ROOT)
         trainer = run_final(train_dataset, model_cfg, train_cfg, MODEL_ROOT, logger_train)
         eval_on_holdout_test(trainer, test_dataset, LABEL_ROOT, logger_train)
 

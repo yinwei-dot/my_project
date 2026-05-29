@@ -59,7 +59,7 @@ class ModelConfig:
     s_dis_norm: str | None = None
     # NodeScorer 最终输出归一化：'sigmoid' | 'minmax' | 'none'
     # 'none'：local + global 原始分，与 NIRM ranking_scores 一致
-    scorer_output_norm: str = "minmax"
+    scorer_output_norm: str = "none"
 
 
 @dataclass
@@ -67,7 +67,7 @@ class TrainConfig:
     # 有标签图（3–30 节点）中划入测试集的比例
     test_ratio: float = 0.2
     # K 折交叉验证折数
-    n_folds: int = 4
+    n_folds: int = 2
     # 随机种子（保证 train/test 与 K-Fold 划分可复现）
     random_seed: int = 42
     # 每折最大训练轮数（早停会提前结束）
@@ -84,34 +84,19 @@ class TrainConfig:
     lr_decay_factor: float = 0.4
     lr_patience: int = 8
 
-    # ── 早停 / 选模 ─────────────────────────────────────────────────────────
-    # 按 val Kendall τ 选 best_weights.pth，并据此早停（τ 无改善的连续 epoch 数）
-    # 建议 ≥ lr_patience 的 2–3 倍（τ 比 loss 波动大）
+    # ── 早停（val_loss 连续无改善则停训）────────────────────────────────────
+    # 连续 early_stop_patience 个 epoch val_loss 不下降时终止训练
     early_stop_patience: int = 24
 
     # ── 实验追踪（SwanLab）──────────────────────────────────────────────────
-    # 是否启用 SwanLab（需安装：pip install swanlab）
     use_swanlab: bool = True
-    # SwanLab 项目名
     swanlab_project: str = "topo_model"
 
-    # ── 损失函数 ─────────────────────────────────────────────────────────────
-    # 主损失：'pairwise' | 'mse'（listnet_temperature>0 时优先 ListNet）
-    loss_type: str = "mse"
-    # Pairwise hinge：对所有 label_i > label_j，最小化 mean(relu(margin - (pred_i - pred_j)))
-    pairwise_margin: float = 0.0
+    # ── 多 seed 稳定性验证 ───────────────────────────────────────────────────
+    # 跑 n_seeds 组 K-Fold，每组用不同随机种子划分，汇总均值±标准差
+    n_seeds: int = 1
+    seed_list: list[int] = field(default_factory=lambda: [42, 123, 2024])
 
-    # 加权 MSE（仅 loss_type='mse' 且 label_weight>0 时）
-    label_weight: float = 0
-
-    # ListNet 温度；>0 时覆盖 loss_type
-    listnet_temperature: float = 0
-
-    # ── 双阶段监督（成员 BCE + 排序 Pairwise）────────────────────────────────
-    # Stage1：拆解节点二分类 BCE 权重（纯 MSE 模式下设为 0）
-    member_loss_weight: float = 0.0
-    # 跨层 hinge：i∈D, j∈ND 时要求 pred_i - pred_j ≥ cross_tier_margin
-    cross_tier_margin: float = 0.3
-    cross_tier_weight: float = 0.0
-    # ND 组内 Pairwise 权重（弱监督）
-    within_nd_pair_weight: float = 0.25
+    # ── 二分类阈值 ────────────────────────────────────────────────────────────
+    # 预测分 > member_threshold 视为 D 节点（拆解集成员）
+    member_threshold: float = 0.7

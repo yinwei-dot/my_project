@@ -394,6 +394,7 @@ class NodeScorer(nn.Module):
         return s_local, s_global, s
 
 
+
 # ── 5. TopoModel ─────────────────────────────────────────────────────────────
 
 class TopoModel(nn.Module):
@@ -443,13 +444,17 @@ class TopoModel(nn.Module):
             return_1d=True,
         )
 
-    def forward(self, features: torch.Tensor, edge_index: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        features: torch.Tensor,
+        edge_index: torch.Tensor,
+    ) -> torch.Tensor:
         """
         Args:
             features   : [N, feat_dim] 节点结构特征
             edge_index : [2, E] 有向边索引
         Returns:
-            [N] 节点重要性预测分，用于与 rank_labels 计算 MSE Loss
+            [N] 节点重要性预测分
         """
         initial = self.feature_encoder(features)                   # [N, feat_out_dim] 或 [N] 当 feat_out_dim=1
         if initial.dim() == 1:
